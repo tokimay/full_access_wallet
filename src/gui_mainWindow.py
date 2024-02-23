@@ -1,7 +1,8 @@
+import webbrowser
+import pyperclip
 from PyQt6 import QtWidgets, uic
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QIcon, QPixmap
-import webbrowser
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -13,53 +14,60 @@ class Ui(QtWidgets.QMainWindow):
         self.initIcons()
         self.setClickEvents()
         self.entropy = None
+        (self.findChild(QtWidgets.QComboBox, 'comboBox_activeAddress_val')
+         .clear())
 
     def setClickEvents(self):
-        pushButton_ETH = self.findChild(QtWidgets.QPushButton, 'pushButton_ETH')
-        pushButton_ETH.clicked.connect(self.goToEtherscan)
+        (self.findChild(QtWidgets.QPushButton, 'pushButton_copy_address')
+         .clicked.connect(self.copyAddress))
+        (self.findChild(QtWidgets.QPushButton, 'pushButton_ETH')
+         .clicked.connect(self.goToEtherscan))
+        (self.findChild(QtWidgets.QPushButton, 'pushButton_node_provider')
+         .clicked.connect(self.goToEtherNodes))
 
     def initIcons(self):
-        self.setIcons('pushButton_copy_address', QtWidgets.QPushButton, 'UI/icons/copy_w.png')
-        self.setIcons('pushButton_ETH', QtWidgets.QPushButton, 'UI/icons/ethereum_c_b.png')
+        self.setIcons(QtWidgets.QPushButton, 'pushButton_copy_address',
+                      'UI/icons/copy_w.png')
+        self.setIcons(QtWidgets.QPushButton, 'pushButton_ETH',
+                      'UI/icons/ethereum_c_b.png')
+        self.setIcons(QtWidgets.QPushButton, 'pushButton_node_provider',
+                      'UI/icons/ethereum_node_clr.png')
 
-    def setIcons(self, elementName, elementType, iconPath, width=16, height=16):
+    def setIcons(self, elementType, elementName, iconPath, width=16, height=16):
         icon = QIcon()
         icon.addPixmap(QPixmap(iconPath))
         element = self.findChild(elementType, elementName)
         element.setIcon(icon)
         element.setIconSize(QSize(width, height))
 
-    def changeVisibility(self, elementName, elementType, visibility):
-        pass
-        #element = self.findChild(elementType, elementName)
-        #element.setVisible(visibility)
-
-    def setText(self, elementName, elementType, text):
-        self.findChild(elementType, elementName).setText(text)
-
-    def getText(self, elementName, elementType):
-        return self.findChild(elementType, elementName).text()
-
     def goToEtherscan(self):
-        active_address = self.findChild(QtWidgets.QLabel, 'label_activeAddress_val').text()
-        if not active_address == 'None':
+        active_address = self.getComboboxCurrentText('comboBox_activeAddress_val')
+        if active_address is not None:
             webbrowser.open('https://etherscan.io/address/' + active_address)
 
-    def getRandomEntropy(self):
-        pass
-        #childWindow = MouseTracker()
-        #childWindow.exec()
-        #self.entropy = childWindow.getEntropy()
+    @staticmethod
+    def goToEtherNodes():
+        webbrowser.open('https://ethereumnodes.com/')
 
-    def generatePrivateKey(self):
-        pass
+    def copyAddress(self):
+        active_address = self.getComboboxCurrentText('comboBox_activeAddress_val')
+        if active_address is not None:
+            pyperclip.copy(active_address)
+        # spam = pyperclip.paste()
 
-    def createAccount(self):
+    def changeVisibility(self, elementType, elementName, visibility):
         pass
-        #self.getRandomEntropy()
-        #print(self.entropy)
-        #print(int(str(self.entropy), 16))
-        #self.changeVisibility('pushButton_create_account', QtWidgets.QPushButton, False)
-        #self.changeVisibility('label_no_account', QtWidgets.QLabel, False)
-        #acct = Account.create(int(self.entropy, 16))
-        #print(acct.address)
+        # element = self.findChild(elementType, elementName)
+        # element.setVisible(visibility)
+
+    def setText(self, elementType, elementName, text):
+        self.findChild(elementType, elementName).setText(text)
+
+    def getText(self, elementType, elementName):
+        return self.findChild(elementType, elementName).text()
+
+    def addTextToCombobox(self, elementName, text):
+        self.findChild(QtWidgets.QComboBox, elementName).addItem(text)
+
+    def getComboboxCurrentText(self, elementName):
+        return self.findChild(QtWidgets.QComboBox, elementName).currentText()

@@ -23,8 +23,29 @@
       <height>341</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridLayout" columnstretch="0,1,0">
-     <item row="3" column="2">
+    <layout class="QGridLayout" name="gridlayout" columnstretch="0,1,0">
+     <item row="2" column="2">
+      <widget class="QPushButton" name="pushButton_ETH">
+       <property name="text">
+        <string>ETH</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_node_provider">
+       <property name="text">
+        <string>Node provider:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QPushButton" name="pushButton_node_provider">
+       <property name="text">
+        <string>Providers</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="2">
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -37,54 +58,50 @@
        </property>
       </spacer>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_activeAddress">
-       <property name="text">
-        <string>Active address:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QLabel" name="label_amount_val">
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_amount">
-       <property name="text">
-        <string>Amount:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0" colspan="3">
+     <item row="3" column="0" colspan="3">
       <widget class="Line" name="line">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QLabel" name="label_activeAddress_val">
-       <property name="text">
-        <string>None</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
+     <item row="1" column="2">
       <widget class="QPushButton" name="pushButton_copy_address">
        <property name="text">
-        <string>   Copy</string>
+        <string>Copy</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="pushButton_ETH">
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_activeAddress">
        <property name="text">
-        <string>  ETH</string>
+        <string>Active address:</string>
        </property>
       </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="label_amount_val">
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="lineEdit_node_provider">
+       <property name="text">
+        <string>https://nodes.mewapi.io/rpc/eth</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_amount">
+       <property name="text">
+        <string>Amount:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="comboBox_activeAddress_val"/>
      </item>
     </layout>
    </widget>
