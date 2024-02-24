@@ -2,11 +2,13 @@ import sys
 from src import account, database, gui_mainWindow, qui_create_newAccount, gui_errorDialog
 from PyQt6.QtWidgets import QApplication, QMainWindow
 
+from src.threads import Balance
 
 app = QApplication(sys.argv)
 window = gui_mainWindow.Ui()
 window.show()
-db = database.sqlite('Data')
+db = database.Sqlite('Data')
+getBalance = False
 
 if not db.isTableExist():
     createAccount_window = qui_create_newAccount.Ui()
@@ -14,20 +16,18 @@ if not db.isTableExist():
     entropy = createAccount_window.getEntropy()
     if isinstance(entropy, str) and len(entropy) == 256 and entropy != 'init':
         acc = account.fromEntropy(entropy)
-        db.createTable()
-        print('privateKeyHex', hex(acc['privateKey']), type(acc['privateKey']))
-        print('publicKeyCoordinate', acc['publicKeyCoordinate'], type(acc['publicKeyCoordinate']))
-        print('publicKey', hex(acc['publicKey']), type(acc['publicKey']))
-        print('address', hex(acc['address']), type(acc['address']))
-        window.addTextToCombobox('comboBox_activeAddress_val', hex(acc['address']))
-        db.insertRow([
-            bin(acc['privateKey'])[2:].zfill(256),  # convert hex to 256 bit string binary as entropy
-            hex(acc['privateKey']),
-            hex(acc['publicKeyCoordinate'][0]),
-            hex(acc['publicKeyCoordinate'][1]),
-            hex(acc['publicKey']),
-            hex(acc['address'])
-        ])
+        if isinstance(acc, dict):
+            db.createTable()
+            # print('privateKeyHex', hex(acc['privateKey']), type(acc['privateKey']))
+            # print('publicKeyCoordinate', acc['publicKeyCoordinate'], type(acc['publicKeyCoordinate']))
+            # print('publicKey', hex(acc['publicKey']), type(acc['publicKey']))
+            # print('address', hex(acc['address']), type(acc['address']))
+            window.comboBox_activeAddress_val.addItem(hex(acc['address']))
+            db.insertRow(acc)
+            getBalance = True
+        else:
+            err = gui_errorDialog.Error('Account creation failed \n ' + str(type(acc)))
+            err.show()
     else:
         if entropy == 'init':
             pass
@@ -39,6 +39,12 @@ if not db.isTableExist():
             err.show()
 else:
     accounts = (db.readColumn('ADR'))[0]
-    window.addTextToCombobox('comboBox_activeAddress_val', accounts[0])
+    window.comboBox_activeAddress_val.addItem(accounts[0])
+    getBalance = True
+
+if getBalance:
+    balanceThread = Balance(window)
+    balanceThread.finished.connect(app.exit)
+    balanceThread.start()
 
 app.exec()

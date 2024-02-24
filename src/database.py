@@ -1,7 +1,7 @@
 import sqlite3
 
 
-class sqlite:
+class Sqlite:
     def __init__(self, databaseName):
         self.databaseName = databaseName
         pass
@@ -34,11 +34,18 @@ class sqlite:
         connection.commit()
         connection.close()
 
-    def insertRow(self, row: list):
+    def insertRow(self, acc: dict):
         connection = sqlite3.connect(self.databaseName)
         cursor = connection.cursor()
         cursor.execute("INSERT INTO accounts(ENT, PRV, PUK_COR_X, PUK_COR_Y, PUK, ADR) VALUES (?, ?, ?, ?, ?, ?)",
-                            (row[0], row[1], row[2], row[3], row[4], row[5]))
+                       (
+                           bin(acc['privateKey'])[2:].zfill(256),
+                           hex(acc['privateKey']),
+                           hex(acc['publicKeyCoordinate'][0]),
+                           hex(acc['publicKeyCoordinate'][1]),
+                           hex(acc['publicKey']),
+                           hex(acc['address'])
+                       ))
         connection.commit()
         connection.close()
 
@@ -59,5 +66,3 @@ class sqlite:
         connection.commit()
         connection.close()
         return ls
-
-
