@@ -1,8 +1,10 @@
 import webbrowser
 import pyperclip
+import src.account as account
+from src import database
 from PyQt6 import QtWidgets, uic
 from PyQt6.QtCore import QSize
-from PyQt6.QtGui import QIcon, QPixmap
+from PyQt6.QtGui import QIcon, QPixmap, QAction
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -13,9 +15,9 @@ class Ui(QtWidgets.QMainWindow):
 
         self.initIcons()
         self.setClickEvents()
-        self.entropy = None
-        (self.findChild(QtWidgets.QComboBox, 'comboBox_activeAddress_val')
-         .clear())
+        self.setMenuActions()
+
+        self.findChild(QtWidgets.QComboBox, 'comboBox_activeAddress_val').clear()
 
     def setClickEvents(self):
         (self.findChild(QtWidgets.QPushButton, 'pushButton_copy_address')
@@ -39,6 +41,29 @@ class Ui(QtWidgets.QMainWindow):
         element = self.findChild(elementType, elementName)
         element.setIcon(icon)
         element.setIconSize(QSize(width, height))
+
+    def setMenuActions(self):
+        actionNew_account = self.findChild(QAction, 'actionNew_account')
+        actionNew_account.setShortcut('Ctrl+n')
+        actionNew_account.setStatusTip('create new account')
+
+    def createAccount(self):
+        acc = account.createAccount()
+        if isinstance(acc, dict):
+            print('privateKeyHex', hex(acc['privateKey']), type(acc['privateKey']))
+            print('publicKeyCoordinate', acc['publicKeyCoordinate'], type(acc['publicKeyCoordinate']))
+            print('publicKey', hex(acc['publicKey']), type(acc['publicKey']))
+            print('address', hex(acc['address']), type(acc['address']))
+            self.addTextToCombobox('comboBox_activeAddress_val', hex(acc['address']))
+            db = database.sqlite('Data')
+            db.insertRow([
+                bin(acc['privateKey'])[2:].zfill(256),  # convert hex to 256 bit string binary as entropy
+                hex(acc['privateKey']),
+                hex(acc['publicKeyCoordinate'][0]),
+                hex(acc['publicKeyCoordinate'][1]),
+                hex(acc['publicKey']),
+                hex(acc['address'])
+            ])
 
     def goToEtherscan(self):
         active_address = self.getComboboxCurrentText('comboBox_activeAddress_val')

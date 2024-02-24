@@ -1,38 +1,32 @@
+from src.gui_mouseTracker import MouseTracker
 from src.secp256k1 import getPublicKeyCoortinate
 from sha3 import keccak_256
 
 
-#import secrets
-
-#import web3
-#from sha3 import keccak_256
-#from coincurve import PublicKey
-#from web3 import Web3
-import secrets
-import sha3
-import eth_keys
-from eth_keys import keys
+def generateEntropy():
+    mouseTrackerWindow = MouseTracker()
+    mouseTrackerWindow.exec()
+    return mouseTrackerWindow.getEntropy()
 
 
-class new:
-    def __init__(self):
-        pass
+def createAccount():
+    return fromEntropy(generateEntropy())
 
-    @staticmethod
-    def fromEntropy(entropy: str) -> dict:
-        privateKey = hex(int(entropy, 2))
-        publicKeyCoordinate = getPublicKeyCoortinate(int(entropy, 2))
-        coordinate_x_y = (publicKeyCoordinate[0].to_bytes(32, byteorder='big') +
-                          publicKeyCoordinate[1].to_bytes(32, byteorder='big'))
-        publicKey = '0x' + coordinate_x_y.hex(), type(coordinate_x_y.hex())
-        address = '0x' + keccak_256(coordinate_x_y).digest()[-20:].hex()
-        return {'privateKey': int(privateKey, 0), 'publicKeyCoordinate': publicKeyCoordinate,
-                'publicKey': int(publicKey[0], 0), 'address': int(address, 0)}
 
-    @staticmethod
-    def fromMnemonic(memo):
-        pass
-        """
+def fromEntropy(entropy: str) -> dict:
+    privateKey = hex(int(entropy, 2))
+    publicKeyCoordinate = getPublicKeyCoortinate(int(entropy, 2))
+    coordinate_x_y = (publicKeyCoordinate[0].to_bytes(32, byteorder='big') +
+                      publicKeyCoordinate[1].to_bytes(32, byteorder='big'))
+    publicKey = '0x' + coordinate_x_y.hex(), type(coordinate_x_y.hex())
+    address = '0x' + keccak_256(coordinate_x_y).digest()[-20:].hex()
+    return {'privateKey': int(privateKey, 0), 'publicKeyCoordinate': publicKeyCoordinate,
+            'publicKey': int(publicKey[0], 0), 'address': int(address, 0)}
+
+
+def fromMnemonic(memo):
+    pass
+    """
         # The use of the Mnemonic features of Account is disabled by default
         Account.enable_unaudited_hdwallet_features()
         acct = Account.from_mnemonic(memo)
@@ -48,10 +42,10 @@ class new:
         return private_key, public_key, acct.address
         """
 
-    @staticmethod
-    def fromPrivateKey(private_key):
-        pass
-        """
+
+def fromPrivateKey(private_key):
+    pass
+    """
         # print('private_key: 0x' + private_key.hex())
 
         public_key = PublicKey.from_valid_secret(private_key).format(compressed=False)[1:]

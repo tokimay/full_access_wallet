@@ -1,7 +1,7 @@
-from PyQt6 import QtWidgets
+from PyQt6.QtWidgets import QDialog
 
 
-class MouseTracker(QtWidgets.QDialog):
+class MouseTracker(QDialog):
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -10,28 +10,27 @@ class MouseTracker(QtWidgets.QDialog):
         self.addNew = True
         self.eventSelector = True
         self.size = 256
+        self.setWindowTitle('Move mouse in box randomly')
 
     def initUI(self):
-        self.setGeometry(50, 50, 500, 500)
+        self.setGeometry(100, 100, 500, 500)
         self.setWindowTitle('Mouse Tracker')
 
     def mouseMoveEvent(self, event):
-        if len(self.entropy) > (self.size + 1024):
-            self.entropy = self.entropy[512:(self.size + 512)]
+        div = 8192
+        if len(self.entropy) > (div + self.size):
+            self.entropy = self.entropy[int(div/2):int((div/2) + self.size)]
             self.addNew = False
             self.setWindowTitle('100% Done close the window now')
             self.close()
         else:
             if self.addNew:
-                if len(self.entropy) > 1024:
-                    self.setWindowTitle(
+                self.setWindowTitle(
                         '({} : {}) {}%'.format(
                             event.scenePosition().x(),
                             event.scenePosition().y(),
-                            int(((len(self.entropy) - 1024) * 100) / self.size)
+                            int(len(self.entropy * 100) / (div + self.size))
                         ))
-                else:
-                    self.setWindowTitle('move mouse in box randomly')
                 if self.eventSelector:
                     self.entropy = self.entropy + bin(int(event.scenePosition().x()))[2:]
                     self.eventSelector = False

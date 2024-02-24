@@ -30,7 +30,7 @@ class sqlite:
         connection = sqlite3.connect(self.databaseName)
         cursor = connection.cursor()
         cursor.execute(table)
-        print(cursor.lastrowid)
+        print('cursor last row id:', cursor.lastrowid)
         connection.commit()
         connection.close()
 
@@ -46,6 +46,15 @@ class sqlite:
         connection = sqlite3.connect(self.databaseName)
         cursor = connection.cursor()
         cursor.execute("""SELECT * FROM accounts;""")
+        ls = cursor.fetchall()
+        connection.commit()
+        connection.close()
+        return ls
+
+    def readColumn(self, columnName):
+        connection = sqlite3.connect(self.databaseName)
+        cursor = connection.cursor()
+        cursor.execute("""SELECT """ + columnName + """ FROM accounts;""")
         ls = cursor.fetchall()
         connection.commit()
         connection.close()
