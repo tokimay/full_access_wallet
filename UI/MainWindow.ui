@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>600</width>
+    <width>650</width>
     <height>400</height>
    </rect>
   </property>
@@ -19,7 +19,7 @@
      <rect>
       <x>9</x>
       <y>9</y>
-      <width>581</width>
+      <width>631</width>
       <height>341</height>
      </rect>
     </property>
@@ -103,6 +103,9 @@
      <item row="1" column="1">
       <widget class="QComboBox" name="comboBox_activeAddress_val"/>
      </item>
+     <item row="4" column="0" colspan="2">
+      <widget class="QTextEdit" name="textEdit_main"/>
+     </item>
     </layout>
    </widget>
   </widget>
@@ -111,7 +114,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>600</width>
+     <width>650</width>
      <height>24</height>
     </rect>
    </property>
@@ -124,7 +127,18 @@
     <property name="title">
      <string>&amp;Wallet</string>
     </property>
+    <widget class="QMenu" name="menuSecrets">
+     <property name="title">
+      <string>Secrets</string>
+     </property>
+     <addaction name="separator"/>
+     <addaction name="actionEntropy"/>
+     <addaction name="actionPrivateKey"/>
+     <addaction name="actionPublicKey_coordinates"/>
+     <addaction name="actionPublicKey"/>
+    </widget>
     <addaction name="actionNew_account"/>
+    <addaction name="menuSecrets"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Wallet"/>
@@ -133,6 +147,26 @@
   <action name="actionNew_account">
    <property name="text">
     <string>New acoount</string>
+   </property>
+  </action>
+  <action name="actionEntropy">
+   <property name="text">
+    <string>Entropy</string>
+   </property>
+  </action>
+  <action name="actionPrivateKey">
+   <property name="text">
+    <string>PrivateKey</string>
+   </property>
+  </action>
+  <action name="actionPublicKey_coordinates">
+   <property name="text">
+    <string>PublicKey coordinates</string>
+   </property>
+  </action>
+  <action name="actionPublicKey">
+   <property name="text">
+    <string>PublicKey</string>
    </property>
   </action>
  </widget>

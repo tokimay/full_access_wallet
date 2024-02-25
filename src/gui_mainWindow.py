@@ -1,17 +1,16 @@
 import webbrowser
-from time import sleep
-
 import pyperclip
+import web3
+
 import src.account as account
-from src import database, gui_errorDialog
+from src import database, types, gui_errorDialog
 from PyQt6 import QtWidgets, uic
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QIcon, QPixmap, QAction
-import web3
 
 
 class Ui(QtWidgets.QMainWindow):
-    def __init__(self):
+    def __init__(self, dbName):
         super().__init__()
         uic.loadUi('UI/MainWindow.ui', self)
 
@@ -21,17 +20,30 @@ class Ui(QtWidgets.QMainWindow):
         self.pushButton_copy_address = self.findChild(QtWidgets.QPushButton, 'pushButton_copy_address')
         self.pushButton_ETH = self.findChild(QtWidgets.QPushButton, 'pushButton_ETH')
         self.pushButton_node_provider = self.findChild(QtWidgets.QPushButton, 'pushButton_node_provider')
+        self.textEdit_main = self.findChild(QtWidgets.QTextEdit, 'textEdit_main')
 
+        self.actionNew_account = self.findChild(QAction, 'actionNew_account')
+
+        self.actionEntropy = self.findChild(QAction, 'actionEntropy')
+        self.actionPrivateKey = self.findChild(QAction, 'actionPrivateKey')
+        self.actionPublicKey_coordinates = self.findChild(QAction, 'actionPublicKey_coordinates')
+        self.actionPublicKey = self.findChild(QAction, 'actionPublicKey')
+
+        self.db = database.Sqlite(dbName)
         self.initIcons()
         self.setClickEvents()
         self.setMenuActions()
-
-        self.findChild(QtWidgets.QComboBox, 'comboBox_activeAddress_val').clear()
+        self.comboBox_activeAddress_val.clear()
 
     def setClickEvents(self):
         self.pushButton_copy_address.clicked.connect(self.copyAddress)
         self.pushButton_ETH.clicked.connect(self.goToEtherscan)
         self.pushButton_node_provider.clicked.connect(self.goToEtherNodes)
+        self.actionNew_account.triggered.connect(self.createAccount)
+        self.actionEntropy.triggered.connect(lambda: self.showSecrets(types.SECRET.ENTROPY))
+        self.actionPrivateKey.triggered.connect(lambda: self.showSecrets(types.SECRET.PRIVATE_KEY))
+        self.actionPublicKey_coordinates.triggered.connect(lambda: self.showSecrets(types.SECRET.PUBLIC_KEY_X))
+        self.actionPublicKey.triggered.connect(lambda: self.showSecrets(types.SECRET.PUBLIC_KEY))
 
     def initIcons(self):
         icon = QIcon()
@@ -54,18 +66,15 @@ class Ui(QtWidgets.QMainWindow):
         actionNew_account.setStatusTip('create new account')
 
     def createAccount(self):
-        acc = account.createAccount()
-        if isinstance(acc, dict):
-            # print('privateKeyHex', hex(acc['privateKey']), type(acc['privateKey']))
-            # print('publicKeyCoordinate', acc['publicKeyCoordinate'], type(acc['publicKeyCoordinate']))
-            # print('publicKey', hex(acc['publicKey']), type(acc['publicKey']))
-            # print('address', hex(acc['address']), type(acc['address']))
-            self.comboBox_activeAddress_val.addItem(hex(acc['address']))
-            db = database.Sqlite('Data')
-            db.insertRow(acc)
+        if self.db.isAccountExist():
+            message = "Some account already exist"
         else:
-            err = gui_errorDialog.Error('Account creation failed \n ' + str(type(acc)))
-            err.show()
+            message = "There is no account"
+
+        address = account.createAccount(self.db, message)
+        if address != 'None':
+            self.comboBox_activeAddress_val.addItem(address)
+            self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
 
     def goToEtherscan(self):
         active_address = self.comboBox_activeAddress_val.currentText()
@@ -89,3 +98,38 @@ class Ui(QtWidgets.QMainWindow):
         balance = web3.Web3.from_wei(balance, 'ether')
         self.label_amount_val.setText(str(balance))
         print('balance = ', balance)
+
+    def showSecrets(self, secretType: types.SECRET):
+        self.textEdit_main.clear()
+        if secretType == types.SECRET.PUBLIC_KEY_X or secretType == types.SECRET.PUBLIC_KEY_Y:
+            result_X = (self.db.readColumnByCondition(
+                columnName=types.SECRET.PUBLIC_KEY_X, condition=self.comboBox_activeAddress_val.currentText()))
+            result_Y = (self.db.readColumnByCondition(
+                columnName=types.SECRET.PUBLIC_KEY_Y, condition=self.comboBox_activeAddress_val.currentText()))
+            print(result_X)
+            print(result_Y)
+            if (len(result_X) <= 0) or (len(result_Y) <= 0):
+                err = gui_errorDialog.Error('Reading database failed')
+                err.exec()
+            elif (len(result_X) == 1) or (len(result_Y) == 1):
+                self.textEdit_main.append(f'Your PUBLIC_KEY COORDINATE keep it safe:\n')
+                self.textEdit_main.append('X : ' + result_X[0][0])
+                self.textEdit_main.append('Y : ' + result_Y[0][0])
+            else:
+                for res in result_X:
+                    self.textEdit_main.append('X:' + res[0][0])
+                for res in result_Y:
+                    self.textEdit_main.append('Y:' + res[0][0])
+        else:
+            result = (self.db.readColumnByCondition(
+                columnName=secretType, condition=self.comboBox_activeAddress_val.currentText()))
+            if len(result) <= 0:
+                err = gui_errorDialog.Error('Reading database failed')
+                err.exec()
+            elif len(result) == 1:
+                self.textEdit_main.append(f'Your {secretType.name} keep it safe:\n')
+                self.textEdit_main.append(result[0][0])
+            else:
+                for res in result:
+                    self.textEdit_main.append(res[0])
+

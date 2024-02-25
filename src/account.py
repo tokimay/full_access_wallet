@@ -1,3 +1,4 @@
+from src import gui_errorDialog, database, qui_create_newAccount
 from src.gui_mouseTracker import MouseTracker
 from src.secp256k1 import getPublicKeyCoortinate
 from sha3 import keccak_256
@@ -9,8 +10,35 @@ def generateEntropy():
     return mouseTrackerWindow.getEntropy()
 
 
-def createAccount():
-    return fromEntropy(generateEntropy())
+def createAccount(db, message):
+    createAccount_window = qui_create_newAccount.Ui(message)  # "Some account already exist")
+    createAccount_window.exec()
+    entropy = createAccount_window.getEntropy()
+    acc = None
+    address = 'None'
+    if isinstance(entropy, str) and len(entropy) == 256 and entropy != 'init':
+        acc = fromEntropy(entropy)
+        if isinstance(acc, dict):
+            print('privateKeyHex', hex(acc['privateKey']), type(acc['privateKey']))
+            print('publicKeyCoordinate', acc['publicKeyCoordinate'], type(acc['publicKeyCoordinate']))
+            print('publicKey', hex(acc['publicKey']), type(acc['publicKey']))
+            print('address', hex(acc['address']), type(acc['address']))
+            db.insertRow(acc)
+            address = hex(acc['address'])
+        else:
+            err = gui_errorDialog.Error('Account creation failed \n ' + str(type(acc)))
+            err.exec()
+    else:
+        if entropy == 'init':
+            pass
+        elif not isinstance(entropy, str):
+            err = gui_errorDialog.Error('Entropy received by type ' + str(type(entropy)) + '.\nexpected string')
+            err.exec()
+        else:
+            err = gui_errorDialog.Error('Entropy by len ' + str(len(entropy)) + ' bit received.\nexpected 256 bit')
+            err.exec()
+    return address
+    # return fromEntropy(generateEntropy())
 
 
 def fromEntropy(entropy: str) -> dict:

@@ -18,6 +18,18 @@ class Sqlite:
         else:
             return True
 
+    def isAccountExist(self):
+        connection = sqlite3.connect(self.databaseName)
+        cursor = connection.cursor()
+        cursor.execute("""SELECT * FROM accounts;""")
+        ls = cursor.fetchall()
+        connection.commit()
+        connection.close()
+        if len(ls) > 0:
+            return True
+        else:
+            return False
+
     def createTable(self):
         table = """CREATE TABLE IF NOT EXISTS accounts (
                     ENT VARCHAR(255) NOT NULL,
@@ -61,7 +73,16 @@ class Sqlite:
     def readColumn(self, columnName):
         connection = sqlite3.connect(self.databaseName)
         cursor = connection.cursor()
-        cursor.execute("""SELECT """ + columnName + """ FROM accounts;""")
+        cursor.execute("""SELECT """ + columnName.value + """ FROM accounts;""")
+        ls = cursor.fetchall()
+        connection.commit()
+        connection.close()
+        return ls
+
+    def readColumnByCondition(self, columnName, condition):
+        connection = sqlite3.connect(self.databaseName)
+        cursor = connection.cursor()
+        cursor.execute("""SELECT """ + columnName.value + """ FROM accounts WHERE ADR = ?""", (condition,))
         ls = cursor.fetchall()
         connection.commit()
         connection.close()

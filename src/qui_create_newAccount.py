@@ -4,9 +4,10 @@ from PyQt6.QtWidgets import QDialog
 
 
 class Ui(QDialog):
-    def __init__(self):
+    def __init__(self, message):
         super().__init__()
         self.entropy = 'init'
+        self.message = message
         self.gridLayoutWidget = QtWidgets.QWidget(parent=self)
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.label_create_account = QtWidgets.QLabel(parent=self.gridLayoutWidget)
@@ -50,7 +51,7 @@ class Ui(QDialog):
         self.setWindowTitle("Create new account")
         self.label_create_account.setText("Create new account?")
         self.pushButton_create_account.setText("Yes")
-        self.label_no_account.setText("There is no account")
+        self.label_no_account.setText(self.message)
         self.pushButton_cancel.setText("No")
 
     def setClickEvents(self):
