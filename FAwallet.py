@@ -1,6 +1,6 @@
 import sys
-from src import account, database, gui_mainWindow, qui_create_newAccount, gui_errorDialog, types
-from PyQt6.QtWidgets import QApplication, QMainWindow
+from src import account, database, gui_mainWindow, types
+from PyQt6.QtWidgets import QApplication
 
 from src.threads import Balance
 

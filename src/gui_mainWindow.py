@@ -12,7 +12,7 @@ from PyQt6.QtGui import QIcon, QPixmap, QAction
 class Ui(QtWidgets.QMainWindow):
     def __init__(self, dbName):
         super().__init__()
-        uic.loadUi('UI/MainWindow.ui', self)
+        uic.loadUi('resources/UI/MainWindow.ui', self)
 
         self.lineEdit_node_provider = self.findChild(QtWidgets.QLineEdit, 'lineEdit_node_provider')
         self.comboBox_activeAddress_val = self.findChild(QtWidgets.QComboBox, 'comboBox_activeAddress_val')
@@ -67,7 +67,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def createAccount(self):
         if self.db.isAccountExist():
-            message = "Some account already exist"
+            message = "Some account(s) already exist"
         else:
             message = "There is no account"
 
@@ -112,7 +112,7 @@ class Ui(QtWidgets.QMainWindow):
                 err = gui_errorDialog.Error('Reading database failed')
                 err.exec()
             elif (len(result_X) == 1) or (len(result_Y) == 1):
-                self.textEdit_main.append(f'Your PUBLIC_KEY COORDINATE keep it safe:\n')
+                self.textEdit_main.append(f'Your account PUBLIC_KEY COORDINATE keep it safe:\n')
                 self.textEdit_main.append('X : ' + result_X[0][0])
                 self.textEdit_main.append('Y : ' + result_Y[0][0])
             else:
@@ -127,7 +127,7 @@ class Ui(QtWidgets.QMainWindow):
                 err = gui_errorDialog.Error('Reading database failed')
                 err.exec()
             elif len(result) == 1:
-                self.textEdit_main.append(f'Your {secretType.name} keep it safe:\n')
+                self.textEdit_main.append(f'Your account {secretType.name} keep it safe:\n')
                 self.textEdit_main.append(result[0][0])
             else:
                 for res in result:
