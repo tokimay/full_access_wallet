@@ -3,7 +3,7 @@ import pyperclip
 import web3
 
 import src.account as account
-from src import database, types, gui_errorDialog
+from src import database, types, gui_errorDialog, qui_getUserChoice
 from PyQt6 import QtWidgets, uic
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QIcon, QPixmap, QAction
@@ -22,12 +22,16 @@ class Ui(QtWidgets.QMainWindow):
         self.pushButton_node_provider = self.findChild(QtWidgets.QPushButton, 'pushButton_node_provider')
         self.textEdit_main = self.findChild(QtWidgets.QTextEdit, 'textEdit_main')
 
-        self.actionNew_account = self.findChild(QAction, 'actionNew_account')
-
         self.actionEntropy = self.findChild(QAction, 'actionEntropy')
         self.actionPrivateKey = self.findChild(QAction, 'actionPrivateKey')
         self.actionPublicKey_coordinates = self.findChild(QAction, 'actionPublicKey_coordinates')
         self.actionPublicKey = self.findChild(QAction, 'actionPublicKey')
+        self.actionMnemonic = self.findChild(QAction, 'actionMnemonic')
+
+        self.actionNew_random_account = self.findChild(QAction, 'actionNew_random_account')
+        self.actionRecover_from_mnemonic = self.findChild(QAction, 'actionRecover_from_mnemonic')
+        self.actionRecover_from_entropy = self.findChild(QAction, 'actionRecover_from_entropy')
+        self.actionRecover_from_privateKey = self.findChild(QAction, 'actionRecover_from_privateKey')
 
         self.db = database.Sqlite(dbName)
         self.initIcons()
@@ -39,42 +43,85 @@ class Ui(QtWidgets.QMainWindow):
         self.pushButton_copy_address.clicked.connect(self.copyAddress)
         self.pushButton_ETH.clicked.connect(self.goToEtherscan)
         self.pushButton_node_provider.clicked.connect(self.goToEtherNodes)
-        self.actionNew_account.triggered.connect(self.createAccount)
+        # ----------------------------------------------------------------------------------
+        self.actionNew_random_account.triggered.connect(self.createAccountRandom)
+        # ----------------------------------------------------------------------------------
         self.actionEntropy.triggered.connect(lambda: self.showSecrets(types.SECRET.ENTROPY))
         self.actionPrivateKey.triggered.connect(lambda: self.showSecrets(types.SECRET.PRIVATE_KEY))
         self.actionPublicKey_coordinates.triggered.connect(lambda: self.showSecrets(types.SECRET.PUBLIC_KEY_X))
         self.actionPublicKey.triggered.connect(lambda: self.showSecrets(types.SECRET.PUBLIC_KEY))
+        self.actionMnemonic.triggered.connect(lambda: self.showSecrets(types.SECRET.MNEMONIC))
 
     def initIcons(self):
         icon = QIcon()
 
-        icon.addPixmap(QPixmap('UI/icons/copy_w.png'))
+        icon.addPixmap(QPixmap('resources/UI/icons/copy_w.png'))
         self.pushButton_copy_address.setIcon(icon)
         self.pushButton_copy_address.setIconSize(QSize(16, 16))
 
-        icon.addPixmap(QPixmap('UI/icons/ethereum_c_b.png'))
+        icon.addPixmap(QPixmap('resources/UI/icons/ethereum_c_b.png'))
         self.pushButton_ETH.setIcon(icon)
         self.pushButton_ETH.setIconSize(QSize(16, 16))
 
-        icon.addPixmap(QPixmap('UI/icons/ethereum_node_clr.png'))
+        icon.addPixmap(QPixmap('resources/UI/icons/ethereum_node_clr.png'))
         self.pushButton_node_provider.setIcon(icon)
         self.pushButton_node_provider.setIconSize(QSize(16, 16))
 
     def setMenuActions(self):
-        actionNew_account = self.findChild(QAction, 'actionNew_account')
-        actionNew_account.setShortcut('Ctrl+n')
-        actionNew_account.setStatusTip('create new account')
+        self.actionNew_random_account.setShortcut('Ctrl+n')
+        self.actionNew_random_account.setStatusTip('create new random account')
+        self.actionRecover_from_mnemonic.setShortcut('Ctrl+m')
+        self.actionRecover_from_mnemonic.setStatusTip('create new account from mnemonic')
+        self.actionRecover_from_entropy.setShortcut('Ctrl+e')
+        self.actionRecover_from_entropy.setStatusTip('create new account from entropy')
+        self.actionRecover_from_privateKey.setShortcut('Ctrl+p')
+        self.actionRecover_from_privateKey.setStatusTip('create new account from privateKey')
+        # ----------------------------------------------------------------------------------
+        self.actionEntropy.setShortcut('Alt+e')
+        self.actionEntropy.setStatusTip('show account entropy')
+        self.actionPrivateKey.setShortcut('Alt+v')
+        self.actionPrivateKey.setStatusTip('show account privateKey')
+        self.actionPublicKey_coordinates.setShortcut('Alt+c')
+        self.actionPublicKey_coordinates.setStatusTip('show account publicKey coordinates')
+        self.actionPublicKey.setShortcut('Alt+p')
+        self.actionPublicKey.setStatusTip('show account publicKey')
+        self.actionMnemonic.setShortcut('Alt+m')
+        self.actionMnemonic.setStatusTip('show account mnemonic')
+        # ----------------------------------------------------------------------------------
 
-    def createAccount(self):
+    def createAccountRandom(self):
         if self.db.isAccountExist():
             message = "Some account(s) already exist"
         else:
             message = "There is no account"
 
-        address = account.createAccount(self.db, message)
-        if address != 'None':
-            self.comboBox_activeAddress_val.addItem(address)
-            self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+        createAccount_window = qui_getUserChoice.Ui('Create new account', message, 'Create new one?')
+        createAccount_window.exec()
+        if not createAccount_window.getAnswer():
+            pass  # cancel by user
+        else:
+            acc = account.New.random()
+            if len(acc) == 0:
+                pass
+            else:
+                mnemonic = account.New.generateMnemonic(acc['entropy'])
+                if mnemonic == '':
+                    err = gui_errorDialog.Error('Account creation failed in mnemonic step')
+                    err.exec()
+                else:
+                    acc['mnemonic'] = str(mnemonic)  # append mnemonic to dict
+                    self.db.insertRow(acc)
+                    self.comboBox_activeAddress_val.addItem(acc['address'])
+                    self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+
+    def createAccountFromEntropy(self):
+        pass
+
+    def createAccountFromMnemonic(self):
+        pass
+
+    def createAccountFromPrivateKey(self):
+        pass
 
     def goToEtherscan(self):
         active_address = self.comboBox_activeAddress_val.currentText()
@@ -132,4 +179,3 @@ class Ui(QtWidgets.QMainWindow):
             else:
                 for res in result:
                     self.textEdit_main.append(res[0])
-

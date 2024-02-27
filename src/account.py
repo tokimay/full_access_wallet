@@ -1,10 +1,10 @@
 import binascii
 from hashlib import sha256
 
-from src import gui_errorDialog, qui_create_newAccount
-from src.gui_mouseTracker import MouseTracker
-from src.secp256k1 import getPublicKeyCoortinate
+from src import gui_errorDialog, qui_getUserChoice, gui_mouseTracker, database
+from src.ellipticCurve import secp256k1
 from sha3 import keccak_256
+
 """
 ETHEREUM_DEFAULT_PATH = "m/44'/60'/0'/0/0"
 def seed_from_mnemonic(words: str, passphrase: str) -> bytes:
@@ -20,107 +20,124 @@ def seed_from_mnemonic(words: str, passphrase: str) -> bytes:
 """
 
 
-def generateEntropy():
-    mouseTrackerWindow = MouseTracker()
-    mouseTrackerWindow.exec()
-    return mouseTrackerWindow.getEntropy()
+class New:
+    def __init__(self):
+        pass
 
-
-def createAccount(db, message):
-    createAccount_window = qui_create_newAccount.Ui(message)  # "Some account already exist")
-    createAccount_window.exec()
-    entropy = createAccount_window.getEntropy()
-    mnemonic = generateMnemonic(entropy)
-    print(mnemonic)
-    print(type(mnemonic))
-    acc = None
-    address = 'None'
-    if isinstance(entropy, str) and len(entropy) == 256 and entropy != 'init':
-        acc = fromEntropy(entropy)
-        if isinstance(acc, dict):
-            print('privateKeyHex', hex(acc['privateKey']), type(acc['privateKey']))
-            print('publicKeyCoordinate', acc['publicKeyCoordinate'], type(acc['publicKeyCoordinate']))
-            print('publicKey', hex(acc['publicKey']), type(acc['publicKey']))
-            print('address', hex(acc['address']), type(acc['address']))
-            db.insertRow(acc)
-            address = hex(acc['address'])
-        else:
-            err = gui_errorDialog.Error('Account creation failed \n ' + str(type(acc)))
-            err.exec()
-    else:
-        if entropy == 'init':
-            pass
-        elif not isinstance(entropy, str):
+    @staticmethod
+    def random() -> dict:
+        acc = {}
+        mouseTracker = gui_mouseTracker.UI()
+        mouseTracker.exec()
+        entropy = mouseTracker.getEntropy()
+        if not isinstance(entropy, str):
             err = gui_errorDialog.Error('Entropy received by type ' + str(type(entropy)) + '.\nexpected string')
             err.exec()
-        else:
+        elif not len(entropy) == 256:
             err = gui_errorDialog.Error('Entropy by len ' + str(len(entropy)) + ' bit received.\nexpected 256 bit')
             err.exec()
-    return address
-    # return fromEntropy(generateEntropy())
-
-
-def fromEntropy(entropy: str) -> dict:
-    privateKey = hex(int(entropy, 2))
-    publicKeyCoordinate = getPublicKeyCoortinate(int(entropy, 2))
-    coordinate_x_y = (publicKeyCoordinate[0].to_bytes(32, byteorder='big') +
-                      publicKeyCoordinate[1].to_bytes(32, byteorder='big'))
-    publicKey = '0x' + coordinate_x_y.hex(), type(coordinate_x_y.hex())
-    address = '0x' + keccak_256(coordinate_x_y).digest()[-20:].hex()
-    return {'privateKey': int(privateKey, 0), 'publicKeyCoordinate': publicKeyCoordinate,
-            'publicKey': int(publicKey[0], 0), 'address': int(address, 0)}
-
-
-def entropyToSha256(entropy):
-    if len(entropy) == 256:
-        print(entropy)  # ============================================================================
-        hexString = "{0:0>4X}".format(int(entropy, 2))
-        data = binascii.a2b_hex(hexString)
-        hashEntropy = sha256(data).hexdigest()
-        return bin(int(str(hashEntropy), 16))[2:]
-    else:
-        err = gui_errorDialog.Error('Entropy by len ' + str(len(entropy)) + ' bit received.\nexpected 256 bit.\n'
-                                                                            'hashing entropy failed failed.')
-        err.exec()
-
-
-def generateMnemonic(entropy):
-    bip39 = []
-    mnemonic = []
-    with open('resources/bip39EnglishWordList.txt') as file:
-        while line := file.readline():
-            bip39.append(line.strip())
-
-    sha256Entropy = entropyToSha256(entropy)
-    #if len(sha256Entropy) == 256:
-    print('check sum .zfill(256)= ', sha256Entropy.zfill(256)[:8])
-    print('check sum = ', sha256Entropy[:8])
-    checkSumEntropy = entropy + sha256Entropy.zfill(256)[:8]
-    if len(checkSumEntropy) == 264:
-        chunk = 11
-        while chunk <= 264:
-            mnemonic.append(bip39[int(checkSumEntropy[(chunk - 11):chunk], 2)])
-            chunk = chunk + 11
-        if len(mnemonic) == 24:
-            return ' '.join(mnemonic)
         else:
-            err = gui_errorDialog.Error('Generating mnemonic failed. \nIncompatible length received.\n'+
-                                        str(len(mnemonic)))
+            acc = New.fromEntropy(entropy)
+            if not isinstance(acc, dict) or len(acc) == 0:
+                err = gui_errorDialog.Error('Account creation failed \n ' + str(type(acc)))
+                err.exec()
+                acc = {}
+            else:
+                acc['entropy'] = entropy  # append entropy to dict
+        return acc
+
+    @staticmethod
+    def generateMnemonic(entropy: str) -> str:
+        bip39 = []
+        mnemonic = []
+        with open('resources/bip39EnglishWordList.txt') as file:
+            while line := file.readline():
+                bip39.append(line.strip())
+        if not len(entropy) == 256:
+            err = gui_errorDialog.Error('Entropy by len ' + str(len(entropy)) + ' bit received.\nexpected 256 bit')
             err.exec()
-            return None
-        #else:
-        #    err = gui_errorDialog.Error('CheckSum entropy by len ' + str(len(sha256Entropy))
-        #                                + ' bit received.\nexpected 264 bit')
-        #    err.exec()
-        #    return None
-    else:
-        err = gui_errorDialog.Error('Hashed entropy by len ' + str(len(sha256Entropy))
-                                    + ' bit received.\nexpected 256 bit')
-        err.exec()
-        return None
+            return ''
+        else:
+            sha256Entropy = New.entropyToSha256(entropy)
+            checkSumEntropy = entropy + sha256Entropy.zfill(256)[:8]
+            if not len(sha256Entropy) == 256:
+                err = gui_errorDialog.Error('Hashed entropy by len ' + str(len(sha256Entropy))
+                                            + ' bit received.\nexpected 256 bit')
+                err.exec()
+                return ''
+            else:
+                if not len(checkSumEntropy) == 264:
+                    err = gui_errorDialog.Error('CheckSum entropy by len ' + str(len(sha256Entropy))
+                                                + ' bit received.\nexpected 264 bit')
+                    err.exec()
+                    return ''
+                else:
+                    chunk = 11
+                    while chunk <= 264:
+                        mnemonic.append(bip39[int(checkSumEntropy[(chunk - 11):chunk], 2)])
+                        chunk = chunk + 11
+                    if not len(mnemonic) == 24:
+                        err = gui_errorDialog.Error('Generating mnemonic failed. \nIncompatible length received.\n' +
+                                                    str(len(mnemonic)))
+                        err.exec()
+                        return ''
+                    else:
+                        return ' '.join(mnemonic)
+
+    @staticmethod
+    def fromEntropy(entropy: str) -> dict:
+        privateKey = hex(int(entropy, 2))
+        curve = secp256k1()
+        publicKeyCoordinate = curve.getPublicKeyCoordinate(int(entropy, 2))
+        if len(publicKeyCoordinate) <= 0:
+            err = gui_errorDialog.Error('Getting coordinate from elliptic curve failed')
+            err.exec()
+            return {}
+        else:
+            coordinate_x_y = (publicKeyCoordinate[0].to_bytes(32, byteorder='big') +
+                              publicKeyCoordinate[1].to_bytes(32, byteorder='big'))
+            publicKey = '0x' + coordinate_x_y.hex(), type(coordinate_x_y.hex())
+            address = '0x' + keccak_256(coordinate_x_y).digest()[-20:].hex()
+            return {'privateKey': privateKey, 'publicKeyCoordinate': publicKeyCoordinate,
+                    'publicKey': publicKey[0], 'address': address}
+
+    @staticmethod
+    def entropyToSha256(entropy):
+        if len(entropy) == 256:
+            print(len(entropy))
+            print('====================')
+            hexString = "{0:0>4X}".format(int(entropy, 2))
+            print(hexString)
+            print(len(hexString))
+            print('====================')
+            data = binascii.a2b_hex(hexString)
+            print(data)
+            print(len(data))
+            print('====================')
+            hashEntropy = sha256(data).hexdigest()
+            print(hashEntropy)
+            print(len(hashEntropy))
+            print('====================')
+            res = bin(int(str(hashEntropy), 16))[2:].zfill(256)  # should check zfill ???????????????????
+            print(res)
+            print(len(res))
+            print('====================')
+            return res
+        else:
+            err = gui_errorDialog.Error('Entropy by len ' + str(len(entropy)) + ' bit received.\nexpected 256 bit.\n'
+                                                                                'hashing entropy failed failed.')
+            err.exec()
 
 
 def fromMnemonic(memo):
+    bip39 = []
+    with open('resources/bip39EnglishWordList.txt') as file:
+        while line := file.readline():
+            bip39.append(line.strip())
+    mnemonicList = memo.split()
+
+    print(mnemonicList)
+
     pass
     """
         # The use of the Mnemonic features of Account is disabled by default

@@ -31,16 +31,17 @@ class Sqlite:
             return False
 
     def createTable(self):
+        connection = sqlite3.connect(self.databaseName)
+        cursor = connection.cursor()
         table = """CREATE TABLE IF NOT EXISTS accounts (
                     ENT VARCHAR(255) NOT NULL,
                     PRV VARCHAR(255) NOT NULL,
                     PUK_COR_X VARCHAR(255) NOT NULL,
                     PUK_COR_Y VARCHAR(255) NOT NULL,
                     PUK VARCHAR(255) NOT NULL,
-                    ADR VARCHAR(255) NOT NULL
+                    ADR VARCHAR(255) NOT NULL,
+                    NEM TEXT NOT NULL
                                     );"""
-        connection = sqlite3.connect(self.databaseName)
-        cursor = connection.cursor()
         cursor.execute(table)
         print('cursor last row id:', cursor.lastrowid)
         connection.commit()
@@ -49,15 +50,17 @@ class Sqlite:
     def insertRow(self, acc: dict):
         connection = sqlite3.connect(self.databaseName)
         cursor = connection.cursor()
-        cursor.execute("INSERT INTO accounts(ENT, PRV, PUK_COR_X, PUK_COR_Y, PUK, ADR) VALUES (?, ?, ?, ?, ?, ?)",
-                       (
-                           bin(acc['privateKey'])[2:].zfill(256),
-                           hex(acc['privateKey']),
-                           hex(acc['publicKeyCoordinate'][0]),
-                           hex(acc['publicKeyCoordinate'][1]),
-                           hex(acc['publicKey']),
-                           hex(acc['address'])
-                       ))
+        cursor.execute(
+            "INSERT INTO accounts(ENT, PRV, PUK_COR_X, PUK_COR_Y, PUK, ADR, NEM) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (
+                acc['entropy'],
+                acc['privateKey'],
+                str(acc['publicKeyCoordinate'][0]),
+                str(acc['publicKeyCoordinate'][1]),
+                acc['publicKey'],
+                acc['address'],
+                acc['mnemonic']
+            ))
         connection.commit()
         connection.close()
 

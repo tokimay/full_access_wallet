@@ -23,29 +23,91 @@
       <height>341</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridlayout" columnstretch="0,1,0">
-     <item row="2" column="2">
-      <widget class="QPushButton" name="pushButton_ETH">
+    <layout class="QGridLayout" name="gridlayout" columnstretch="0,0,0,0">
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_activeAddress">
        <property name="text">
-        <string>ETH</string>
+        <string>Active address:</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
+     <item row="1" column="0">
       <widget class="QLabel" name="label_node_provider">
        <property name="text">
         <string>Node provider:</string>
        </property>
       </widget>
      </item>
+     <item row="0" column="1">
+      <widget class="QRadioButton" name="radioButton_mainNet">
+       <property name="text">
+        <string>MainNet</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="2">
+      <widget class="QRadioButton" name="radioButton_testNet">
+       <property name="text">
+        <string>TestNet(Sepolia)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0" colspan="3">
+      <widget class="QTextEdit" name="textEdit_main"/>
+     </item>
+     <item row="2" column="1" colspan="2">
+      <widget class="QComboBox" name="comboBox_activeAddress_val"/>
+     </item>
+     <item row="3" column="1">
+      <widget class="QLabel" name="label_amount_val">
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_amount">
+       <property name="text">
+        <string>Amount:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="3">
+      <widget class="QPushButton" name="pushButton_ETH">
+       <property name="text">
+        <string>etherescan.io</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QLabel" name="label_ETH">
+       <property name="text">
+        <string>ETH</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
       <widget class="QPushButton" name="pushButton_node_provider">
        <property name="text">
         <string>Providers</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="2">
+     <item row="2" column="3">
+      <widget class="QPushButton" name="pushButton_copy_address">
+       <property name="text">
+        <string>Copy address</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" colspan="2">
+      <widget class="QLineEdit" name="lineEdit_node_provider">
+       <property name="text">
+        <string>https://nodes.mewapi.io/rpc/eth</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="3">
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -57,54 +119,6 @@
         </size>
        </property>
       </spacer>
-     </item>
-     <item row="3" column="0" colspan="3">
-      <widget class="Line" name="line">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QPushButton" name="pushButton_copy_address">
-       <property name="text">
-        <string>Copy</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_activeAddress">
-       <property name="text">
-        <string>Active address:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QLabel" name="label_amount_val">
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLineEdit" name="lineEdit_node_provider">
-       <property name="text">
-        <string>https://nodes.mewapi.io/rpc/eth</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_amount">
-       <property name="text">
-        <string>Amount:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="comboBox_activeAddress_val"/>
-     </item>
-     <item row="4" column="0" colspan="2">
-      <widget class="QTextEdit" name="textEdit_main"/>
      </item>
     </layout>
    </widget>
@@ -136,19 +150,24 @@
      <addaction name="actionPrivateKey"/>
      <addaction name="actionPublicKey_coordinates"/>
      <addaction name="actionPublicKey"/>
+     <addaction name="actionMnemonic"/>
     </widget>
-    <addaction name="actionNew_account"/>
+    <widget class="QMenu" name="menuNew_acoount">
+     <property name="title">
+      <string>New acoount</string>
+     </property>
+     <addaction name="actionNew_random_account"/>
+     <addaction name="actionRecover_from_mnemonic"/>
+     <addaction name="actionRecover_from_entropy"/>
+     <addaction name="actionRecover_from_privateKey"/>
+    </widget>
+    <addaction name="menuNew_acoount"/>
     <addaction name="menuSecrets"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Wallet"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <action name="actionNew_account">
-   <property name="text">
-    <string>New acoount</string>
-   </property>
-  </action>
   <action name="actionEntropy">
    <property name="text">
     <string>Entropy</string>
@@ -167,6 +186,31 @@
   <action name="actionPublicKey">
    <property name="text">
     <string>PublicKey</string>
+   </property>
+  </action>
+  <action name="actionMnemonic">
+   <property name="text">
+    <string>Mnemonic</string>
+   </property>
+  </action>
+  <action name="actionNew_random_account">
+   <property name="text">
+    <string>New random account</string>
+   </property>
+  </action>
+  <action name="actionRecover_from_mnemonic">
+   <property name="text">
+    <string>Recover from mnemonic</string>
+   </property>
+  </action>
+  <action name="actionRecover_from_entropy">
+   <property name="text">
+    <string>Recover from entropy</string>
+   </property>
+  </action>
+  <action name="actionRecover_from_privateKey">
+   <property name="text">
+    <string>Recover from privateKey</string>
    </property>
   </action>
  </widget>

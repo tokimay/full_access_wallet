@@ -8,3 +8,4 @@ class SECRET(Enum):
     PUBLIC_KEY_Y = 'PUK_COR_Y'
     PUBLIC_KEY = 'PUK'
     ADDRESS = 'ADR'
+    MNEMONIC = 'NEM'
