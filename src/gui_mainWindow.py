@@ -3,7 +3,7 @@ import pyperclip
 import web3
 
 import src.account as account
-from src import database, types, gui_errorDialog, qui_getUserChoice
+from src import database, types, gui_errorDialog, qui_getUserChoice, qui_getUserInput, qui_showMessage
 from PyQt6 import QtWidgets, uic
 from PyQt6.QtCore import QSize
 from PyQt6.QtGui import QIcon, QPixmap, QAction
@@ -45,12 +45,16 @@ class Ui(QtWidgets.QMainWindow):
         self.pushButton_node_provider.clicked.connect(self.goToEtherNodes)
         # ----------------------------------------------------------------------------------
         self.actionNew_random_account.triggered.connect(self.createAccountRandom)
+        self.actionRecover_from_mnemonic.triggered.connect(self.createAccountFromMnemonic)
+        self.actionRecover_from_entropy.triggered.connect(self.createAccountFromEntropy)
+        self.actionRecover_from_privateKey.triggered.connect(self.createAccountFromPrivateKey)
         # ----------------------------------------------------------------------------------
         self.actionEntropy.triggered.connect(lambda: self.showSecrets(types.SECRET.ENTROPY))
         self.actionPrivateKey.triggered.connect(lambda: self.showSecrets(types.SECRET.PRIVATE_KEY))
         self.actionPublicKey_coordinates.triggered.connect(lambda: self.showSecrets(types.SECRET.PUBLIC_KEY_X))
         self.actionPublicKey.triggered.connect(lambda: self.showSecrets(types.SECRET.PUBLIC_KEY))
         self.actionMnemonic.triggered.connect(lambda: self.showSecrets(types.SECRET.MNEMONIC))
+        # ----------------------------------------------------------------------------------
 
     def initIcons(self):
         icon = QIcon()
@@ -115,7 +119,28 @@ class Ui(QtWidgets.QMainWindow):
                     self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
 
     def createAccountFromEntropy(self):
-        pass
+        getEntropy = qui_getUserInput.Ui('Recover account', 'Enter your entropy:')
+        getEntropy.exec()
+        entropy = getEntropy.getEntropy()
+        if entropy == '':
+            qui_showMessage.Ui('Recover account',
+                               'Nothing received',
+                               'you can try again from Wallet -> New account -> Recover from entropy').exec()
+        else:
+            acc = account.New.fromEntropy(entropy)
+            if not isinstance(acc, dict) or len(acc) == 0:
+                err = gui_errorDialog.Error('Account creation failed \n ' + str(type(acc)))
+                err.exec()
+            else:
+                acc['entropy'] = entropy  # append entropy to dict
+                mnemonic = account.New.generateMnemonic(acc['entropy'])
+                if mnemonic == '':
+                    gui_errorDialog.Error('Account creation failed in mnemonic step').exec()
+                else:
+                    acc['mnemonic'] = str(mnemonic)  # append mnemonic to dict
+                    self.db.insertRow(acc)
+                    self.comboBox_activeAddress_val.addItem(acc['address'])
+                    self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
 
     def createAccountFromMnemonic(self):
         pass
