@@ -21,44 +21,54 @@ def seed_from_mnemonic(words: str, passphrase: str) -> bytes:
 
 
 class New:
-    def __init__(self):
+    def __init__(self):  # an00
         pass
 
     @staticmethod
-    def random() -> dict:
-        acc = {}
+    def random() -> dict:  # anf01
         mouseTracker = gui_mouseTracker.UI()
         mouseTracker.exec()
         entropy = mouseTracker.getEntropy()
-        acc = New.fromEntropy(entropy)
+        if not len(entropy) == 256:
+            gui_errorDialog.Error('Entropy by len ' + str(len(entropy)) + ' bit received.\nexpected 256 bit.\n'
+                                                                          'error code: anf01.1').exec()
+            return {}
+        else:
+            acc = New.fromEntropy(int(entropy, 2))
+            acc['entropy'] = entropy
+            return acc
+        """
         if not isinstance(acc, dict) or len(acc) == 0:
             gui_errorDialog.Error('Account creation failed \n ' + str(type(acc))).exec()
             acc = {}
         else:
             acc['entropy'] = entropy  # append entropy to dict
         return acc
+        """
 
     @staticmethod
-    def generateMnemonic(entropy: str) -> str:
+    def generateMnemonic(entropy: str) -> str:  # anf02
         bip39 = []
         mnemonic = []
         with open('resources/bip39EnglishWordList.txt') as file:
             while line := file.readline():
                 bip39.append(line.strip())
         if not len(entropy) == 256:
-            gui_errorDialog.Error('Entropy by len ' + str(len(entropy)) + ' bit received.\nexpected 256 bit').exec()
+            gui_errorDialog.Error('Entropy by len ' + str(len(entropy)) + ' bit received.\nexpected 256 bit.\n'
+                                                                          'error code: anf02.1').exec()
             return ''
         else:
             sha256Entropy = New.entropyToSha256(entropy)
             if not len(sha256Entropy) == 256:
                 gui_errorDialog.Error('Hashed entropy by len ' + str(len(sha256Entropy))
-                                      + ' bit received.\nexpected 256 bit').exec()
+                                      + ' bit received.\nexpected 256 bit.\n'
+                                        'error code: anf02.2').exec()
                 return ''
             else:
                 checkSumEntropy = entropy + str(sha256Entropy[:8])
                 if not len(checkSumEntropy) == 264:
                     gui_errorDialog.Error('CheckSum entropy by len ' + str(len(sha256Entropy))
-                                          + ' bit received.\nexpected 264 bit').exec()
+                                          + ' bit received.\nexpected 264 bit.\nerror code: anf02.3').exec()
                     return ''
                 else:
                     chunk = 11
@@ -73,22 +83,42 @@ class New:
                         return ' '.join(mnemonic)
 
     @staticmethod
-    def fromEntropy(entropy: str) -> dict:
-        if not isinstance(entropy, str):
-            err = gui_errorDialog.Error('Entropy received by type ' + str(type(entropy)) + '.\nexpected string')
-            err.exec()
-            return {}
-        elif not len(entropy) == 256:
-            err = gui_errorDialog.Error('Entropy by len ' + str(len(entropy)) + ' bit received.\nexpected 256 bit')
-            err.exec()
+    def fromEntropy(entropy: int) -> dict:  # anf03
+        if not isinstance(entropy, int):
+            gui_errorDialog.Error('Entropy received by type ' + str(type(entropy)) + '.\nexpected integer.\n'
+                                                                                     'error code: anf03.1').exec()
             return {}
         else:
-            privateKey = hex(int(entropy, 2))
+            privateKey = hex(entropy)
+            return New.fromPrivateKey(privateKey)
+
+    @staticmethod
+    def entropyToSha256(entropy):  # anf04
+        if not isinstance(entropy, str):
+            gui_errorDialog.Error('Entropy received by type ' + str(type(entropy)) + '.\nexpected string.\n'
+                                                                                     'error code: anf04.1').exec()
+            return {}
+        elif not len(entropy) == 256:
+            gui_errorDialog.Error('Entropy by len ' + str(len(entropy)) + ' bit received.\nexpected 256 bit.\n'
+                                                                          'error code: anf04.2').exec()
+            return {}
+        else:
+            hexString = "{0:0>4X}".format(int(entropy, 2))
+            data = binascii.a2b_hex(hexString)
+            hashEntropy = sha256(data).hexdigest()
+            res = bin(int(str(hashEntropy), 16))[2:].zfill(256)  # should check zfill ???????????????????
+            return res
+
+    @staticmethod
+    def fromPrivateKey(privateKey):  # anf05
+        if not New.checkHex(privateKey):
+            gui_errorDialog.Error('Private key receives in none hex format.\nerror code: anf05.1').exec()
+            return {}
+        else:
             curve = secp256k1()
-            publicKeyCoordinate = curve.getPublicKeyCoordinate(int(entropy, 2))
+            publicKeyCoordinate = curve.getPublicKeyCoordinate(int(privateKey, 16))
             if len(publicKeyCoordinate) <= 0:
-                err = gui_errorDialog.Error('Getting coordinate from elliptic curve failed')
-                err.exec()
+                gui_errorDialog.Error('Getting coordinate from elliptic curve failed.\nerror code: anf05.2').exec()
                 return {}
             else:
                 coordinate_x_y = (publicKeyCoordinate[0].to_bytes(32, byteorder='big') +
@@ -98,20 +128,24 @@ class New:
                 return {'privateKey': privateKey, 'publicKeyCoordinate': publicKeyCoordinate,
                         'publicKey': publicKey[0], 'address': address}
 
+    """
+        # print('private_key: 0x' + private_key.hex())
+
+        public_key = PublicKey.from_valid_secret(private_key).format(compressed=False)[1:]
+        # print('public_key : 0x' + public_key.hex())
+
+        address = keccak_256(public_key).digest()[-20:]
+        # print('address    : 0x' + address.hex())
+        return '0x' + public_key.hex(), '0x' + address.hex()
+        """
+
     @staticmethod
-    def entropyToSha256(entropy):
-        if not isinstance(entropy, str):
-            gui_errorDialog.Error('Entropy received by type ' + str(type(entropy)) + '.\nexpected string').exec()
-            return {}
-        elif not len(entropy) == 256:
-            gui_errorDialog.Error('Entropy by len ' + str(len(entropy)) + ' bit received.\nexpected 256 bit').exec()
-            return {}
-        else:
-            hexString = "{0:0>4X}".format(int(entropy, 2))
-            data = binascii.a2b_hex(hexString)
-            hashEntropy = sha256(data).hexdigest()
-            res = bin(int(str(hashEntropy), 16))[2:].zfill(256)  # should check zfill ???????????????????
-            return res
+    def checkHex(hexNumber):
+        try:
+            int(hexNumber, 16)
+            return True
+        except ValueError:
+            return False
 
 
 def fromMnemonic(memo):
@@ -139,17 +173,3 @@ def fromMnemonic(memo):
         # print('address    :', acct.address)
         return private_key, public_key, acct.address
     """
-
-
-def fromPrivateKey(private_key):
-    pass
-    """
-        # print('private_key: 0x' + private_key.hex())
-
-        public_key = PublicKey.from_valid_secret(private_key).format(compressed=False)[1:]
-        # print('public_key : 0x' + public_key.hex())
-
-        address = keccak_256(public_key).digest()[-20:]
-        # print('address    : 0x' + address.hex())
-        return '0x' + public_key.hex(), '0x' + address.hex()
-        """

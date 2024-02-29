@@ -94,15 +94,13 @@ class Ui(QtWidgets.QMainWindow):
         # ----------------------------------------------------------------------------------
 
     def createAccountRandom(self):
+        createAccount_window = qui_getUserChoice.Ui('Create new account',
+                                                    'Some account(s) already exist',
+                                                    'Create new one?')
         if self.db.isAccountExist():
-            message = "Some account(s) already exist"
-        else:
-            message = "There is no account"
-
-        createAccount_window = qui_getUserChoice.Ui('Create new account', message, 'Create new one?')
-        createAccount_window.exec()
-        if not createAccount_window.getAnswer():
-            pass  # cancel by user
+            createAccount_window.exec()
+        if createAccount_window.getAnswer():
+            pass  # cancel by user or it is new account
         else:
             acc = account.New.random()
             if len(acc) == 0:
@@ -121,13 +119,13 @@ class Ui(QtWidgets.QMainWindow):
     def createAccountFromEntropy(self):
         getEntropy = qui_getUserInput.Ui('Recover account', 'Enter your entropy:')
         getEntropy.exec()
-        entropy = getEntropy.getEntropy()
+        entropy = getEntropy.getInput()
         if entropy == '':
             qui_showMessage.Ui('Recover account',
                                'Nothing received',
                                'you can try again from Wallet -> New account -> Recover from entropy').exec()
         else:
-            acc = account.New.fromEntropy(entropy)
+            acc = account.New.fromEntropy(int(entropy, 2))
             if not isinstance(acc, dict) or len(acc) == 0:
                 err = gui_errorDialog.Error('Account creation failed \n ' + str(type(acc)))
                 err.exec()
@@ -146,7 +144,27 @@ class Ui(QtWidgets.QMainWindow):
         pass
 
     def createAccountFromPrivateKey(self):
-        pass
+        getPrivateKey = qui_getUserInput.Ui('Recover account', 'Enter your private key:')
+        getPrivateKey.exec()
+        privateKey = getPrivateKey.getInput()
+        if privateKey == '':
+            qui_showMessage.Ui('Recover account',
+                               'Nothing received',
+                               'you can try again from Wallet -> New account -> Recover from entropy').exec()
+        else:
+            acc = account.New.fromPrivateKey(privateKey)
+            if not isinstance(acc, dict) or len(acc) == 0:
+                gui_errorDialog.Error('Account creation failed \n ' + str(type(acc))).exec()
+            else:
+                acc['entropy'] = privateKey  # Entropy is not recoverable from private key
+                # mnemonic = account.New.generateMnemonic(acc['entropy'])
+                # if mnemonic == '':
+                #    gui_errorDialog.Error('Account creation failed in mnemonic step').exec()
+                # else:
+                acc['mnemonic'] = privateKey  # Mnemonic is not recoverable from private key
+                self.db.insertRow(acc)
+                self.comboBox_activeAddress_val.addItem(acc['address'])
+                self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
 
     def goToEtherscan(self):
         active_address = self.comboBox_activeAddress_val.currentText()
@@ -196,11 +214,23 @@ class Ui(QtWidgets.QMainWindow):
             result = (self.db.readColumnByCondition(
                 columnName=secretType, condition=self.comboBox_activeAddress_val.currentText()))
             if len(result) <= 0:
-                err = gui_errorDialog.Error('Reading database failed')
-                err.exec()
-            elif len(result) == 1:
-                self.textEdit_main.append(f'Your account {secretType.name} keep it safe:\n')
-                self.textEdit_main.append(result[0][0])
+                gui_errorDialog.Error('Reading database failed').exec()
             else:
-                for res in result:
-                    self.textEdit_main.append(res[0])
+
+                if secretType == types.SECRET.ENTROPY and (
+                        self.db.readColumnByCondition(columnName=types.SECRET.ENTROPY,
+                                                      condition=self.comboBox_activeAddress_val.currentText())
+                        ==
+                        self.db.readColumnByCondition(columnName=types.SECRET.PRIVATE_KEY,
+                                                      condition=self.comboBox_activeAddress_val.currentText())
+                        ):
+                    qui_showMessage.Ui('Show secrets',
+                                       'You have recovered an old account.',
+                                       'Entropy is not recoverable from private key').exec()
+
+                elif len(result) == 1:
+                    self.textEdit_main.append(f'Your account {secretType.name} keep it safe:\n')
+                    self.textEdit_main.append(result[0][0])
+                else:
+                    for res in result:
+                        self.textEdit_main.append(res[0])

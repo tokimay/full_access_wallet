@@ -63,7 +63,7 @@ class Ui(QDialog):
         self.input = ''
         self.close()
 
-    def getEntropy(self):
+    def getInput(self):
         return self.input
 
 
