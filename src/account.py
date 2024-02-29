@@ -1,7 +1,8 @@
 import binascii
+import hashlib
 from hashlib import sha256
 
-from src import gui_errorDialog, qui_getUserChoice, gui_mouseTracker, database
+from src import gui_errorDialog, qui_getUserChoice, gui_mouseTracker, database, qui_getUserInput
 from src.ellipticCurve import secp256k1
 from sha3 import keccak_256
 
@@ -38,7 +39,9 @@ class New:
                     'Entropy by len ' + str(len(entropy)) + ' bit received.\nexpected 256 bit.').exec()
                 return ''
             else:
-                return hex(int(entropy, 2))  # need complete by hashing
+                pbkdf2Sha512Entropy = New.entropyToPbkdf2Sha512(entropy)
+
+                return pbkdf2Sha512Entropy  # need complete by hashing
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
             return ''
@@ -55,7 +58,7 @@ class New:
             if not New.checkHex(privateKey):
                 gui_errorDialog.Error('PrivateKey key receives in none hex format.').exec()
                 return ()
-            elif not len(privateKey) == 64:
+            elif not len(privateKey) == 128:
                 gui_errorDialog.Error(
                     'PrivateKey by len ' + str(len(privateKey)) + ' received.\nexpected 64.').exec()
                 return ()
@@ -184,6 +187,35 @@ class New:
                 data = binascii.a2b_hex(hexString)
                 hashEntropy = sha256(data).hexdigest()
                 return bin(int(str(hashEntropy), 16))[2:].zfill(256)  # should check zfill ???????????????????
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
+            return ''
+
+    @staticmethod
+    def entropyToPbkdf2Sha512(entropy: str) -> str:
+        try:
+            if not isinstance(entropy, str):
+                (gui_errorDialog.Error('Entropy received by type ' + str(type(entropy)) +
+                                       '.\nexpected binary string.').exec())
+                return ''
+            if entropy.startswith('0b'):
+                entropy = entropy[2:]
+            if not len(entropy) == 256:
+                gui_errorDialog.Error(
+                    'Entropy by len ' + str(len(entropy)) + ' bit received.\nexpected 256 bit.').exec()
+                return ''
+            else:
+                getPassphrase = qui_getUserInput.Ui('Passphrase for wallet',
+                                                    'Enter passphrase for wallet:\n'
+                                                    'cancel to skip')
+                getPassphrase.exec()
+                passphrase = getPassphrase.getInput()
+                if passphrase == '':  # canceled by user
+                    return entropy
+                else:
+                    pbkdf2Entropy = hashlib.pbkdf2_hmac('sha512', str.encode(passphrase),
+                                                        str.encode(entropy), 2048)
+                    return pbkdf2Entropy.hex()
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
             return ''
