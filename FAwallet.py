@@ -14,34 +14,29 @@ db.createTable()
 getBalance = False
 
 if db.isAccountExist():
-    accounts = (db.readColumn(types.SECRET.ADDRESS))
+    accounts = db.readColumn(types.SECRET.ADDRESS)
     for ad in accounts:
         window.comboBox_activeAddress_val.addItem(ad[0])
     getBalance = True
-
-else:
+else:  # there is no account in database
     createAccount_window = qui_getUserChoice.Ui('Create new account',
                                                 'There is no account!',
                                                 'Create new one?')
     createAccount_window.exec()
-    if not createAccount_window.getAnswer():
+    if not createAccount_window.getAnswer():  # cancel by user
         qui_showMessage.Ui('Create new account',
                            'You always can create new account or restore old one',
                            'Wallet -> New account').exec()
-    else:
+    else:  # create first new account
         acc = account.New.random()
-        if len(acc) == 0:
+        if len(acc) == 0:  # random account creation return by some error
             pass
+        elif not isinstance(acc, dict) or len(acc) == 0:
+            gui_errorDialog.Error('Account creation failed \n ' + str(type(acc))).exec()
         else:
-            mnemonic = account.New.generateMnemonic(acc['entropy'])
-            if mnemonic == '':
-                err = gui_errorDialog.Error('Account creation failed in mnemonic step')
-                err.exec()
-            else:
-                acc['mnemonic'] = str(mnemonic)  # append mnemonic to dict
-                db.insertRow(acc)
-                window.comboBox_activeAddress_val.addItem(acc['address'])
-                getBalance = True
+            db.insertRow(acc)
+            window.comboBox_activeAddress_val.addItem(acc['address'])
+            getBalance = True
 
 if getBalance:
     balanceThread = Balance(window)

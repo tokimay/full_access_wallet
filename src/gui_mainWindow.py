@@ -94,100 +94,114 @@ class Ui(QtWidgets.QMainWindow):
         # ----------------------------------------------------------------------------------
 
     def createAccountRandom(self):
-        createAccount_window = qui_getUserChoice.Ui('Create new account',
-                                                    'Some account(s) already exist',
-                                                    'Create new one?')
+        userAnswer = True
         if self.db.isAccountExist():
+            createAccount_window = qui_getUserChoice.Ui('Create new account',
+                                                        'Some account(s) already exist',
+                                                        'Create new one?')
             createAccount_window.exec()
-        if createAccount_window.getAnswer():
+            userAnswer = createAccount_window.getAnswer()
+        if not userAnswer:
             pass  # cancel by user or it is new account
         else:
-            acc = account.New.random()
-            if len(acc) == 0:
+            acc = account.New.random()  # create new account
+            if len(acc) == 0:  # random account creation return by some error
                 pass
+            elif not isinstance(acc, dict) or len(acc) == 0:
+                pass  # Account creation failed
             else:
-                mnemonic = account.New.generateMnemonic(acc['entropy'])
-                if mnemonic == '':
-                    err = gui_errorDialog.Error('Account creation failed in mnemonic step')
-                    err.exec()
-                else:
-                    acc['mnemonic'] = str(mnemonic)  # append mnemonic to dict
-                    self.db.insertRow(acc)
-                    self.comboBox_activeAddress_val.addItem(acc['address'])
-                    self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                self.db.insertRow(acc)
+                self.comboBox_activeAddress_val.addItem(acc['address'])
+                self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
 
     def createAccountFromEntropy(self):
         getEntropy = qui_getUserInput.Ui('Recover account', 'Enter your entropy:')
         getEntropy.exec()
         entropy = getEntropy.getInput()
         if entropy == '':
-            qui_showMessage.Ui('Recover account',
-                               'Nothing received',
-                               'you can try again from Wallet -> New account -> Recover from entropy').exec()
+            (qui_showMessage.Ui('Recover account',
+                                'Nothing received',
+                                'you can try again from Wallet -> New account -> Recover from entropy')
+             .exec())
         else:
-            acc = account.New.fromEntropy(int(entropy, 2))
+            acc = account.New.fromEntropy(entropy)
             if not isinstance(acc, dict) or len(acc) == 0:
-                err = gui_errorDialog.Error('Account creation failed \n ' + str(type(acc)))
-                err.exec()
+                pass  # Account creation failed
             else:
-                acc['entropy'] = entropy  # append entropy to dict
-                mnemonic = account.New.generateMnemonic(acc['entropy'])
-                if mnemonic == '':
-                    gui_errorDialog.Error('Account creation failed in mnemonic step').exec()
-                else:
-                    acc['mnemonic'] = str(mnemonic)  # append mnemonic to dict
-                    self.db.insertRow(acc)
-                    self.comboBox_activeAddress_val.addItem(acc['address'])
-                    self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
-
-    def createAccountFromMnemonic(self):
-        pass
+                self.db.insertRow(acc)
+                self.comboBox_activeAddress_val.addItem(acc['address'])
+                self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
 
     def createAccountFromPrivateKey(self):
         getPrivateKey = qui_getUserInput.Ui('Recover account', 'Enter your private key:')
         getPrivateKey.exec()
         privateKey = getPrivateKey.getInput()
         if privateKey == '':
-            qui_showMessage.Ui('Recover account',
-                               'Nothing received',
-                               'you can try again from Wallet -> New account -> Recover from entropy').exec()
+            (qui_showMessage.Ui('Recover account',
+                                'Nothing received',
+                                'you can try again from Wallet -> New account -> Recover from private key')
+             .exec())
         else:
             acc = account.New.fromPrivateKey(privateKey)
             if not isinstance(acc, dict) or len(acc) == 0:
-                gui_errorDialog.Error('Account creation failed \n ' + str(type(acc))).exec()
+                pass  # Account creation failed
             else:
-                acc['entropy'] = privateKey  # Entropy is not recoverable from private key
-                # mnemonic = account.New.generateMnemonic(acc['entropy'])
-                # if mnemonic == '':
-                #    gui_errorDialog.Error('Account creation failed in mnemonic step').exec()
-                # else:
-                acc['mnemonic'] = privateKey  # Mnemonic is not recoverable from private key
+                self.db.insertRow(acc)
+                self.comboBox_activeAddress_val.addItem(acc['address'])
+                self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+
+    def createAccountFromMnemonic(self):
+        getMnemonic = qui_getUserInput.Ui('Recover account', 'Enter your mnemonic:')
+        getMnemonic.exec()
+        privateKey = getMnemonic.getInput()
+        if privateKey == '':
+            (qui_showMessage.Ui('Recover account',
+                                'Nothing received',
+                                'you can try again from Wallet -> New account -> Recover from mnemonic')
+             .exec())
+        else:
+            acc = account.New.fromMnemonic(privateKey)
+            if not isinstance(acc, dict) or len(acc) == 0:
+                pass  # Account creation failed
+            else:
                 self.db.insertRow(acc)
                 self.comboBox_activeAddress_val.addItem(acc['address'])
                 self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
 
     def goToEtherscan(self):
-        active_address = self.comboBox_activeAddress_val.currentText()
-        if active_address is not None:
-            webbrowser.open('https://etherscan.io/address/' + active_address)
+        try:
+            active_address = self.comboBox_activeAddress_val.currentText()
+            if active_address is not None:
+                webbrowser.open('https://etherscan.io/address/' + active_address)
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
 
     @staticmethod
     def goToEtherNodes():
-        webbrowser.open('https://ethereumnodes.com/')
+        try:
+            webbrowser.open('https://ethereumnodes.com/')
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
 
     def copyAddress(self):
-        active_address = self.comboBox_activeAddress_val.currentText()
-        if active_address is not None:
-            pyperclip.copy(active_address)
-        # spam = pyperclip.paste()
+        try:
+            active_address = self.comboBox_activeAddress_val.currentText()
+            if active_address is not None:
+                pyperclip.copy(active_address)
+            # spam = pyperclip.paste()
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
 
     def getBalance(self):
-        w3 = web3.Web3(web3.HTTPProvider(self.lineEdit_node_provider.text()))
-        address_cksm = web3.Web3.to_checksum_address(self.comboBox_activeAddress_val.currentText())
-        balance = w3.eth.get_balance(address_cksm)
-        balance = web3.Web3.from_wei(balance, 'ether')
-        self.label_amount_val.setText(str(balance))
-        print('balance = ', balance)
+        try:
+            w3 = web3.Web3(web3.HTTPProvider(self.lineEdit_node_provider.text()))
+            address_cksm = web3.Web3.to_checksum_address(self.comboBox_activeAddress_val.currentText())
+            balance = w3.eth.get_balance(address_cksm)
+            balance = web3.Web3.from_wei(balance, 'ether')
+            self.label_amount_val.setText(str(balance))
+            print('balance = ', balance)
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
 
     def showSecrets(self, secretType: types.SECRET):
         self.textEdit_main.clear()
@@ -216,18 +230,26 @@ class Ui(QtWidgets.QMainWindow):
             if len(result) <= 0:
                 gui_errorDialog.Error('Reading database failed').exec()
             else:
-
                 if secretType == types.SECRET.ENTROPY and (
                         self.db.readColumnByCondition(columnName=types.SECRET.ENTROPY,
                                                       condition=self.comboBox_activeAddress_val.currentText())
                         ==
                         self.db.readColumnByCondition(columnName=types.SECRET.PRIVATE_KEY,
                                                       condition=self.comboBox_activeAddress_val.currentText())
-                        ):
+                ):
                     qui_showMessage.Ui('Show secrets',
                                        'You have recovered an old account.',
                                        'Entropy is not recoverable from private key').exec()
-
+                elif secretType == types.SECRET.MNEMONIC and (
+                        self.db.readColumnByCondition(columnName=types.SECRET.MNEMONIC,
+                                                      condition=self.comboBox_activeAddress_val.currentText())
+                        ==
+                        self.db.readColumnByCondition(columnName=types.SECRET.PRIVATE_KEY,
+                                                      condition=self.comboBox_activeAddress_val.currentText())
+                ):
+                    qui_showMessage.Ui('Show secrets',
+                                       'You have recovered an old account.',
+                                       'Mnemonic is not recoverable from private key').exec()
                 elif len(result) == 1:
                     self.textEdit_main.append(f'Your account {secretType.name} keep it safe:\n')
                     self.textEdit_main.append(result[0][0])
