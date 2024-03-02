@@ -9,7 +9,8 @@ app = QApplication(sys.argv)
 window = gui_mainWindow.Ui(dbName)
 window.show()
 db = database.Sqlite(dbName)
-db.createTable()
+if not db.createTable():
+    gui_errorDialog.Error('Data base error..\n ').exec()
 
 getBalance = False
 
@@ -34,9 +35,11 @@ else:  # there is no account in database
         elif not isinstance(acc, dict) or len(acc) == 0:
             gui_errorDialog.Error('Account creation failed \n ' + str(type(acc))).exec()
         else:
-            db.insertRow(acc)
-            window.comboBox_activeAddress_val.addItem(acc['address'])
-            getBalance = True
+            if db.insertRow(acc):
+                window.comboBox_activeAddress_val.addItem(acc['address'])
+                getBalance = True
+            else:
+                gui_errorDialog.Error('Inserting account details to database failed.\n').exec()
 
 if getBalance:
     balanceThread = Balance(window)

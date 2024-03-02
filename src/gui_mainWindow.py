@@ -110,9 +110,11 @@ class Ui(QtWidgets.QMainWindow):
             elif not isinstance(acc, dict) or len(acc) == 0:
                 pass  # Account creation failed
             else:
-                self.db.insertRow(acc)
-                self.comboBox_activeAddress_val.addItem(acc['address'])
-                self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                if self.db.insertRow(acc):
+                    self.comboBox_activeAddress_val.addItem(acc['address'])
+                    self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                else:
+                    gui_errorDialog.Error('Inserting account details to database failed.\n').exec()
 
     def createAccountFromEntropy(self):
         getEntropy = qui_getUserInput.Ui('Recover account', 'Enter your entropy:')
@@ -128,9 +130,11 @@ class Ui(QtWidgets.QMainWindow):
             if not isinstance(acc, dict) or len(acc) == 0:
                 pass  # Account creation failed
             else:
-                self.db.insertRow(acc)
-                self.comboBox_activeAddress_val.addItem(acc['address'])
-                self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                if self.db.insertRow(acc):
+                    self.comboBox_activeAddress_val.addItem(acc['address'])
+                    self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                else:
+                    gui_errorDialog.Error('Inserting account details to database failed.\n').exec()
 
     def createAccountFromPrivateKey(self):
         getPrivateKey = qui_getUserInput.Ui('Recover account', 'Enter your private key:')
@@ -146,9 +150,11 @@ class Ui(QtWidgets.QMainWindow):
             if not isinstance(acc, dict) or len(acc) == 0:
                 pass  # Account creation failed
             else:
-                self.db.insertRow(acc)
-                self.comboBox_activeAddress_val.addItem(acc['address'])
-                self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                if self.db.insertRow(acc):
+                    self.comboBox_activeAddress_val.addItem(acc['address'])
+                    self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                else:
+                    gui_errorDialog.Error('Inserting account details to database failed.\n').exec()
 
     def createAccountFromMnemonic(self):
         getMnemonic = qui_getUserInput.Ui('Recover account', 'Enter your mnemonic:')
@@ -164,9 +170,11 @@ class Ui(QtWidgets.QMainWindow):
             if not isinstance(acc, dict) or len(acc) == 0:
                 pass  # Account creation failed
             else:
-                self.db.insertRow(acc)
-                self.comboBox_activeAddress_val.addItem(acc['address'])
-                self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                if self.db.insertRow(acc):
+                    self.comboBox_activeAddress_val.addItem(acc['address'])
+                    self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                else:
+                    gui_errorDialog.Error('Inserting account details to database failed.\n').exec()
 
     def goToEtherscan(self):
         try:

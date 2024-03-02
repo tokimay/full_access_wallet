@@ -40,7 +40,19 @@ class Sqlite:
             gui_errorDialog.Error(str(er)).exec()
             return False
 
-    def createTable(self):
+    def isRowExist(self, name: str, value: str) -> bool:
+        connection = sqlite3.connect(self.databaseName)
+        cursor = connection.cursor()
+        cursor.execute(f"SELECT * FROM accounts WHERE {name} = ?", (value,))
+        data = cursor.fetchall()
+        connection.commit()
+        connection.close()
+        if len(data) == 0:
+            return False
+        else:
+            return True
+
+    def createTable(self) -> bool:
         try:
             connection = sqlite3.connect(self.databaseName)
             cursor = connection.cursor()
@@ -57,28 +69,37 @@ class Sqlite:
             print('cursor last row id:', cursor.lastrowid)
             connection.commit()
             connection.close()
+            return True
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
+            return False
 
-    def insertRow(self, acc: dict):
+    def insertRow(self, acc: dict) -> bool:
         try:
-            connection = sqlite3.connect(self.databaseName)
-            cursor = connection.cursor()
-            cursor.execute(
-                "INSERT INTO accounts(ENT, PRV, PUK_COR_X, PUK_COR_Y, PUK, ADR, NEM) VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (
-                    acc['entropy'],
-                    acc['privateKey'],
-                    str(acc['publicKeyCoordinate'][0]),
-                    str(acc['publicKeyCoordinate'][1]),
-                    acc['publicKey'],
-                    acc['address'],
-                    acc['mnemonic']
-                ))
-            connection.commit()
-            connection.close()
+            existAccount = self.isRowExist('ADR', acc['address'])
+            if existAccount:
+                gui_errorDialog.Error('This account is already exist.\n').exec()
+                return True
+            else:
+                connection = sqlite3.connect(self.databaseName)
+                cursor = connection.cursor()
+                cursor.execute(
+                    "INSERT INTO accounts(ENT, PRV, PUK_COR_X, PUK_COR_Y, PUK, ADR, NEM) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    (
+                        acc['entropy'],
+                        acc['privateKey'],
+                        str(acc['publicKeyCoordinate'][0]),
+                        str(acc['publicKeyCoordinate'][1]),
+                        acc['publicKey'],
+                        acc['address'],
+                        acc['mnemonic']
+                    ))
+                connection.commit()
+                connection.close()
+                return True
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
+            return False
 
     def readAllRows(self) -> list:
         try:
@@ -110,7 +131,7 @@ class Sqlite:
         try:
             connection = sqlite3.connect(self.databaseName)
             cursor = connection.cursor()
-            cursor.execute("""SELECT """ + columnName.value + """ FROM accounts WHERE ADR = ?""", (condition,))
+            cursor.execute(f"""SELECT {columnName.value} FROM accounts WHERE ADR = ?""", (condition,))
             ls = cursor.fetchall()
             connection.commit()
             connection.close()

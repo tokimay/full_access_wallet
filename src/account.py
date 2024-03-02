@@ -39,9 +39,9 @@ class New:
                     'Entropy by len ' + str(len(entropy)) + ' bit received.\nexpected 256 bit.').exec()
                 return ''
             else:
-                pbkdf2Sha512Entropy = New.entropyToPbkdf2Sha512(entropy)
+                pbkdf2HmacSha512PrivateKey = New.entropyToPbkdf2HmacSha512(entropy)
 
-                return pbkdf2Sha512Entropy  # need complete by hashing
+                return pbkdf2HmacSha512PrivateKey  # need complete by hashing
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
             return ''
@@ -192,7 +192,7 @@ class New:
             return ''
 
     @staticmethod
-    def entropyToPbkdf2Sha512(entropy: str) -> str:
+    def entropyToPbkdf2HmacSha512(entropy: str) -> str:
         try:
             if not isinstance(entropy, str):
                 (gui_errorDialog.Error('Entropy received by type ' + str(type(entropy)) +
@@ -211,11 +211,12 @@ class New:
                 getPassphrase.exec()
                 passphrase = getPassphrase.getInput()
                 if passphrase == '':  # canceled by user
-                    return entropy
+                    pbkdf2Entropy = hashlib.pbkdf2_hmac('sha512', str.encode('mnemonic'),
+                                                        str.encode(entropy), 2048)
                 else:
                     pbkdf2Entropy = hashlib.pbkdf2_hmac('sha512', str.encode(passphrase),
                                                         str.encode(entropy), 2048)
-                    return pbkdf2Entropy.hex()
+                return pbkdf2Entropy.hex()
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
             return ''
