@@ -334,8 +334,6 @@ class Ui(QtWidgets.QMainWindow):
                 columnName=types.SECRET.PUBLIC_KEY_X.value, condition=self.comboBox_activeAddress_val.currentText()))
             result_Y = (self.db.readColumnByCondition(
                 columnName=types.SECRET.PUBLIC_KEY_Y.value, condition=self.comboBox_activeAddress_val.currentText()))
-            print(result_X)
-            print(result_Y)
             if (len(result_X) <= 0) or (len(result_Y) <= 0):
                 err = gui_errorDialog.Error('Reading database failed')
                 err.exec()
@@ -379,7 +377,7 @@ class Ui(QtWidgets.QMainWindow):
                     self.textEdit_main.append(f'{result[0][0]}\n')
                     if secretType == types.SECRET.MNEMONIC or secretType == types.SECRET.ENTROPY:
                         self.textEdit_main.append(f'{secretType.name} + Passphrase = your account\n\n'
-                                                  f'{secretType.name} whit out Passphrase = unknown account')
+                                                  f'{secretType.name} without Passphrase = unknown account')
                     elif secretType == types.SECRET.PRIVATE_KEY:
                         self.textEdit_main.append(f'{secretType.name} = your account')
 
@@ -388,6 +386,6 @@ class Ui(QtWidgets.QMainWindow):
                         self.textEdit_main.append(f'{res[0]}\n')
                     if secretType == types.SECRET.MNEMONIC or secretType == types.SECRET.ENTROPY:
                         self.textEdit_main.append(f'{secretType.name} + Passphrase = your account\n\n'
-                                                  f'{secretType.name} whit out Passphrase = unknown account')
+                                                  f'{secretType.name} without Passphrase = unknown account')
                     elif secretType == types.SECRET.PRIVATE_KEY:
                         self.textEdit_main.append(f'{secretType.name} = your account')
