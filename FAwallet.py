@@ -15,9 +15,11 @@ if not db.createTable():
 getBalance = False
 
 if db.isAccountExist():
-    accounts = db.readColumn(types.SECRET.ADDRESS)
+    accounts = db.readColumnAllRows(types.SECRET.ADDRESS.value)
     for ad in accounts:
         window.comboBox_activeAddress_val.addItem(ad[0])
+        accountName = db.readColumnByCondition('NAM',  window.comboBox_activeAddress_val.currentText())
+        window.lineEdit_accountName.setText(str(accountName[0][0]))
     getBalance = True
 else:  # there is no account in database
     createAccount_window = qui_getUserChoice.Ui('Create new account',

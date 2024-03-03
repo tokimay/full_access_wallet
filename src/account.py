@@ -58,11 +58,7 @@ class New:
             if not New.checkHex(privateKey):
                 gui_errorDialog.Error('PrivateKey key receives in none hex format.').exec()
                 return ()
-            elif not len(privateKey) == 128:
-                gui_errorDialog.Error(
-                    'PrivateKey by len ' + str(len(privateKey)) + ' received.\nexpected 64.').exec()
-                return ()
-            else:
+            elif len(privateKey) == 64 or len(privateKey) == 128:
                 curve = secp256k1()
                 publicKeyCoordinate = curve.getPublicKeyCoordinate(int(privateKey, 16))
                 if len(publicKeyCoordinate) <= 0:
@@ -70,6 +66,10 @@ class New:
                     return ()
                 else:
                     return publicKeyCoordinate
+            else:
+                gui_errorDialog.Error(
+                    'PrivateKey by len ' + str(len(privateKey)) + ' received.\nexpected 64 or 128.').exec()
+                return ()
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
             return ()
@@ -211,7 +211,7 @@ class New:
                 getPassphrase.exec()
                 passphrase = getPassphrase.getInput()
                 if passphrase == '':  # canceled by user
-                    pbkdf2Entropy = hashlib.pbkdf2_hmac('sha512', str.encode('mnemonic'),
+                    pbkdf2Entropy = hashlib.pbkdf2_hmac('sha256', str.encode('mnemonic'),
                                                         str.encode(entropy), 2048)
                 else:
                     pbkdf2Entropy = hashlib.pbkdf2_hmac('sha512', str.encode(passphrase),

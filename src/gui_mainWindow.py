@@ -21,6 +21,12 @@ class Ui(QtWidgets.QMainWindow):
         self.pushButton_ETH = self.findChild(QtWidgets.QPushButton, 'pushButton_ETH')
         self.pushButton_node_provider = self.findChild(QtWidgets.QPushButton, 'pushButton_node_provider')
         self.textEdit_main = self.findChild(QtWidgets.QTextEdit, 'textEdit_main')
+        self.radioButton_mainNet = self.findChild(QtWidgets.QRadioButton, 'radioButton_mainNet')
+        self.radioButton_testNet = self.findChild(QtWidgets.QRadioButton, 'radioButton_testNet')
+        self.label_accountName = self.findChild(QtWidgets.QLabel, 'label_accountName')
+        self.lineEdit_accountName = self.findChild(QtWidgets.QLineEdit, 'lineEdit_accountName')
+        self.pushButton_accountName = self.findChild(QtWidgets.QPushButton, 'pushButton_accountName')
+        self.label_ETH = self.findChild(QtWidgets.QLabel, 'label_ETH')
 
         self.actionEntropy = self.findChild(QAction, 'actionEntropy')
         self.actionPrivateKey = self.findChild(QAction, 'actionPrivateKey')
@@ -34,15 +40,41 @@ class Ui(QtWidgets.QMainWindow):
         self.actionRecover_from_privateKey = self.findChild(QAction, 'actionRecover_from_privateKey')
 
         self.db = database.Sqlite(dbName)
+        self.initUI()
+
+    def initUI(self):
+        # self.setStyleSheet("QMainWindow {background-color: gray;}")
+        self.setStyleSheet("background-color: rgb(30, 40, 50);")
+        self.textEdit_main.setStyleSheet("background-color: black; color: cyan")
+
+        self.comboBox_activeAddress_val.clear()
+        self.comboBox_activeAddress_val.currentTextChanged.connect(self.comboBoxChange)
+
+        self.lineEdit_node_provider.setText('https://nodes.mewapi.io/rpc/eth')
+        self.lineEdit_node_provider.setStyleSheet('background-color: white; color: black;')
+
+        self.radioButton_mainNet.setChecked(True)
+
+        self.radioButton_testNet.setChecked(False)
+
+        self.lineEdit_accountName.setEnabled(False)
+        self.lineEdit_accountName.setStyleSheet("color: yellow; border: none")
+
+        self.pushButton_accountName.setText('Edit')
+
+        self.label_amount_val.setStyleSheet("font-weight: bold; color: red;")
+
+        self.label_ETH.setStyleSheet("font-weight: bold; color: rgb(140, 170, 250);")
+
         self.initIcons()
         self.setClickEvents()
         self.setMenuActions()
-        self.comboBox_activeAddress_val.clear()
 
     def setClickEvents(self):
         self.pushButton_copy_address.clicked.connect(self.copyAddress)
         self.pushButton_ETH.clicked.connect(self.goToEtherscan)
         self.pushButton_node_provider.clicked.connect(self.goToEtherNodes)
+        self.pushButton_accountName.clicked.connect(self.editAccountName)
         # ----------------------------------------------------------------------------------
         self.actionNew_random_account.triggered.connect(self.createAccountRandom)
         self.actionRecover_from_mnemonic.triggered.connect(self.createAccountFromMnemonic)
@@ -55,6 +87,8 @@ class Ui(QtWidgets.QMainWindow):
         self.actionPublicKey.triggered.connect(lambda: self.showSecrets(types.SECRET.PUBLIC_KEY))
         self.actionMnemonic.triggered.connect(lambda: self.showSecrets(types.SECRET.MNEMONIC))
         # ----------------------------------------------------------------------------------
+        self.radioButton_mainNet.toggled.connect(self.changeNetwork)
+        self.radioButton_testNet.toggled.connect(self.changeNetwork)
 
     def initIcons(self):
         icon = QIcon()
@@ -69,6 +103,10 @@ class Ui(QtWidgets.QMainWindow):
 
         icon.addPixmap(QPixmap('resources/UI/icons/ethereum_node_clr.png'))
         self.pushButton_node_provider.setIcon(icon)
+        self.pushButton_node_provider.setIconSize(QSize(16, 16))
+
+        icon.addPixmap(QPixmap('resources/UI/icons/edit40.png'))
+        self.pushButton_accountName.setIcon(icon)
         self.pushButton_node_provider.setIconSize(QSize(16, 16))
 
     def setMenuActions(self):
@@ -92,6 +130,47 @@ class Ui(QtWidgets.QMainWindow):
         self.actionMnemonic.setShortcut('Alt+m')
         self.actionMnemonic.setStatusTip('show account mnemonic')
         # ----------------------------------------------------------------------------------
+
+    def changeNetwork(self):
+        try:
+            if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
+                self.lineEdit_node_provider.setText('https://nodes.mewapi.io/rpc/eth')
+            elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
+                self.lineEdit_node_provider.setText('https://rpc.sepolia.org')
+            else:
+                raise
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
+
+    def comboBoxChange(self):
+        try:
+            accountName = self.db.readColumnByCondition('NAM', self.comboBox_activeAddress_val.currentText())
+            self.lineEdit_accountName.setText(str(accountName[0][0]))
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
+
+    def editAccountName(self):
+        try:
+            icon = QIcon()
+            if self.pushButton_accountName.text() == 'Edit':
+                self.lineEdit_accountName.setEnabled(True)
+                self.pushButton_accountName.setText('Save')
+                icon.addPixmap(QPixmap('resources/UI/icons/save48.png'))
+                self.pushButton_accountName.setIcon(icon)
+                self.pushButton_node_provider.setIconSize(QSize(16, 16))
+            elif self.pushButton_accountName.text() == 'Save':
+                self.lineEdit_accountName.setEnabled(False)
+                self.pushButton_accountName.setText('Edit')
+                icon.addPixmap(QPixmap('resources/UI/icons/edit40.png'))
+                self.pushButton_accountName.setIcon(icon)
+                self.pushButton_node_provider.setIconSize(QSize(16, 16))
+                self.db.updateRowValue(columnName='NAM',
+                                       newValue=self.lineEdit_accountName.text(),
+                                       condition=self.comboBox_activeAddress_val.currentText())
+            else:
+                raise
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
 
     def createAccountRandom(self):
         userAnswer = True
@@ -179,15 +258,25 @@ class Ui(QtWidgets.QMainWindow):
     def goToEtherscan(self):
         try:
             active_address = self.comboBox_activeAddress_val.currentText()
-            if active_address is not None:
+            if active_address is None:
+                raise
+            if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
                 webbrowser.open('https://etherscan.io/address/' + active_address)
+            elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
+                webbrowser.open('https://sepolia.etherscan.io/address/' + active_address)
+            else:
+                raise
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
 
-    @staticmethod
-    def goToEtherNodes():
+    def goToEtherNodes(self):
         try:
-            webbrowser.open('https://ethereumnodes.com/')
+            if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
+                webbrowser.open('https://ethereumnodes.com/')
+            elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
+                webbrowser.open('https://sepolia.dev/')
+            else:
+                raise
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
 
@@ -207,6 +296,10 @@ class Ui(QtWidgets.QMainWindow):
             balance = w3.eth.get_balance(address_cksm)
             balance = web3.Web3.from_wei(balance, 'ether')
             self.label_amount_val.setText(str(balance))
+            if balance > 0:
+                self.label_amount_val.setStyleSheet("color: green;")
+            else:
+                self.label_amount_val.setStyleSheet("color: red;")
             print('balance = ', balance)
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
@@ -215,9 +308,9 @@ class Ui(QtWidgets.QMainWindow):
         self.textEdit_main.clear()
         if secretType == types.SECRET.PUBLIC_KEY_X or secretType == types.SECRET.PUBLIC_KEY_Y:
             result_X = (self.db.readColumnByCondition(
-                columnName=types.SECRET.PUBLIC_KEY_X, condition=self.comboBox_activeAddress_val.currentText()))
+                columnName=types.SECRET.PUBLIC_KEY_X.value, condition=self.comboBox_activeAddress_val.currentText()))
             result_Y = (self.db.readColumnByCondition(
-                columnName=types.SECRET.PUBLIC_KEY_Y, condition=self.comboBox_activeAddress_val.currentText()))
+                columnName=types.SECRET.PUBLIC_KEY_Y.value, condition=self.comboBox_activeAddress_val.currentText()))
             print(result_X)
             print(result_Y)
             if (len(result_X) <= 0) or (len(result_Y) <= 0):
@@ -234,25 +327,25 @@ class Ui(QtWidgets.QMainWindow):
                     self.textEdit_main.append('Y:' + res[0][0])
         else:
             result = (self.db.readColumnByCondition(
-                columnName=secretType, condition=self.comboBox_activeAddress_val.currentText()))
+                columnName=secretType.value, condition=self.comboBox_activeAddress_val.currentText()))
             if len(result) <= 0:
                 gui_errorDialog.Error('Reading database failed').exec()
             else:
                 if secretType == types.SECRET.ENTROPY and (
-                        self.db.readColumnByCondition(columnName=types.SECRET.ENTROPY,
+                        self.db.readColumnByCondition(columnName=types.SECRET.ENTROPY.value,
                                                       condition=self.comboBox_activeAddress_val.currentText())
                         ==
-                        self.db.readColumnByCondition(columnName=types.SECRET.PRIVATE_KEY,
+                        self.db.readColumnByCondition(columnName=types.SECRET.PRIVATE_KEY.value,
                                                       condition=self.comboBox_activeAddress_val.currentText())
                 ):
                     qui_showMessage.Ui('Show secrets',
                                        'You have recovered an old account.',
                                        'Entropy is not recoverable from private key').exec()
                 elif secretType == types.SECRET.MNEMONIC and (
-                        self.db.readColumnByCondition(columnName=types.SECRET.MNEMONIC,
+                        self.db.readColumnByCondition(columnName=types.SECRET.MNEMONIC.value,
                                                       condition=self.comboBox_activeAddress_val.currentText())
                         ==
-                        self.db.readColumnByCondition(columnName=types.SECRET.PRIVATE_KEY,
+                        self.db.readColumnByCondition(columnName=types.SECRET.PRIVATE_KEY.value,
                                                       condition=self.comboBox_activeAddress_val.currentText())
                 ):
                     qui_showMessage.Ui('Show secrets',
@@ -260,7 +353,18 @@ class Ui(QtWidgets.QMainWindow):
                                        'Mnemonic is not recoverable from private key').exec()
                 elif len(result) == 1:
                     self.textEdit_main.append(f'Your account {secretType.name} keep it safe:\n')
-                    self.textEdit_main.append(result[0][0])
+                    self.textEdit_main.append(f'{result[0][0]}\n')
+                    if secretType == types.SECRET.MNEMONIC or secretType == types.SECRET.ENTROPY:
+                        self.textEdit_main.append(f'{secretType.name} + Passphrase = your account\n\n'
+                                                  f'{secretType.name} whit out Passphrase = unknown account')
+                    elif secretType == types.SECRET.PRIVATE_KEY:
+                        self.textEdit_main.append(f'{secretType.name} = your account')
+
                 else:
                     for res in result:
-                        self.textEdit_main.append(res[0])
+                        self.textEdit_main.append(f'{res[0]}\n')
+                    if secretType == types.SECRET.MNEMONIC or secretType == types.SECRET.ENTROPY:
+                        self.textEdit_main.append(f'{secretType.name} + Passphrase = your account\n\n'
+                                                  f'{secretType.name} whit out Passphrase = unknown account')
+                    elif secretType == types.SECRET.PRIVATE_KEY:
+                        self.textEdit_main.append(f'{secretType.name} = your account')

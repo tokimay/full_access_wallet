@@ -63,7 +63,8 @@ class Sqlite:
                         PUK_COR_Y VARCHAR(255) NOT NULL,
                         PUK VARCHAR(255) NOT NULL,
                         ADR VARCHAR(255) NOT NULL,
-                        NEM TEXT NOT NULL
+                        NEM TEXT NOT NULL,
+                        NAM VARCHAR(255)
                                         );"""
             cursor.execute(table)
             print('cursor last row id:', cursor.lastrowid)
@@ -84,7 +85,8 @@ class Sqlite:
                 connection = sqlite3.connect(self.databaseName)
                 cursor = connection.cursor()
                 cursor.execute(
-                    "INSERT INTO accounts(ENT, PRV, PUK_COR_X, PUK_COR_Y, PUK, ADR, NEM) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO accounts(ENT, PRV, PUK_COR_X, PUK_COR_Y, PUK, ADR, NEM, NAM) "
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
                     (
                         acc['entropy'],
                         acc['privateKey'],
@@ -92,7 +94,8 @@ class Sqlite:
                         str(acc['publicKeyCoordinate'][1]),
                         acc['publicKey'],
                         acc['address'],
-                        acc['mnemonic']
+                        acc['mnemonic'],
+                        'No name'
                     ))
                 connection.commit()
                 connection.close()
@@ -114,11 +117,11 @@ class Sqlite:
             gui_errorDialog.Error(str(er)).exec()
             return []
 
-    def readColumn(self, columnName) -> list:
+    def readColumnAllRows(self, columnName) -> list:
         try:
             connection = sqlite3.connect(self.databaseName)
             cursor = connection.cursor()
-            cursor.execute("""SELECT """ + columnName.value + """ FROM accounts;""")
+            cursor.execute(f"""SELECT {columnName} FROM accounts;""")
             ls = cursor.fetchall()
             connection.commit()
             connection.close()
@@ -131,7 +134,7 @@ class Sqlite:
         try:
             connection = sqlite3.connect(self.databaseName)
             cursor = connection.cursor()
-            cursor.execute(f"""SELECT {columnName.value} FROM accounts WHERE ADR = ?""", (condition,))
+            cursor.execute(f"""SELECT {columnName} FROM accounts WHERE ADR = ?""", (condition,))
             ls = cursor.fetchall()
             connection.commit()
             connection.close()
@@ -139,3 +142,16 @@ class Sqlite:
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
             return []
+
+    def updateRowValue(self, columnName: str, newValue: str, condition: str) -> bool:
+        try:
+            connection = sqlite3.connect(self.databaseName)
+            cursor = connection.cursor()
+            cursor.execute(f"""UPDATE accounts SET {columnName} = '{newValue}' WHERE ADR = ?""", (condition,))
+            connection.commit()
+            connection.close()
+            return True
+        except Exception as er:
+            print('here')
+            gui_errorDialog.Error(str(er)).exec()
+            return False
