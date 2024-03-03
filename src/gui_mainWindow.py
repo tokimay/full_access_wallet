@@ -26,7 +26,6 @@ class Ui(QtWidgets.QMainWindow):
         self.label_accountName = self.findChild(QtWidgets.QLabel, 'label_accountName')
         self.lineEdit_accountName = self.findChild(QtWidgets.QLineEdit, 'lineEdit_accountName')
         self.pushButton_accountName = self.findChild(QtWidgets.QPushButton, 'pushButton_accountName')
-        self.label_ETH = self.findChild(QtWidgets.QLabel, 'label_ETH')
 
         self.actionEntropy = self.findChild(QAction, 'actionEntropy')
         self.actionPrivateKey = self.findChild(QAction, 'actionPrivateKey')
@@ -62,10 +61,31 @@ class Ui(QtWidgets.QMainWindow):
 
         self.pushButton_accountName.setText('Edit')
 
-        self.label_amount_val.setStyleSheet("font-weight: bold; color: red;")
+        self.label_amount_val.setText(
+            '<span style = "color: red"; font-weight: bold"; > 0 </ span>'
+            '<span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
 
-        self.label_ETH.setStyleSheet("font-weight: bold; color: rgb(140, 170, 250);")
+        self.radioButton_mainNet.setStyleSheet("QRadioButton::indicator:unchecked{"
+                                               "border: 1px solid red;"
+                                               "}"
+                                               "QRadioButton::indicator:checked{"
+                                               "border: 1px solid green;"
+                                               "background-image : url(resources/UI/icons/fill.png)"
+                                               "}"
+                                               "QRadioButton::indicator:checked:pressed{"
+                                               "border: 1px solid white;"
+                                               "};")
 
+        self.radioButton_testNet.setStyleSheet("QRadioButton::indicator:unchecked{"
+                                               "border: 1px solid red;"
+                                               "}"
+                                               "QRadioButton::indicator:checked{"
+                                               "border: 1px solid green;"
+                                               "background-image : url(resources/UI/icons/fill.png)"
+                                               "}"
+                                               "QRadioButton::indicator:checked:pressed{"
+                                               "border: 1px solid white;"
+                                               "};")
         self.initIcons()
         self.setClickEvents()
         self.setMenuActions()
@@ -295,11 +315,14 @@ class Ui(QtWidgets.QMainWindow):
             address_cksm = web3.Web3.to_checksum_address(self.comboBox_activeAddress_val.currentText())
             balance = w3.eth.get_balance(address_cksm)
             balance = web3.Web3.from_wei(balance, 'ether')
-            self.label_amount_val.setText(str(balance))
             if balance > 0:
-                self.label_amount_val.setStyleSheet("color: green;")
+                color = 'green'
             else:
-                self.label_amount_val.setStyleSheet("color: red;")
+                color = 'red'
+            self.label_amount_val.setText(
+                '<span style = "color: ' + color + '; font-weight: bold;" > ' + str(balance) +
+                '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
+
             print('balance = ', balance)
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
