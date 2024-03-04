@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>650</width>
+    <width>800</width>
     <height>400</height>
    </rect>
   </property>
@@ -19,32 +19,32 @@
      <rect>
       <x>9</x>
       <y>9</y>
-      <width>631</width>
+      <width>781</width>
       <height>341</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridlayout" columnstretch="0,0,0,0">
-     <item row="4" column="3">
-      <widget class="QPushButton" name="pushButton_ETH">
+    <layout class="QGridLayout" name="gridlayout" columnstretch="0,0,0,0,0,0">
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_node_provider">
        <property name="text">
-        <string>etherescan.io</string>
+        <string>Node provider:</string>
        </property>
       </widget>
      </item>
-     <item row="8" column="0" colspan="3">
-      <widget class="QTextEdit" name="textEdit_main"/>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_amount">
+     <item row="1" column="5">
+      <widget class="QLabel" name="label_customizationArea">
        <property name="text">
-        <string>Amount:</string>
+        <string>Customization area</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1" colspan="2">
-      <widget class="QLineEdit" name="lineEdit_node_provider">
+     <item row="2" column="1" colspan="2">
+      <widget class="QLineEdit" name="lineEdit_accountName"/>
+     </item>
+     <item row="4" column="1" colspan="2">
+      <widget class="QLabel" name="label_amount_val">
        <property name="text">
-        <string>https://nodes.mewapi.io/rpc/eth</string>
+        <string>0</string>
        </property>
       </widget>
      </item>
@@ -55,6 +55,13 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="1" colspan="2">
+      <widget class="QLineEdit" name="lineEdit_node_provider">
+       <property name="text">
+        <string>https://nodes.mewapi.io/rpc/eth</string>
+       </property>
+      </widget>
+     </item>
      <item row="2" column="0">
       <widget class="QLabel" name="label_accountName">
        <property name="text">
@@ -62,7 +69,31 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="3">
+     <item row="4" column="5">
+      <widget class="QRadioButton" name="radioButton_testNet">
+       <property name="text">
+        <string>TestNet(Sepolia)</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_amount">
+       <property name="text">
+        <string>Amount:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0" colspan="4">
+      <widget class="QTextEdit" name="textEdit_main"/>
+     </item>
+     <item row="6" column="1">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="5">
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -75,34 +106,41 @@
        </property>
       </spacer>
      </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_node_provider">
+     <item row="2" column="3">
+      <widget class="QPushButton" name="pushButton_accountName">
        <property name="text">
-        <string>Node provider:</string>
+        <string>Edit</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_send">
+       <property name="text">
+        <string>Send ETH to:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4" rowspan="8">
+      <widget class="Line" name="line_vertical">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>TextLabel</string>
        </property>
       </widget>
      </item>
      <item row="3" column="1" colspan="2">
       <widget class="QComboBox" name="comboBox_activeAddress_val"/>
      </item>
-     <item row="1" column="3">
-      <widget class="QPushButton" name="pushButton_node_provider">
+     <item row="4" column="3">
+      <widget class="QPushButton" name="pushButton_ETH">
        <property name="text">
-        <string>Providers</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="3">
-      <widget class="QRadioButton" name="radioButton_mainNet">
-       <property name="text">
-        <string>MainNet</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="3">
-      <widget class="QRadioButton" name="radioButton_testNet">
-       <property name="text">
-        <string>TestNet(Sepolia)</string>
+        <string>etherescan.io</string>
        </property>
       </widget>
      </item>
@@ -113,20 +151,41 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
-      <widget class="QLabel" name="label_amount_val">
+     <item row="1" column="3">
+      <widget class="QPushButton" name="pushButton_node_provider">
        <property name="text">
-        <string>0</string>
+        <string>Providers</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QLineEdit" name="lineEdit_accountName"/>
-     </item>
-     <item row="2" column="2">
-      <widget class="QPushButton" name="pushButton_accountName">
+     <item row="6" column="3">
+      <widget class="QLabel" name="label_4">
        <property name="text">
-        <string>Edit</string>
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="5">
+      <widget class="QRadioButton" name="radioButton_mainNet">
+       <property name="text">
+        <string>MainNet</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>TextLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="1" colspan="2">
+      <widget class="QLineEdit" name="lineEdit_send"/>
+     </item>
+     <item row="5" column="3">
+      <widget class="QPushButton" name="pushButton_send">
+       <property name="text">
+        <string>Send</string>
        </property>
       </widget>
      </item>
@@ -138,7 +197,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>650</width>
+     <width>800</width>
      <height>24</height>
     </rect>
    </property>

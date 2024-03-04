@@ -9,6 +9,6 @@ class Balance(QThread):
 
     def run(self):
         while True:
-            sleep(2)
+            sleep(5)
             self.window.getBalance()
 

@@ -39,7 +39,7 @@ class New:
                     'Entropy by len ' + str(len(entropy)) + ' bit received.\nexpected 256 bit.').exec()
                 return ''
             else:
-                pbkdf2HmacSha512PrivateKey = New.entropyToPbkdf2HmacSha512(entropy)
+                pbkdf2HmacSha512PrivateKey = New.entropyToPbkdf2HmacSha256(entropy)
 
                 return pbkdf2HmacSha512PrivateKey  # need complete by hashing
         except Exception as er:
@@ -186,13 +186,13 @@ class New:
                 hexString = "{0:0>4X}".format(int(entropy, 2))
                 data = binascii.a2b_hex(hexString)
                 hashEntropy = sha256(data).hexdigest()
-                return bin(int(str(hashEntropy), 16))[2:].zfill(256)  # should check zfill ???????????????????
+                return bin(int(str(hashEntropy), 16))[2:]#.zfill(256)  # should check zfill ???????????????????
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
             return ''
 
     @staticmethod
-    def entropyToPbkdf2HmacSha512(entropy: str) -> str:
+    def entropyToPbkdf2HmacSha256(entropy: str) -> str:
         try:
             if not isinstance(entropy, str):
                 (gui_errorDialog.Error('Entropy received by type ' + str(type(entropy)) +
@@ -211,10 +211,14 @@ class New:
                 getPassphrase.exec()
                 passphrase = getPassphrase.getInput()
                 if passphrase == '':  # canceled by user
+                    # pbkdf2Entropy = hashlib.pbkdf2_hmac('sha512', str.encode('mnemonic'),
+                    #                                    str.encode(entropy), 2048)
                     pbkdf2Entropy = hashlib.pbkdf2_hmac('sha256', str.encode('mnemonic'),
                                                         str.encode(entropy), 2048)
                 else:
-                    pbkdf2Entropy = hashlib.pbkdf2_hmac('sha512', str.encode(passphrase),
+                    # pbkdf2Entropy = hashlib.pbkdf2_hmac('sha512', str.encode(passphrase),
+                    #                                    str.encode(entropy), 2048)
+                    pbkdf2Entropy = hashlib.pbkdf2_hmac('sha256', str.encode(passphrase),
                                                         str.encode(entropy), 2048)
                 return pbkdf2Entropy.hex()
         except Exception as er:

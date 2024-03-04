@@ -1,11 +1,12 @@
 import webbrowser
 import pyperclip
-import web3
+from PyQt6.QtWidgets import QFrame
+from time import sleep
 
 import src.account as account
-from src import database, types, gui_errorDialog, qui_getUserChoice, qui_getUserInput, qui_showMessage
+from src import database, types, gui_errorDialog, qui_getUserChoice, qui_getUserInput, qui_showMessage, ethereum
 from PyQt6 import QtWidgets, uic
-from PyQt6.QtCore import QSize
+from PyQt6.QtCore import QSize, QRect
 from PyQt6.QtGui import QIcon, QPixmap, QAction
 
 
@@ -14,18 +15,8 @@ class Ui(QtWidgets.QMainWindow):
         super().__init__()
         uic.loadUi('resources/UI/MainWindow.ui', self)
 
-        self.lineEdit_node_provider = self.findChild(QtWidgets.QLineEdit, 'lineEdit_node_provider')
-        self.comboBox_activeAddress_val = self.findChild(QtWidgets.QComboBox, 'comboBox_activeAddress_val')
-        self.label_amount_val = self.findChild(QtWidgets.QLabel, 'label_amount_val')
-        self.pushButton_copy_address = self.findChild(QtWidgets.QPushButton, 'pushButton_copy_address')
-        self.pushButton_ETH = self.findChild(QtWidgets.QPushButton, 'pushButton_ETH')
-        self.pushButton_node_provider = self.findChild(QtWidgets.QPushButton, 'pushButton_node_provider')
-        self.textEdit_main = self.findChild(QtWidgets.QTextEdit, 'textEdit_main')
-        self.radioButton_mainNet = self.findChild(QtWidgets.QRadioButton, 'radioButton_mainNet')
-        self.radioButton_testNet = self.findChild(QtWidgets.QRadioButton, 'radioButton_testNet')
-        self.label_accountName = self.findChild(QtWidgets.QLabel, 'label_accountName')
-        self.lineEdit_accountName = self.findChild(QtWidgets.QLineEdit, 'lineEdit_accountName')
-        self.pushButton_accountName = self.findChild(QtWidgets.QPushButton, 'pushButton_accountName')
+        self.gridlayout = self.findChild(QtWidgets.QGridLayout, 'gridlayout')
+        self.line_vertical = self.findChild(QFrame, 'gridlayout')
 
         self.actionEntropy = self.findChild(QAction, 'actionEntropy')
         self.actionPrivateKey = self.findChild(QAction, 'actionPrivateKey')
@@ -38,11 +29,68 @@ class Ui(QtWidgets.QMainWindow):
         self.actionRecover_from_entropy = self.findChild(QAction, 'actionRecover_from_entropy')
         self.actionRecover_from_privateKey = self.findChild(QAction, 'actionRecover_from_privateKey')
 
+        self.label_customizationArea = self.findChild(QtWidgets.QLabel, 'label_customizationArea')
+        self.radioButton_mainNet = self.findChild(QtWidgets.QRadioButton, 'radioButton_mainNet')
+        self.radioButton_testNet = self.findChild(QtWidgets.QRadioButton, 'radioButton_testNet')
+
+        self.label_node_provider = self.findChild(QtWidgets.QLabel, 'label_node_provider')
+        self.lineEdit_node_provider = self.findChild(QtWidgets.QLineEdit, 'lineEdit_node_provider')
+        self.pushButton_node_provider = self.findChild(QtWidgets.QPushButton, 'pushButton_node_provider')
+
+        self.label_accountName = self.findChild(QtWidgets.QLabel, 'label_accountName')
+        self.lineEdit_accountName = self.findChild(QtWidgets.QLineEdit, 'lineEdit_accountName')
+        self.pushButton_accountName = self.findChild(QtWidgets.QPushButton, 'pushButton_accountName')
+
+        self.label_activeAddress = self.findChild(QtWidgets.QLabel, 'label_activeAddress')
+        self.comboBox_activeAddress_val = self.findChild(QtWidgets.QComboBox, 'comboBox_activeAddress_val')
+        self.pushButton_copy_address = self.findChild(QtWidgets.QPushButton, 'pushButton_copy_address')
+
+        self.label_amount = self.findChild(QtWidgets.QLabel, 'label_amount')
+        self.label_amount_val = self.findChild(QtWidgets.QLabel, 'label_amount_val')
+        self.pushButton_ETH = self.findChild(QtWidgets.QPushButton, 'pushButton_ETH')
+
+        self.label_send = self.findChild(QtWidgets.QLabel, 'label_send')
+        self.lineEdit_send = self.findChild(QtWidgets.QLineEdit, 'lineEdit_send')
+        self.pushButton_send = self.findChild(QtWidgets.QPushButton, 'pushButton_send')
+
+        self.textEdit_main = self.findChild(QtWidgets.QTextEdit, 'textEdit_main')
+
         self.db = database.Sqlite(dbName)
         self.initUI()
 
     def initUI(self):
-        # self.setStyleSheet("QMainWindow {background-color: gray;}")
+        self.resize(800, 400)
+        self.gridlayout.setGeometry(QRect(10, 10, 780, 380))
+        # self.gridlayout.setRowMinimumHeight(1, 100)
+        # self.gridlayout.setRowMinimumHeight(1, 27)
+        # self.gridlayout.setRowMinimumHeight(2, 27)
+        # self.gridlayout.setRowMinimumHeight(3, 27)
+        # self.gridlayout.setRowMinimumHeight(4, 27)
+        # self.gridlayout.setRowMinimumHeight(5, 27)
+        # self.gridlayout.setRowMinimumHeight(6, 700)
+        height = 27
+        self.label_node_provider.setMinimumHeight(height)
+        self.lineEdit_node_provider.setMinimumHeight(height)
+        self.pushButton_node_provider.setMinimumHeight(height)
+
+        self.label_accountName.setMinimumHeight(height)
+        self.lineEdit_accountName.setMinimumHeight(height)
+        self.pushButton_accountName.setMinimumHeight(height)
+
+        self.label_activeAddress.setMinimumHeight(height)
+        self.comboBox_activeAddress_val.setMinimumHeight(height)
+        self.pushButton_copy_address.setMinimumHeight(height)
+
+        self.label_amount.setMinimumHeight(height)
+        self.label_amount_val.setMinimumHeight(height)
+        self.pushButton_ETH.setMinimumHeight(height)
+
+        self.label_send.setMinimumHeight(height)
+        self.lineEdit_send.setMinimumHeight(height)
+        self.pushButton_send.setMinimumHeight(height)
+
+        self.textEdit_main.setMinimumHeight(height)
+
         self.setStyleSheet("background-color: rgb(30, 40, 50);")
         self.textEdit_main.setStyleSheet("background-color: black; color: cyan")
 
@@ -62,8 +110,8 @@ class Ui(QtWidgets.QMainWindow):
         self.pushButton_accountName.setText('Edit')
 
         self.label_amount_val.setText(
-            '<span style = "color: red"; font-weight: bold"; > 0 </ span>'
-            '<span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
+            '<span style = "color: red; font-weight: bold;" > 0'
+            '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
 
         self.radioButton_mainNet.setStyleSheet("QRadioButton::indicator:unchecked{"
                                                "border: 1px solid red;"
@@ -86,6 +134,8 @@ class Ui(QtWidgets.QMainWindow):
                                                "QRadioButton::indicator:checked:pressed{"
                                                "border: 1px solid white;"
                                                "};")
+
+        self.lineEdit_send.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
         self.initIcons()
         self.setClickEvents()
         self.setMenuActions()
@@ -95,6 +145,7 @@ class Ui(QtWidgets.QMainWindow):
         self.pushButton_ETH.clicked.connect(self.goToEtherscan)
         self.pushButton_node_provider.clicked.connect(self.goToEtherNodes)
         self.pushButton_accountName.clicked.connect(self.editAccountName)
+        self.pushButton_send.clicked.connect(self.sentETH)
         # ----------------------------------------------------------------------------------
         self.actionNew_random_account.triggered.connect(self.createAccountRandom)
         self.actionRecover_from_mnemonic.triggered.connect(self.createAccountFromMnemonic)
@@ -112,22 +163,27 @@ class Ui(QtWidgets.QMainWindow):
 
     def initIcons(self):
         icon = QIcon()
+        size = 20
 
         icon.addPixmap(QPixmap('resources/UI/icons/copy_w.png'))
         self.pushButton_copy_address.setIcon(icon)
-        self.pushButton_copy_address.setIconSize(QSize(16, 16))
+        self.pushButton_copy_address.setIconSize(QSize(size, size))
 
         icon.addPixmap(QPixmap('resources/UI/icons/ethereum_c_b.png'))
         self.pushButton_ETH.setIcon(icon)
-        self.pushButton_ETH.setIconSize(QSize(16, 16))
+        self.pushButton_ETH.setIconSize(QSize(size, size))
 
-        icon.addPixmap(QPixmap('resources/UI/icons/ethereum_node_clr.png'))
+        icon.addPixmap(QPixmap('resources/UI/icons/node64.png'))
         self.pushButton_node_provider.setIcon(icon)
-        self.pushButton_node_provider.setIconSize(QSize(16, 16))
+        self.pushButton_node_provider.setIconSize(QSize(size, size))
+
+        icon.addPixmap(QPixmap('resources/UI/icons/moneyTransfer48.png'))
+        self.pushButton_send.setIcon(icon)
+        self.pushButton_send.setIconSize(QSize(size, size))
 
         icon.addPixmap(QPixmap('resources/UI/icons/edit40.png'))
         self.pushButton_accountName.setIcon(icon)
-        self.pushButton_node_provider.setIconSize(QSize(16, 16))
+        self.pushButton_node_provider.setIconSize(QSize(size, size))
 
     def setMenuActions(self):
         self.actionNew_random_account.setShortcut('Ctrl+n')
@@ -309,24 +365,6 @@ class Ui(QtWidgets.QMainWindow):
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
 
-    def getBalance(self):
-        try:
-            w3 = web3.Web3(web3.HTTPProvider(self.lineEdit_node_provider.text()))
-            address_cksm = web3.Web3.to_checksum_address(self.comboBox_activeAddress_val.currentText())
-            balance = w3.eth.get_balance(address_cksm)
-            balance = web3.Web3.from_wei(balance, 'ether')
-            if balance > 0:
-                color = 'green'
-            else:
-                color = 'red'
-            self.label_amount_val.setText(
-                '<span style = "color: ' + color + '; font-weight: bold;" > ' + str(balance) +
-                '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
-
-            print('balance = ', balance)
-        except Exception as er:
-            gui_errorDialog.Error(str(er)).exec()
-
     def showSecrets(self, secretType: types.SECRET):
         self.textEdit_main.clear()
         if secretType == types.SECRET.PUBLIC_KEY_X or secretType == types.SECRET.PUBLIC_KEY_Y:
@@ -352,6 +390,7 @@ class Ui(QtWidgets.QMainWindow):
             if len(result) <= 0:
                 gui_errorDialog.Error('Reading database failed').exec()
             else:
+                self.textEdit_main.clear()
                 if secretType == types.SECRET.ENTROPY and (
                         self.db.readColumnByCondition(columnName=types.SECRET.ENTROPY.value,
                                                       condition=self.comboBox_activeAddress_val.currentText())
@@ -389,3 +428,82 @@ class Ui(QtWidgets.QMainWindow):
                                                   f'{secretType.name} without Passphrase = unknown account')
                     elif secretType == types.SECRET.PRIVATE_KEY:
                         self.textEdit_main.append(f'{secretType.name} = your account')
+
+    def getBalance(self):
+        try:
+            balance = ethereum.getBalance(self.comboBox_activeAddress_val.currentText(),
+                                          self.lineEdit_node_provider.text())
+            if balance > 0:
+                color = 'green'
+            else:
+                color = 'red'
+            self.label_amount_val.setText(
+                '<span style = "color: ' + color + '; font-weight: bold;" > ' + str(balance) +
+                '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
+
+            print('balance = ', balance)
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
+
+    def sentETH(self):
+        try:
+            getAmount = qui_getUserInput.Ui('Sending your money to others', 'Inter amount in ETH:')
+            getAmount.exec()
+            getAmount = getAmount.getInput()
+            if getAmount == '':
+                qui_showMessage.Ui('I\'m entranced with joy',
+                                   'You are in safe',
+                                   'Nothing has been sent').exec()
+            else:
+                senETH = qui_getUserChoice.Ui('Sending your money to others',
+                                              f'Send {getAmount} ETH to {self.lineEdit_send.text()}',
+                                              'Are you sure?')
+                senETH.exec()
+                if not senETH.getAnswer():  # cancel by user
+                    qui_showMessage.Ui('I\'m entranced with joy',
+                                       'You are in safe',
+                                       'Nothing has been sent').exec()
+                if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
+                    chainId = 1  # Ethereum chain ID
+                elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
+                    chainId = 11155111  # Sepolia chain ID
+                else:
+                    gui_errorDialog.Error('Network unknown status \n').exec()
+                    raise
+                transactionHash = ethereum.sendTransaction(
+                    privateKey=(self.db.readColumnByCondition(
+                        columnName=types.SECRET.PRIVATE_KEY.value,
+                        condition=self.comboBox_activeAddress_val.currentText()))[0][0],
+                    sender=self.comboBox_activeAddress_val.currentText(),
+                    receiver=self.lineEdit_send.text(),
+                    vale=float(getAmount),
+                    provider=self.lineEdit_node_provider.text(),
+                    chainId=chainId)
+                if transactionHash == '':
+                    gui_errorDialog.Error('Transaction failed \n').exec()
+                else:
+                    qui_showMessage.Ui('Your job is done',
+                                       'Transaction succeed:',
+                                       f'Hash: {transactionHash}').exec()
+                    self.showTransaction(transactionHash)
+
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
+
+    def showTransaction(self, txHash):
+        tx = ethereum.getTransaction(txHash, self.lineEdit_node_provider.text())
+        if tx == '':
+            pass
+        else:
+            self.textEdit_main.clear()
+            for t in tx:
+                if tx[t] is None:
+                    pass  # too soon
+                else:
+                    if t == 'blockHash' or t == 'hash':
+                        self.textEdit_main.append(f'{str(t)} = {str(tx[t].hex())}')
+                    elif t == 'r' or t == 's':
+                        self.textEdit_main.append(f"{str(t)} = {str(int.from_bytes(tx[t], 'big'))}")
+                    else:
+                        self.textEdit_main.append(f'{str(t)} = {str(tx[t])}')
+
