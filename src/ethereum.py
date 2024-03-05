@@ -115,26 +115,6 @@ def estimateGas(txElements: dict) -> dict:
     return {'MAXPriorityFee': MAXPriorityFee, 'MAX_Fee': MAX_Fee, 'GasPrice': GasPrice}
 
 
-def estimateGasFromLastBlock(provider: str) -> float:
-    """
-    units of gas used * (base fee + priority fee)
-
-    units of gas used The number of gas units spent on the transaction. A standard simple ETH transfer transaction requires 21,000 units of gas.
-    base fee Basic gas fee, unit is gwei (1gwei = 0.000000001 ETH)
-    priority fee The priority fee, or tip to miners, is in the same unit as the base fee, which is gwei.
-    """
-    w3 = web3.Web3(web3.HTTPProvider(provider))
-    print(w3.is_connected())  # returns true, if connected
-
-    block = w3.eth.get_block("latest", full_transactions=True)
-    gas = []
-    for t in block['transactions']:
-        gas.append(t['gas'])
-    print(gas)
-    print(median(gas))
-    return median(gas)
-
-
 def getTransaction(txHash: str, provider: str):
     print(txHash)
     tx = ''
