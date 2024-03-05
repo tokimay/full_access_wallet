@@ -146,6 +146,8 @@ class Ui(QtWidgets.QMainWindow):
                                                "};")
 
         self.lineEdit_send.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
+        self.lineEdit_sendValue.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
+
         self.initIcons()
         self.setClickEvents()
         self.setMenuActions()
@@ -262,20 +264,22 @@ class Ui(QtWidgets.QMainWindow):
 
     def lineEditSendValueChange(self):
         try:
-            pass
-            """
-            sleep(2)
-            transactions = self.transactionElements()
-            gas = ethereum.estimateGas(transactions)
-            print('gas ', str(gas))
-            wei = int(gas * 1e18)
-            print('wei ', wei)
-            y = (wei - 60) / (255 - 60)
-            print('y ', y)
-            print('===========')
-            self.label_gasEstimated_val.setStyleSheet(f'color: rgb({y}, 230, 50); font-weight: bold;')
-            self.label_gasEstimated_val.setText(str(gas))
-            """
+            if self.lineEdit_sendValue.text() == '':
+                self.lineEdit_sendValue.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
+            else:
+                OldValue = float(self.lineEdit_sendValue.text())
+                OldMax = 1
+                OldMin = 0.01
+                NewMax = 65
+                NewMin = 245
+                OldRange = (OldMax - OldMin)
+                NewRange = (NewMax - NewMin)
+                NewValue = int((((OldValue - OldMin) * NewRange) / OldRange) + NewMin)
+                if NewValue < 65:
+                    NewValue = 65
+                elif NewValue > 245:
+                    NewValue = 245
+                self.lineEdit_sendValue.setStyleSheet(f'background-color: rgb(245, {NewValue}, 65); color: black')
         except Exception as er:
             # gui_errorDialog.Error(str(er)).exec()
             pass  # line edit change whit out address

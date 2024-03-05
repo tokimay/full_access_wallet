@@ -1,7 +1,6 @@
 import sys
 from src import account, database, gui_mainWindow, types, qui_getUserChoice, qui_showMessage, gui_errorDialog
 from PyQt6.QtWidgets import QApplication
-
 from src.threads import Balance
 
 dbName = 'Data'
