@@ -51,6 +51,11 @@ class Ui(QtWidgets.QMainWindow):
 
         self.label_send = self.findChild(QtWidgets.QLabel, 'label_send')
         self.lineEdit_send = self.findChild(QtWidgets.QLineEdit, 'lineEdit_send')
+
+        self.label_value = self.findChild(QtWidgets.QLabel, 'label_value')
+        self.lineEdit_sendValue = self.findChild(QtWidgets.QLineEdit, 'lineEdit_sendValue')
+        self.label_estimated = self.findChild(QtWidgets.QLabel, 'label_estimated')
+        self.label_gasEstimated_val = self.findChild(QtWidgets.QLabel, 'label_gasEstimated_val')
         self.pushButton_send = self.findChild(QtWidgets.QPushButton, 'pushButton_send')
 
         self.textEdit_main = self.findChild(QtWidgets.QTextEdit, 'textEdit_main')
@@ -87,6 +92,11 @@ class Ui(QtWidgets.QMainWindow):
 
         self.label_send.setMinimumHeight(height)
         self.lineEdit_send.setMinimumHeight(height)
+
+        self.label_value.setMinimumHeight(height)
+        self.lineEdit_sendValue.setMinimumHeight(height)
+        self.label_estimated.setMinimumHeight(height)
+        self.label_gasEstimated_val.setMinimumHeight(height)
         self.pushButton_send.setMinimumHeight(height)
 
         self.textEdit_main.setMinimumHeight(height)
@@ -160,6 +170,8 @@ class Ui(QtWidgets.QMainWindow):
         # ----------------------------------------------------------------------------------
         self.radioButton_mainNet.toggled.connect(self.changeNetwork)
         self.radioButton_testNet.toggled.connect(self.changeNetwork)
+        # ----------------------------------------------------------------------------------
+        self.lineEdit_sendValue.textChanged.connect(self.lineEditSendValueChange)
 
     def initIcons(self):
         icon = QIcon()
@@ -247,6 +259,26 @@ class Ui(QtWidgets.QMainWindow):
                 raise
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
+
+    def lineEditSendValueChange(self):
+        try:
+            pass
+            """
+            sleep(2)
+            transactions = self.transactionElements()
+            gas = ethereum.estimateGas(transactions)
+            print('gas ', str(gas))
+            wei = int(gas * 1e18)
+            print('wei ', wei)
+            y = (wei - 60) / (255 - 60)
+            print('y ', y)
+            print('===========')
+            self.label_gasEstimated_val.setStyleSheet(f'color: rgb({y}, 230, 50); font-weight: bold;')
+            self.label_gasEstimated_val.setText(str(gas))
+            """
+        except Exception as er:
+            # gui_errorDialog.Error(str(er)).exec()
+            pass  # line edit change whit out address
 
     def createAccountRandom(self):
         userAnswer = True
@@ -447,63 +479,76 @@ class Ui(QtWidgets.QMainWindow):
 
     def sentETH(self):
         try:
-            getAmount = qui_getUserInput.Ui('Sending your money to others', 'Inter amount in ETH:')
-            getAmount.exec()
-            getAmount = getAmount.getInput()
-            if getAmount == '':
-                qui_showMessage.Ui('I\'m entranced with joy',
-                                   'You are in safe',
-                                   'Nothing has been sent').exec()
+            transactions = self.transactionElements()
+            if not transactions:
+                pass
             else:
+                gas = ethereum.estimateGas(transactions)
                 senETH = qui_getUserChoice.Ui('Sending your money to others',
-                                              f'Send {getAmount} ETH to {self.lineEdit_send.text()}',
+                                              f'Send {transactions["vale"]} ETH to {transactions["receiver"]}'
+                                              f"\nestimated gas fee is:\n"
+                                              f"Lowest = {gas['GasPrice']['low']} ETH\n"
+                                              f"Median = {gas['GasPrice']['medium']} ETH\n"
+                                              f"Highest = {gas['GasPrice']['high']} ETH\n",
                                               'Are you sure?')
                 senETH.exec()
                 if not senETH.getAnswer():  # cancel by user
                     qui_showMessage.Ui('I\'m entranced with joy',
                                        'You are in safe',
                                        'Nothing has been sent').exec()
-                if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
-                    chainId = 1  # Ethereum chain ID
-                elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
-                    chainId = 11155111  # Sepolia chain ID
                 else:
-                    gui_errorDialog.Error('Network unknown status \n').exec()
-                    raise
-                transactionHash = ethereum.sendTransaction(
-                    privateKey=(self.db.readColumnByCondition(
-                        columnName=types.SECRET.PRIVATE_KEY.value,
-                        condition=self.comboBox_activeAddress_val.currentText()))[0][0],
-                    sender=self.comboBox_activeAddress_val.currentText(),
-                    receiver=self.lineEdit_send.text(),
-                    vale=float(getAmount),
-                    provider=self.lineEdit_node_provider.text(),
-                    chainId=chainId)
-                if transactionHash == '':
-                    gui_errorDialog.Error('Transaction failed \n').exec()
-                else:
-                    qui_showMessage.Ui('Your job is done',
-                                       'Transaction succeed:',
-                                       f'Hash: {transactionHash}').exec()
-                    self.showTransaction(transactionHash)
-
+                    transactionHash = ethereum.sendTransaction(privateKey=(self.db.readColumnByCondition(
+                        columnName=types.SECRET.PRIVATE_KEY.value, condition=transactions['sender']))[0][0],
+                                                               txElements=transactions)
+                    if transactionHash == '':
+                        gui_errorDialog.Error('Transaction failed \n').exec()
+                    else:
+                        qui_showMessage.Ui('Your job is done',
+                                           'Transaction succeed:',
+                                           f'Hash: {transactionHash}').exec()
+                        self.showTransaction(transactionHash)
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
 
     def showTransaction(self, txHash):
-        tx = ethereum.getTransaction(txHash, self.lineEdit_node_provider.text())
-        if tx == '':
-            pass
-        else:
-            self.textEdit_main.clear()
-            for t in tx:
-                if tx[t] is None:
-                    pass  # too soon
-                else:
-                    if t == 'blockHash' or t == 'hash':
-                        self.textEdit_main.append(f'{str(t)} = {str(tx[t].hex())}')
-                    elif t == 'r' or t == 's':
-                        self.textEdit_main.append(f"{str(t)} = {str(int.from_bytes(tx[t], 'big'))}")
+        try:
+            tx = ethereum.getTransaction(txHash, self.lineEdit_node_provider.text())
+            if tx == '':
+                pass
+            else:
+                self.textEdit_main.clear()
+                for t in tx:
+                    if tx[t] is None:
+                        pass  # too soon
                     else:
-                        self.textEdit_main.append(f'{str(t)} = {str(tx[t])}')
+                        if t == 'blockHash' or t == 'hash':
+                            self.textEdit_main.append(f'{str(t)} = {str(tx[t].hex())}')
+                        elif t == 'r' or t == 's':
+                            self.textEdit_main.append(f"{str(t)} = {str(int.from_bytes(tx[t], 'big'))}")
+                        else:
+                            self.textEdit_main.append(f'{str(t)} = {str(tx[t])}')
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
 
+    def transactionElements(self):
+        try:
+            if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
+                chainId = 1  # Ethereum chain ID
+            elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
+                chainId = 11155111  # Sepolia chain ID
+            else:
+                gui_errorDialog.Error('Network unknown status \n').exec()
+                raise
+            if self.lineEdit_sendValue.text() == '':
+                qui_showMessage.Ui(messageHeader='Enter amount!').exec()
+                return {}
+            else:
+                return {
+                    'sender': self.comboBox_activeAddress_val.currentText(),
+                    'receiver': self.lineEdit_send.text(),
+                    'vale': float(self.lineEdit_sendValue.text()),
+                    'provider': self.lineEdit_node_provider.text(),
+                    'chainId': chainId
+                }
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()

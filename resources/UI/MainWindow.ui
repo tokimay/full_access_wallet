@@ -23,56 +23,11 @@
       <height>341</height>
      </rect>
     </property>
-    <layout class="QGridLayout" name="gridlayout" columnstretch="0,0,0,0,0,0">
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_node_provider">
-       <property name="text">
-        <string>Node provider:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="5">
-      <widget class="QLabel" name="label_customizationArea">
-       <property name="text">
-        <string>Customization area</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1" colspan="2">
-      <widget class="QLineEdit" name="lineEdit_accountName"/>
-     </item>
-     <item row="4" column="1" colspan="2">
-      <widget class="QLabel" name="label_amount_val">
-       <property name="text">
-        <string>0</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="3">
-      <widget class="QPushButton" name="pushButton_copy_address">
-       <property name="text">
-        <string>Copy address</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1" colspan="2">
-      <widget class="QLineEdit" name="lineEdit_node_provider">
-       <property name="text">
-        <string>https://nodes.mewapi.io/rpc/eth</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_accountName">
-       <property name="text">
-        <string>Account name:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="5">
-      <widget class="QRadioButton" name="radioButton_testNet">
-       <property name="text">
-        <string>TestNet(Sepolia)</string>
+    <layout class="QGridLayout" name="gridlayout" columnstretch="0,0,0,0,0,0,0">
+     <item row="1" column="5" rowspan="8">
+      <widget class="Line" name="line_vertical">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
@@ -83,17 +38,21 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="0" colspan="4">
-      <widget class="QTextEdit" name="textEdit_main"/>
-     </item>
-     <item row="6" column="1">
-      <widget class="QLabel" name="label_3">
+     <item row="2" column="4">
+      <widget class="QPushButton" name="pushButton_accountName">
        <property name="text">
-        <string>TextLabel</string>
+        <string>Edit</string>
        </property>
       </widget>
      </item>
-     <item row="8" column="5">
+     <item row="4" column="4">
+      <widget class="QPushButton" name="pushButton_ETH">
+       <property name="text">
+        <string>etherescan.io</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="6">
       <spacer name="verticalSpacer">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -106,12 +65,45 @@
        </property>
       </spacer>
      </item>
-     <item row="2" column="3">
-      <widget class="QPushButton" name="pushButton_accountName">
+     <item row="3" column="1" colspan="3">
+      <widget class="QComboBox" name="comboBox_activeAddress_val"/>
+     </item>
+     <item row="4" column="1" colspan="3">
+      <widget class="QLabel" name="label_amount_val">
        <property name="text">
-        <string>Edit</string>
+        <string>0</string>
        </property>
       </widget>
+     </item>
+     <item row="1" column="4">
+      <widget class="QPushButton" name="pushButton_node_provider">
+       <property name="text">
+        <string>Providers</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="4">
+      <widget class="QPushButton" name="pushButton_copy_address">
+       <property name="text">
+        <string>Copy address</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" colspan="3">
+      <widget class="QLineEdit" name="lineEdit_accountName"/>
+     </item>
+     <item row="6" column="1">
+      <widget class="QLineEdit" name="lineEdit_sendValue"/>
+     </item>
+     <item row="3" column="6">
+      <widget class="QRadioButton" name="radioButton_mainNet">
+       <property name="text">
+        <string>MainNet</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0" colspan="5">
+      <widget class="QTextEdit" name="textEdit_main"/>
      </item>
      <item row="5" column="0">
       <widget class="QLabel" name="label_send">
@@ -120,27 +112,59 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="4" rowspan="8">
-      <widget class="Line" name="line_vertical">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+     <item row="6" column="4">
+      <widget class="QPushButton" name="pushButton_send">
+       <property name="text">
+        <string>Send</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QLabel" name="label_estimated">
+       <property name="text">
+        <string>Estimated gas:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_node_provider">
+       <property name="text">
+        <string>Node provider:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_accountName">
+       <property name="text">
+        <string>Account name:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="6">
+      <widget class="QRadioButton" name="radioButton_testNet">
+       <property name="text">
+        <string>TestNet(Sepolia)</string>
        </property>
       </widget>
      </item>
      <item row="6" column="0">
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="label_value">
        <property name="text">
-        <string>TextLabel</string>
+        <string>Value to send:</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="1" colspan="2">
-      <widget class="QComboBox" name="comboBox_activeAddress_val"/>
-     </item>
-     <item row="4" column="3">
-      <widget class="QPushButton" name="pushButton_ETH">
+     <item row="1" column="6">
+      <widget class="QLabel" name="label_customizationArea">
        <property name="text">
-        <string>etherescan.io</string>
+        <string>Customization area</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" colspan="3">
+      <widget class="QLineEdit" name="lineEdit_node_provider">
+       <property name="text">
+        <string>https://nodes.mewapi.io/rpc/eth</string>
        </property>
       </widget>
      </item>
@@ -151,43 +175,29 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="3">
-      <widget class="QPushButton" name="pushButton_node_provider">
+     <item row="6" column="3">
+      <widget class="QLabel" name="label_gasEstimated_val">
        <property name="text">
-        <string>Providers</string>
+        <string>0</string>
        </property>
       </widget>
      </item>
-     <item row="6" column="3">
+     <item row="5" column="6">
       <widget class="QLabel" name="label_4">
        <property name="text">
         <string>TextLabel</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="5">
-      <widget class="QRadioButton" name="radioButton_mainNet">
-       <property name="text">
-        <string>MainNet</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="2">
-      <widget class="QLabel" name="label_2">
+     <item row="5" column="4">
+      <widget class="QLabel" name="label_3">
        <property name="text">
         <string>TextLabel</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="1" colspan="2">
+     <item row="5" column="1" colspan="3">
       <widget class="QLineEdit" name="lineEdit_send"/>
-     </item>
-     <item row="5" column="3">
-      <widget class="QPushButton" name="pushButton_send">
-       <property name="text">
-        <string>Send</string>
-       </property>
-      </widget>
      </item>
     </layout>
    </widget>
