@@ -125,6 +125,7 @@ class Ui(QtWidgets.QMainWindow):
         self.lineEdit_accountName.setStyleSheet("color: yellow; border: none")
 
         self.pushButton_accountName.setText('Edit')
+        self.lineEdit_accountName.setStyleSheet('background-color: rgb(30, 40, 50); color: white; border: none;')
 
         self.label_amount_val.setText(
             '<span style = "color: red; font-weight: bold;" > 0'
@@ -265,12 +266,15 @@ class Ui(QtWidgets.QMainWindow):
             icon = QIcon()
             if self.pushButton_accountName.text() == 'Edit':
                 self.lineEdit_accountName.setEnabled(True)
+                self.lineEdit_accountName.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
                 self.pushButton_accountName.setText('Save')
                 icon.addPixmap(QPixmap('resources/UI/icons/save48.png'))
                 self.pushButton_accountName.setIcon(icon)
                 self.pushButton_node_provider.setIconSize(QSize(16, 16))
             elif self.pushButton_accountName.text() == 'Save':
                 self.lineEdit_accountName.setEnabled(False)
+                self.lineEdit_accountName.setStyleSheet(
+                    'background-color: rgb(30, 40, 50); color: white; border: none;')
                 self.pushButton_accountName.setText('Edit')
                 icon.addPixmap(QPixmap('resources/UI/icons/edit40.png'))
                 self.pushButton_accountName.setIcon(icon)
