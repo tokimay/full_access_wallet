@@ -24,13 +24,6 @@
      </rect>
     </property>
     <layout class="QGridLayout" name="gridlayout" columnstretch="0,0,0,0,0,0,0">
-     <item row="1" column="5" rowspan="8">
-      <widget class="Line" name="line_vertical">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
      <item row="4" column="0">
       <widget class="QLabel" name="label_amount">
        <property name="text">
@@ -51,19 +44,6 @@
         <string>etherescan.io</string>
        </property>
       </widget>
-     </item>
-     <item row="8" column="6">
-      <spacer name="verticalSpacer">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>40</height>
-        </size>
-       </property>
-      </spacer>
      </item>
      <item row="3" column="1" colspan="3">
       <widget class="QComboBox" name="comboBox_activeAddress_val"/>
@@ -101,9 +81,6 @@
         <string>MainNet</string>
        </property>
       </widget>
-     </item>
-     <item row="8" column="0" colspan="5">
-      <widget class="QTextEdit" name="textEdit_main"/>
      </item>
      <item row="5" column="0">
       <widget class="QLabel" name="label_send">
@@ -199,6 +176,16 @@
      <item row="5" column="1" colspan="3">
       <widget class="QLineEdit" name="lineEdit_send"/>
      </item>
+     <item row="1" column="5" rowspan="7">
+      <widget class="Line" name="line_vertical">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0" colspan="7">
+      <widget class="QTextEdit" name="textEdit_main"/>
+     </item>
     </layout>
    </widget>
   </widget>
@@ -243,8 +230,25 @@
     <addaction name="menuNew_acoount"/>
     <addaction name="menuSecrets"/>
    </widget>
+   <widget class="QMenu" name="menuNetwork">
+    <property name="title">
+     <string>&amp;Network</string>
+    </property>
+    <widget class="QMenu" name="menuTransactions">
+     <property name="title">
+      <string>Transactions</string>
+     </property>
+     <addaction name="action_checkTX"/>
+     <addaction name="actionTX_nonce"/>
+     <addaction name="actionSimple_history"/>
+     <addaction name="actionAll_normal"/>
+     <addaction name="actionAll_internal"/>
+    </widget>
+    <addaction name="menuTransactions"/>
+   </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Wallet"/>
+   <addaction name="menuNetwork"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionEntropy">
@@ -290,6 +294,31 @@
   <action name="actionRecover_from_privateKey">
    <property name="text">
     <string>Recover from privateKey</string>
+   </property>
+  </action>
+  <action name="action_checkTX">
+   <property name="text">
+    <string>Check TX</string>
+   </property>
+  </action>
+  <action name="actionAll_normal">
+   <property name="text">
+    <string>All normal TX detailes(need API)</string>
+   </property>
+  </action>
+  <action name="actionTX_nonce">
+   <property name="text">
+    <string>TX nounce</string>
+   </property>
+  </action>
+  <action name="actionSimple_history">
+   <property name="text">
+    <string>Simple history(need API)</string>
+   </property>
+  </action>
+  <action name="actionAll_internal">
+   <property name="text">
+    <string>All internal TX detailes(need API)</string>
    </property>
   </action>
  </widget>

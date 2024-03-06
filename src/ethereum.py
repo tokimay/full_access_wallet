@@ -1,6 +1,9 @@
 from statistics import median
+import urllib.request
 
 import web3
+
+from src import gui_errorDialog
 
 
 def getBalance(address: str, provider: str) -> int:
@@ -58,13 +61,13 @@ def sendTransaction(privateKey: str, txElements: dict) -> str:
 
 
 def estimateGas(txElements: dict) -> dict:
-    BaseFeeMultiplier = {"low": 1, #1.10,  # 10% increase
-                         "medium": 1.25, # 1.30,  # 20% increase
-                         "high": 1.50 #1.25  # 25% increase
+    BaseFeeMultiplier = {"low": 1,  # 1.10,  # 10% increase
+                         "medium": 1.25,  # 1.30,  # 20% increase
+                         "high": 1.50  # 1.25  # 25% increase
                          }
-    PriorityFeeMultiplier = {"low": 1, #1.10, #0.94,  # 6% decrease
-                             "medium": 1.25, # 1.20, #0.97,  # 3% decrease
-                             "high": 1.50 #0.98  # 2% decrease
+    PriorityFeeMultiplier = {"low": 1,  # 1.10, #0.94,  # 6% decrease
+                             "medium": 1.25,  # 1.20, #0.97,  # 3% decrease
+                             "high": 1.50  # 0.98  # 2% decrease
                              }
     MinimumFee = {"low": 1000000000, "medium": 1500000000, "high": 2000000000}
     priority = {"low": [], "medium": [], "high": []}
@@ -123,3 +126,71 @@ def getTransaction(txHash: str, provider: str):
 
     tx = w3.eth.get_transaction(txHash)
     return tx
+
+
+def getAccountNonce(address: str, provider: str) -> int:
+    count = -1
+    w3 = web3.Web3(web3.HTTPProvider(provider))
+    print(w3.is_connected())  # returns true, if connected
+
+    address_cksm = web3.Web3.to_checksum_address(address)
+    count = w3.eth.get_transaction_count(address_cksm)
+    return count
+
+
+def getNormalHistory(address: str, mainNet: bool, provider: str, API: str) -> bytes:
+    try:
+        w3 = web3.Web3(web3.HTTPProvider(provider))
+        if not w3.is_connected():
+            gui_errorDialog.Error(f'Connect to {provider} failed.').exec()
+            b''
+        last = w3.eth.block_number  # get last block number
+        if mainNet:
+            url = 'https://api.etherscan.io/api'
+        else:
+            url = 'https://api-sepolia.etherscan.io/api'
+
+        target = (f'{url}'
+                  '?module=account'
+                  '&action=txlist'
+                  f'&address={address}'
+                  '&startblock=0'
+                  f'&endblock={last}'
+                  '&page=1'
+                  '&offset=10000'
+                  '&sort=desc'
+                  f'&apikey={API}')
+        contents = urllib.request.urlopen(target).read()
+        return contents
+    except Exception as er:
+        gui_errorDialog.Error(str(er)).exec()
+        return b''
+
+
+def getInternalHistory(address: str, mainNet: bool, provider: str, API: str) -> bytes:
+    try:
+        w3 = web3.Web3(web3.HTTPProvider(provider))
+        if not w3.is_connected():
+            gui_errorDialog.Error(f'Connect to {provider} failed.').exec()
+            b''
+        last = w3.eth.block_number  # get last block number
+        if mainNet:
+            url = 'https://api.etherscan.io/api'
+        else:
+            url = 'https://api-sepolia.etherscan.io/api'
+
+        target = (f'{url}'
+                  '?module=account'
+                  '&action=txlistinternal'
+                  f'&address={address}'
+                  '&startblock=0'
+                  f'&endblock={last}'
+                  '&page=1'
+                  '&offset=10000'
+                  '&sort=desc'
+                  f'&apikey={API}')
+        contents = urllib.request.urlopen(target).read()
+        return contents
+    except Exception as er:
+        gui_errorDialog.Error(str(er)).exec()
+        return b''

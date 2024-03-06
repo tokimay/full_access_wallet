@@ -1,3 +1,4 @@
+import json
 import webbrowser
 import pyperclip
 from PyQt6.QtWidgets import QFrame
@@ -6,8 +7,8 @@ from time import sleep
 import src.account as account
 from src import database, types, gui_errorDialog, qui_getUserChoice, qui_getUserInput, qui_showMessage, ethereum
 from PyQt6 import QtWidgets, uic
-from PyQt6.QtCore import QSize, QRect
-from PyQt6.QtGui import QIcon, QPixmap, QAction
+from PyQt6.QtCore import QSize, QRect, QPoint
+from PyQt6.QtGui import QIcon, QPixmap, QAction, QTextCursor
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -17,7 +18,7 @@ class Ui(QtWidgets.QMainWindow):
 
         self.gridlayout = self.findChild(QtWidgets.QGridLayout, 'gridlayout')
         self.line_vertical = self.findChild(QFrame, 'gridlayout')
-
+        # ----------------------------------------------------------------------------------
         self.actionEntropy = self.findChild(QAction, 'actionEntropy')
         self.actionPrivateKey = self.findChild(QAction, 'actionPrivateKey')
         self.actionPublicKey_coordinates = self.findChild(QAction, 'actionPublicKey_coordinates')
@@ -29,10 +30,16 @@ class Ui(QtWidgets.QMainWindow):
         self.actionRecover_from_entropy = self.findChild(QAction, 'actionRecover_from_entropy')
         self.actionRecover_from_privateKey = self.findChild(QAction, 'actionRecover_from_privateKey')
 
+        self.action_checkTX = self.findChild(QAction, 'action_checkTX')
+        self.actionTX_nonce = self.findChild(QAction, 'actionTX_nonce')
+        self.actionSimple_history = self.findChild(QAction, 'actionSimple_history')
+        self.actionAll_normal = self.findChild(QAction, 'actionAll_normal')
+        self.actionAll_internal = self.findChild(QAction, 'actionAll_internal')
+        # ----------------------------------------------------------------------------------
         self.label_customizationArea = self.findChild(QtWidgets.QLabel, 'label_customizationArea')
         self.radioButton_mainNet = self.findChild(QtWidgets.QRadioButton, 'radioButton_mainNet')
         self.radioButton_testNet = self.findChild(QtWidgets.QRadioButton, 'radioButton_testNet')
-
+        # ----------------------------------------------------------------------------------
         self.label_node_provider = self.findChild(QtWidgets.QLabel, 'label_node_provider')
         self.lineEdit_node_provider = self.findChild(QtWidgets.QLineEdit, 'lineEdit_node_provider')
         self.pushButton_node_provider = self.findChild(QtWidgets.QPushButton, 'pushButton_node_provider')
@@ -57,7 +64,7 @@ class Ui(QtWidgets.QMainWindow):
         self.label_estimated = self.findChild(QtWidgets.QLabel, 'label_estimated')
         self.label_gasEstimated_val = self.findChild(QtWidgets.QLabel, 'label_gasEstimated_val')
         self.pushButton_send = self.findChild(QtWidgets.QPushButton, 'pushButton_send')
-
+        # ----------------------------------------------------------------------------------
         self.textEdit_main = self.findChild(QtWidgets.QTextEdit, 'textEdit_main')
 
         self.db = database.Sqlite(dbName)
@@ -105,7 +112,6 @@ class Ui(QtWidgets.QMainWindow):
         self.textEdit_main.setStyleSheet("background-color: black; color: cyan")
 
         self.comboBox_activeAddress_val.clear()
-        self.comboBox_activeAddress_val.currentTextChanged.connect(self.comboBoxChange)
 
         self.lineEdit_node_provider.setText('https://nodes.mewapi.io/rpc/eth')
         self.lineEdit_node_provider.setStyleSheet('background-color: white; color: black;')
@@ -170,10 +176,24 @@ class Ui(QtWidgets.QMainWindow):
         self.actionPublicKey.triggered.connect(lambda: self.showSecrets(types.SECRET.PUBLIC_KEY))
         self.actionMnemonic.triggered.connect(lambda: self.showSecrets(types.SECRET.MNEMONIC))
         # ----------------------------------------------------------------------------------
+        self.action_checkTX = self.findChild(QAction, 'action_checkTX')
+        self.actionTX_nonce = self.findChild(QAction, 'actionTX_nonce')
+        self.actionSimple_history = self.findChild(QAction, 'actionSimple_history')
+        self.actionAll_normal = self.findChild(QAction, 'actionAll_normal')
+        self.actionAll_internal = self.findChild(QAction, 'actionAll_internal')
+
+        self.action_checkTX.triggered.connect(self.showCustomTransaction)
+        self.actionTX_nonce.triggered.connect(self.showNonce)
+        self.actionSimple_history.triggered.connect(self.showSimpleHistory)
+        self.actionAll_normal.triggered.connect(self.showNormalTransactions)
+        self.actionAll_internal.triggered.connect(self.showInternalTransactions)
+
+        # ----------------------------------------------------------------------------------
         self.radioButton_mainNet.toggled.connect(self.changeNetwork)
         self.radioButton_testNet.toggled.connect(self.changeNetwork)
         # ----------------------------------------------------------------------------------
         self.lineEdit_sendValue.textChanged.connect(self.lineEditSendValueChange)
+        self.comboBox_activeAddress_val.currentTextChanged.connect(self.comboBoxChange)
 
     def initIcons(self):
         icon = QIcon()
@@ -328,11 +348,11 @@ class Ui(QtWidgets.QMainWindow):
                     gui_errorDialog.Error('Inserting account details to database failed.\n').exec()
 
     def createAccountFromPrivateKey(self):
-        getPrivateKey = qui_getUserInput.Ui('Recover account', 'Enter your private key:')
+        getPrivateKey = qui_getUserInput.Ui('create account from privateKey', 'Enter your private key:')
         getPrivateKey.exec()
         privateKey = getPrivateKey.getInput()
         if privateKey == '':
-            (qui_showMessage.Ui('Recover account',
+            (qui_showMessage.Ui('create account from privateKey',
                                 'Nothing received',
                                 'you can try again from Wallet -> New account -> Recover from private key')
              .exec())
@@ -348,11 +368,11 @@ class Ui(QtWidgets.QMainWindow):
                     gui_errorDialog.Error('Inserting account details to database failed.\n').exec()
 
     def createAccountFromMnemonic(self):
-        getMnemonic = qui_getUserInput.Ui('Recover account', 'Enter your mnemonic:')
+        getMnemonic = qui_getUserInput.Ui('create account from mnemonic', 'Enter your mnemonic:')
         getMnemonic.exec()
         privateKey = getMnemonic.getInput()
         if privateKey == '':
-            (qui_showMessage.Ui('Recover account',
+            (qui_showMessage.Ui('create account from mnemonic',
                                 'Nothing received',
                                 'you can try again from Wallet -> New account -> Recover from mnemonic')
              .exec())
@@ -531,6 +551,9 @@ class Ui(QtWidgets.QMainWindow):
                             self.textEdit_main.append(f"{str(t)} = {str(int.from_bytes(tx[t], 'big'))}")
                         else:
                             self.textEdit_main.append(f'{str(t)} = {str(tx[t])}')
+                        cursor = QTextCursor(self.textEdit_main.document())
+                        cursor.setPosition(0)
+                        self.textEdit_main.setTextCursor(cursor)
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
 
@@ -544,7 +567,7 @@ class Ui(QtWidgets.QMainWindow):
                 gui_errorDialog.Error('Network unknown status \n').exec()
                 raise
             if self.lineEdit_sendValue.text() == '':
-                qui_showMessage.Ui(messageHeader='Enter amount!').exec()
+                qui_showMessage.Ui('transaction elements', 'Enter amount!').exec()
                 return {}
             else:
                 return {
@@ -554,5 +577,126 @@ class Ui(QtWidgets.QMainWindow):
                     'provider': self.lineEdit_node_provider.text(),
                     'chainId': chainId
                 }
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
+
+    def showCustomTransaction(self):
+        try:
+            TXHashWindow = qui_getUserInput.Ui('Show custom transaction',
+                                               'Enter transaction hash:\n'
+                                               '(Notice about mainNet and testNet)')
+            TXHashWindow.exec()
+            TXHash = TXHashWindow.getInput()
+            if TXHash == '':
+                (qui_showMessage.Ui('Show custom transaction', 'Nothing received').exec())
+            else:
+                self.showTransaction(TXHash)
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
+
+    def showNonce(self):
+        try:
+            nonce = ethereum.getAccountNonce(self.comboBox_activeAddress_val.currentText(),
+                                             self.lineEdit_node_provider.text())
+            if nonce < 0:
+                pass  # error
+            else:
+                self.textEdit_main.clear()
+                self.textEdit_main.append(f'Your current sent transaction count is {nonce}')
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
+
+    def showSimpleHistory(self):
+        pass
+
+    def showNormalTransactions(self):
+        try:
+            TXHistoryWindow = qui_getUserInput.Ui('Show normal transactions',
+                                                  'Enter your API:\n'
+                                                  '(Notice about mainNet and testNet)')
+            TXHistoryWindow.exec()
+            API = TXHistoryWindow.getInput()
+            if API == '':
+                (qui_showMessage.Ui('Show normal transactions', 'Nothing received').exec())
+            else:
+                if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
+                    mainNet = True
+                elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
+                    mainNet = False
+                else:
+                    gui_errorDialog.Error('Network unknown status \n').exec()
+                    raise
+
+                txHistory = ethereum.getNormalHistory(self.comboBox_activeAddress_val.currentText(),
+                                                      mainNet,
+                                                      self.lineEdit_node_provider.text(),
+                                                      API)
+                if not isinstance(txHistory, bytes):
+                    raise  # error in getting history
+                else:
+                    txHistory = json.loads(txHistory.decode('utf-8'))
+                    self.textEdit_main.clear()
+                    if not txHistory['status'] == '1' or not txHistory['message'] == 'OK':
+                        gui_errorDialog.Error(f'Bad response\n. {txHistory}').exec()
+                        pass
+                    else:
+                        txHistory = txHistory['result']
+                        print('len = ', len(txHistory))
+                        self.textEdit_main.append(f'Total {len(txHistory)} transaction(s) received:\n'
+                                                  f'Offset is last 10000')
+                        self.textEdit_main.append('-' * 10)
+                        for n in txHistory:
+                            for e in n:
+                                self.textEdit_main.append(f'{str(e)} = {str(n[e])}')
+                            self.textEdit_main.append('-' * 10)
+                        cursor = QTextCursor(self.textEdit_main.document())
+                        cursor.setPosition(0)
+                        self.textEdit_main.setTextCursor(cursor)
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
+
+    def showInternalTransactions(self):
+        try:
+            TXHistoryWindow = qui_getUserInput.Ui('Show internal transactions',
+                                                  'Enter your API:\n'
+                                                  '(Notice about mainNet and testNet)')
+            TXHistoryWindow.exec()
+            API = TXHistoryWindow.getInput()
+            if API == '':
+                (qui_showMessage.Ui('Show internal transactions', 'Nothing received').exec())
+            else:
+                if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
+                    mainNet = True
+                elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
+                    mainNet = False
+                else:
+                    gui_errorDialog.Error('Network unknown status \n').exec()
+                    raise
+
+                txHistory = ethereum.getInternalHistory(self.comboBox_activeAddress_val.currentText(),
+                                                        mainNet,
+                                                        self.lineEdit_node_provider.text(),
+                                                        API)
+                if not isinstance(txHistory, bytes):
+                    raise  # error in getting history
+                else:
+                    txHistory = json.loads(txHistory.decode('utf-8'))
+                    self.textEdit_main.clear()
+                    if not txHistory['status'] == '1' or not txHistory['message'] == 'OK':
+                        gui_errorDialog.Error(f'Bad response\n. {txHistory}').exec()
+                        pass
+                    else:
+                        txHistory = txHistory['result']
+                        print('len = ', len(txHistory))
+                        self.textEdit_main.append(f'Total {len(txHistory)} transaction(s) received:\n'
+                                                  f'Offset is last 10000')
+                        self.textEdit_main.append('-' * 10)
+                        for n in txHistory:
+                            for e in n:
+                                self.textEdit_main.append(f'{str(e)} = {str(n[e])}')
+                            self.textEdit_main.append('-' * 10)
+                        cursor = QTextCursor(self.textEdit_main.document())
+                        cursor.setPosition(0)
+                        self.textEdit_main.setTextCursor(cursor)
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
