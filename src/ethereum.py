@@ -7,13 +7,19 @@ from src import gui_errorDialog
 
 
 def getBalance(address: str, provider: str) -> int:
-    w3 = web3.Web3(web3.HTTPProvider(provider))
-    print(w3.is_connected())  # returns true, if connected
-
-    address_cksm = web3.Web3.to_checksum_address(address)
-    balance = w3.eth.get_balance(address_cksm)
-    balance = w3.from_wei(balance, 'ether')
-    return balance
+    try:
+        w3 = web3.Web3(web3.HTTPProvider(provider))
+        if not w3.is_connected():
+            gui_errorDialog.Error(f'Connect to {provider} failed.').exec()
+            return -1
+        else:
+            address_cksm = web3.Web3.to_checksum_address(address)
+            balance = w3.eth.get_balance(address_cksm)
+            balance = w3.from_wei(balance, 'ether')
+            return balance
+    except Exception as er:
+        gui_errorDialog.Error(str(er)).exec()
+        return -1
 
 
 def sendTransaction(privateKey: str, txElements: dict) -> str:
@@ -118,24 +124,32 @@ def estimateGas(txElements: dict) -> dict:
     return {'MAXPriorityFee': MAXPriorityFee, 'MAX_Fee': MAX_Fee, 'GasPrice': GasPrice}
 
 
-def getTransaction(txHash: str, provider: str):
-    print(txHash)
-    tx = ''
-    w3 = web3.Web3(web3.HTTPProvider(provider))
-    print(w3.is_connected())  # returns true, if connected
-
-    tx = w3.eth.get_transaction(txHash)
-    return tx
+def getTransaction(txHash: str, provider: str) -> str:
+    try:
+        w3 = web3.Web3(web3.HTTPProvider(provider))
+        if not w3.is_connected():
+            gui_errorDialog.Error(f'Connect to {provider} failed.').exec()
+            return ''
+        tx = w3.eth.get_transaction(txHash)
+        return tx
+    except Exception as er:
+        gui_errorDialog.Error(str(er)).exec()
+        return ''
 
 
 def getAccountNonce(address: str, provider: str) -> int:
-    count = -1
-    w3 = web3.Web3(web3.HTTPProvider(provider))
-    print(w3.is_connected())  # returns true, if connected
-
-    address_cksm = web3.Web3.to_checksum_address(address)
-    count = w3.eth.get_transaction_count(address_cksm)
-    return count
+    try:
+        w3 = web3.Web3(web3.HTTPProvider(provider))
+        if not w3.is_connected():
+            gui_errorDialog.Error(f'Connect to {provider} failed.').exec()
+            return -1
+        else:
+            address_cksm = web3.Web3.to_checksum_address(address)
+            count = w3.eth.get_transaction_count(address_cksm)
+            return count
+    except Exception as er:
+        gui_errorDialog.Error(str(er)).exec()
+        return -1
 
 
 def getNormalHistory(address: str, mainNet: bool, provider: str, API: str) -> bytes:
@@ -143,25 +157,26 @@ def getNormalHistory(address: str, mainNet: bool, provider: str, API: str) -> by
         w3 = web3.Web3(web3.HTTPProvider(provider))
         if not w3.is_connected():
             gui_errorDialog.Error(f'Connect to {provider} failed.').exec()
-            b''
-        last = w3.eth.block_number  # get last block number
-        if mainNet:
-            url = 'https://api.etherscan.io/api'
+            return b''
         else:
-            url = 'https://api-sepolia.etherscan.io/api'
+            last = w3.eth.block_number  # get last block number
+            if mainNet:
+                url = 'https://api.etherscan.io/api'
+            else:
+                url = 'https://api-sepolia.etherscan.io/api'
 
-        target = (f'{url}'
-                  '?module=account'
-                  '&action=txlist'
-                  f'&address={address}'
-                  '&startblock=0'
-                  f'&endblock={last}'
-                  '&page=1'
-                  '&offset=10000'
-                  '&sort=desc'
-                  f'&apikey={API}')
-        contents = urllib.request.urlopen(target).read()
-        return contents
+            target = (f'{url}'
+                      '?module=account'
+                      '&action=txlist'
+                      f'&address={address}'
+                      '&startblock=0'
+                      f'&endblock={last}'
+                      '&page=1'
+                      '&offset=10000'
+                      '&sort=desc'
+                      f'&apikey={API}')
+            contents = urllib.request.urlopen(target).read()
+            return contents
     except Exception as er:
         gui_errorDialog.Error(str(er)).exec()
         return b''
@@ -172,25 +187,26 @@ def getInternalHistory(address: str, mainNet: bool, provider: str, API: str) -> 
         w3 = web3.Web3(web3.HTTPProvider(provider))
         if not w3.is_connected():
             gui_errorDialog.Error(f'Connect to {provider} failed.').exec()
-            b''
-        last = w3.eth.block_number  # get last block number
-        if mainNet:
-            url = 'https://api.etherscan.io/api'
+            return b''
         else:
-            url = 'https://api-sepolia.etherscan.io/api'
+            last = w3.eth.block_number  # get last block number
+            if mainNet:
+                url = 'https://api.etherscan.io/api'
+            else:
+                url = 'https://api-sepolia.etherscan.io/api'
 
-        target = (f'{url}'
-                  '?module=account'
-                  '&action=txlistinternal'
-                  f'&address={address}'
-                  '&startblock=0'
-                  f'&endblock={last}'
-                  '&page=1'
-                  '&offset=10000'
-                  '&sort=desc'
-                  f'&apikey={API}')
-        contents = urllib.request.urlopen(target).read()
-        return contents
+            target = (f'{url}'
+                      '?module=account'
+                      '&action=txlistinternal'
+                      f'&address={address}'
+                      '&startblock=0'
+                      f'&endblock={last}'
+                      '&page=1'
+                      '&offset=10000'
+                      '&sort=desc'
+                      f'&apikey={API}')
+            contents = urllib.request.urlopen(target).read()
+            return contents
     except Exception as er:
         gui_errorDialog.Error(str(er)).exec()
         return b''

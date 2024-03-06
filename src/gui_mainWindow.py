@@ -71,8 +71,8 @@ class Ui(QtWidgets.QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.resize(800, 400)
-        self.gridlayout.setGeometry(QRect(10, 10, 780, 380))
+        self.resize(800, 600)
+        self.gridlayout.setGeometry(QRect(10, 10, 780, 580))
         # self.gridlayout.setRowMinimumHeight(1, 100)
         # self.gridlayout.setRowMinimumHeight(1, 27)
         # self.gridlayout.setRowMinimumHeight(2, 27)
@@ -106,7 +106,8 @@ class Ui(QtWidgets.QMainWindow):
         self.label_gasEstimated_val.setMinimumHeight(height)
         self.pushButton_send.setMinimumHeight(height)
 
-        self.textEdit_main.setMinimumHeight(height)
+        # self.textEdit_main.setMinimumHeight(400)
+        self.textEdit_main.resize(780, 400)
 
         self.setStyleSheet("background-color: rgb(30, 40, 50);")
         self.textEdit_main.setStyleSheet("background-color: black; color: cyan")
@@ -472,7 +473,8 @@ class Ui(QtWidgets.QMainWindow):
                     self.textEdit_main.append(f'{result[0][0]}\n')
                     if secretType == types.SECRET.MNEMONIC or secretType == types.SECRET.ENTROPY:
                         self.textEdit_main.append(f'{secretType.name} + Passphrase = your account\n\n'
-                                                  f'{secretType.name} without Passphrase = unknown account')
+                                                  f'{secretType.name} without Passphrase = unknown account\n'
+                                                  f'(If no passphrase set = your account)')
                     elif secretType == types.SECRET.PRIVATE_KEY:
                         self.textEdit_main.append(f'{secretType.name} = your account')
 
@@ -481,7 +483,8 @@ class Ui(QtWidgets.QMainWindow):
                         self.textEdit_main.append(f'{res[0]}\n')
                     if secretType == types.SECRET.MNEMONIC or secretType == types.SECRET.ENTROPY:
                         self.textEdit_main.append(f'{secretType.name} + Passphrase = your account\n\n'
-                                                  f'{secretType.name} without Passphrase = unknown account')
+                                                  f'{secretType.name} without Passphrase = unknown account\n'
+                                                  f'(If no passphrase set = your account)')
                     elif secretType == types.SECRET.PRIVATE_KEY:
                         self.textEdit_main.append(f'{secretType.name} = your account')
 
@@ -489,10 +492,9 @@ class Ui(QtWidgets.QMainWindow):
         try:
             balance = ethereum.getBalance(self.comboBox_activeAddress_val.currentText(),
                                           self.lineEdit_node_provider.text())
+            color = 'red'
             if balance > 0:
                 color = 'green'
-            else:
-                color = 'red'
             self.label_amount_val.setText(
                 '<span style = "color: ' + color + '; font-weight: bold;" > ' + str(balance) +
                 '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
@@ -534,29 +536,6 @@ class Ui(QtWidgets.QMainWindow):
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
 
-    def showTransaction(self, txHash):
-        try:
-            tx = ethereum.getTransaction(txHash, self.lineEdit_node_provider.text())
-            if tx == '':
-                pass
-            else:
-                self.textEdit_main.clear()
-                for t in tx:
-                    if tx[t] is None:
-                        pass  # too soon
-                    else:
-                        if t == 'blockHash' or t == 'hash':
-                            self.textEdit_main.append(f'{str(t)} = {str(tx[t].hex())}')
-                        elif t == 'r' or t == 's':
-                            self.textEdit_main.append(f"{str(t)} = {str(int.from_bytes(tx[t], 'big'))}")
-                        else:
-                            self.textEdit_main.append(f'{str(t)} = {str(tx[t])}')
-                        cursor = QTextCursor(self.textEdit_main.document())
-                        cursor.setPosition(0)
-                        self.textEdit_main.setTextCursor(cursor)
-        except Exception as er:
-            gui_errorDialog.Error(str(er)).exec()
-
     def transactionElements(self):
         try:
             if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
@@ -577,6 +556,29 @@ class Ui(QtWidgets.QMainWindow):
                     'provider': self.lineEdit_node_provider.text(),
                     'chainId': chainId
                 }
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
+
+    def showTransaction(self, txHash):
+        try:
+            tx = ethereum.getTransaction(txHash, self.lineEdit_node_provider.text())
+            if tx == '':
+                pass
+            else:
+                self.textEdit_main.clear()
+                for t in tx:
+                    if tx[t] is None:
+                        pass  # too soon
+                    else:
+                        if t == 'blockHash' or t == 'hash':
+                            self.textEdit_main.append(f'{str(t)} = {str(tx[t].hex())}')
+                        elif t == 'r' or t == 's':
+                            self.textEdit_main.append(f"{str(t)} = {str(int.from_bytes(tx[t], 'big'))}")
+                        else:
+                            self.textEdit_main.append(f'{str(t)} = {str(tx[t])}')
+                        cursor = QTextCursor(self.textEdit_main.document())
+                        cursor.setPosition(0)
+                        self.textEdit_main.setTextCursor(cursor)
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
 
@@ -606,56 +608,64 @@ class Ui(QtWidgets.QMainWindow):
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
 
-    def showSimpleHistory(self):
-        pass
-
-    def showNormalTransactions(self):
+    def getNormalTransactions(self, API: str) -> list:
         try:
-            TXHistoryWindow = qui_getUserInput.Ui('Show normal transactions',
-                                                  'Enter your API:\n'
-                                                  '(Notice about mainNet and testNet)')
-            TXHistoryWindow.exec()
-            API = TXHistoryWindow.getInput()
-            if API == '':
-                (qui_showMessage.Ui('Show normal transactions', 'Nothing received').exec())
+            if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
+                mainNet = True
+            elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
+                mainNet = False
             else:
-                if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
-                    mainNet = True
-                elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
-                    mainNet = False
-                else:
-                    gui_errorDialog.Error('Network unknown status \n').exec()
-                    raise
+                gui_errorDialog.Error('Network unknown status \n').exec()
+                return []
 
-                txHistory = ethereum.getNormalHistory(self.comboBox_activeAddress_val.currentText(),
-                                                      mainNet,
-                                                      self.lineEdit_node_provider.text(),
-                                                      API)
-                if not isinstance(txHistory, bytes):
-                    raise  # error in getting history
+            txHistory = ethereum.getNormalHistory(self.comboBox_activeAddress_val.currentText(),
+                                                  mainNet,
+                                                  self.lineEdit_node_provider.text(),
+                                                  API)
+            if not isinstance(txHistory, bytes):
+                return []
+            else:
+                txHistory = json.loads(txHistory.decode('utf-8'))
+                self.textEdit_main.clear()
+                if not txHistory['status'] == '1' or not txHistory['message'] == 'OK':
+                    gui_errorDialog.Error(f'Bad response\n. {txHistory}').exec()
+                    return []
                 else:
-                    txHistory = json.loads(txHistory.decode('utf-8'))
-                    self.textEdit_main.clear()
-                    if not txHistory['status'] == '1' or not txHistory['message'] == 'OK':
-                        gui_errorDialog.Error(f'Bad response\n. {txHistory}').exec()
-                        pass
-                    else:
-                        txHistory = txHistory['result']
-                        print('len = ', len(txHistory))
-                        self.textEdit_main.append(f'Total {len(txHistory)} transaction(s) received:\n'
-                                                  f'Offset is last 10000')
-                        self.textEdit_main.append('-' * 10)
-                        for n in txHistory:
-                            for e in n:
-                                self.textEdit_main.append(f'{str(e)} = {str(n[e])}')
-                            self.textEdit_main.append('-' * 10)
-                        cursor = QTextCursor(self.textEdit_main.document())
-                        cursor.setPosition(0)
-                        self.textEdit_main.setTextCursor(cursor)
+                    txHistory = txHistory['result']
+                    return txHistory
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
+            return []
 
-    def showInternalTransactions(self):
+    def getInternalTransactions(self, API: str) -> list:
+        try:
+            if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
+                mainNet = True
+            elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
+                mainNet = False
+            else:
+                gui_errorDialog.Error('Network unknown status \n').exec()
+                return []
+            txHistory = ethereum.getInternalHistory(self.comboBox_activeAddress_val.currentText(),
+                                                    mainNet,
+                                                    self.lineEdit_node_provider.text(),
+                                                    API)
+            if not isinstance(txHistory, bytes):
+                return []
+            else:
+                txHistory = json.loads(txHistory.decode('utf-8'))
+                self.textEdit_main.clear()
+                if not txHistory['status'] == '1' or not txHistory['message'] == 'OK':
+                    gui_errorDialog.Error(f'Bad response\n. {txHistory}').exec()
+                    return []
+                else:
+                    txHistory = txHistory['result']
+                    return txHistory
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
+            return []
+
+    def showSimpleHistory(self):
         try:
             TXHistoryWindow = qui_getUserInput.Ui('Show internal transactions',
                                                   'Enter your API:\n'
@@ -665,38 +675,78 @@ class Ui(QtWidgets.QMainWindow):
             if API == '':
                 (qui_showMessage.Ui('Show internal transactions', 'Nothing received').exec())
             else:
-                if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
-                    mainNet = True
-                elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
-                    mainNet = False
-                else:
-                    gui_errorDialog.Error('Network unknown status \n').exec()
-                    raise
+                txHistoryNormal = self.getNormalTransactions(API)
+                txHistoryInternal = self.getInternalTransactions(API)
+                allTransactions = txHistoryNormal + txHistoryInternal
+                #  sort ace
+                sortedTransactions = sorted(allTransactions, key=lambda d: d['blockNumber'])
+                # de sort
+                sortedTransactions = sortedTransactions[::-1]
+                self.textEdit_main.append(f'Total {len(sortedTransactions)} transaction(s) received:\n'
+                                          f'Offset is last 20000')
+                self.textEdit_main.append('-' * 10)
+                for n in sortedTransactions:
+                    for e in n:
+                        if e == 'blockNumber' or e == 'hash' or e == 'from' or e == 'to' or e == 'value':
+                            if e == 'value':
+                                n[e] = float(n[e]) / 1000000000000000000
+                            if e == 'to' and n[e] == '':
+                                n[e] = f"create contract by address {n['contractAddress']}"
+                            self.textEdit_main.append(f'{str(e)} = {str(n[e])}')
+                        else:
+                            pass
+                    self.textEdit_main.append('-' * 10)
+                    cursor = QTextCursor(self.textEdit_main.document())
+                    cursor.setPosition(0)
+                    self.textEdit_main.setTextCursor(cursor)
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
 
-                txHistory = ethereum.getInternalHistory(self.comboBox_activeAddress_val.currentText(),
-                                                        mainNet,
-                                                        self.lineEdit_node_provider.text(),
-                                                        API)
-                if not isinstance(txHistory, bytes):
-                    raise  # error in getting history
-                else:
-                    txHistory = json.loads(txHistory.decode('utf-8'))
-                    self.textEdit_main.clear()
-                    if not txHistory['status'] == '1' or not txHistory['message'] == 'OK':
-                        gui_errorDialog.Error(f'Bad response\n. {txHistory}').exec()
-                        pass
-                    else:
-                        txHistory = txHistory['result']
-                        print('len = ', len(txHistory))
-                        self.textEdit_main.append(f'Total {len(txHistory)} transaction(s) received:\n'
-                                                  f'Offset is last 10000')
-                        self.textEdit_main.append('-' * 10)
-                        for n in txHistory:
-                            for e in n:
-                                self.textEdit_main.append(f'{str(e)} = {str(n[e])}')
-                            self.textEdit_main.append('-' * 10)
-                        cursor = QTextCursor(self.textEdit_main.document())
-                        cursor.setPosition(0)
-                        self.textEdit_main.setTextCursor(cursor)
+    def showNormalTransactions(self):
+        try:
+            TXHistoryWindow = qui_getUserInput.Ui('Show internal transactions',
+                                                  'Enter your API:\n'
+                                                  '(Notice about mainNet and testNet)')
+            TXHistoryWindow.exec()
+            API = TXHistoryWindow.getInput()
+            if API == '':
+                (qui_showMessage.Ui('Show internal transactions', 'Nothing received').exec())
+            else:
+                txHistory = self.getNormalTransactions(API)
+                self.textEdit_main.append(f'Total {len(txHistory)} transaction(s) received:\n'
+                                          f'Offset is last 10000')
+                self.textEdit_main.append('-' * 10)
+                for n in txHistory:
+                    for e in n:
+                        self.textEdit_main.append(f'{str(e)} = {str(n[e])}')
+                    self.textEdit_main.append('-' * 10)
+                    cursor = QTextCursor(self.textEdit_main.document())
+                    cursor.setPosition(0)
+                    self.textEdit_main.setTextCursor(cursor)
+        except Exception as er:
+            gui_errorDialog.Error(str(er)).exec()
+
+    def showInternalTransactions(self):
+        try:
+            TXHistoryWindow = qui_getUserInput.Ui('Show normal transactions',
+                                                  'Enter your API:\n'
+                                                  '(Notice about mainNet and testNet)')
+            TXHistoryWindow.exec()
+            API = TXHistoryWindow.getInput()
+            if API == '':
+                (qui_showMessage.Ui('Show normal transactions', 'Nothing received').exec())
+            else:
+                txHistory = self.getInternalTransactions(API)
+                self.textEdit_main.clear()
+                self.textEdit_main.append(f'Total {len(txHistory)} transaction(s) received:\n'
+                                          f'Offset is last 10000')
+                self.textEdit_main.append('-' * 10)
+                for n in txHistory:
+                    for e in n:
+                        self.textEdit_main.append(f'{str(e)} = {str(n[e])}')
+                    self.textEdit_main.append('-' * 10)
+                cursor = QTextCursor(self.textEdit_main.document())
+                cursor.setPosition(0)
+                self.textEdit_main.setTextCursor(cursor)
         except Exception as er:
             gui_errorDialog.Error(str(er)).exec()
