@@ -124,8 +124,9 @@ def estimateGas(txElements: dict) -> dict:
             MaxFeePerGasGwei = round(w3.from_wei((BaseFee + FeeMedian), "gwei"), 4)
             MAX_Fee[key] = MaxFeePerGasGwei
 
-            totalGasFeeGwei = round(w3.from_wei((MaxFeePerGasGwei * estimateGasUsed), "gwei"), 4)
+            totalGasFeeGwei = round(w3.from_wei((MaxFeePerGasGwei * estimateGasUsed), "gwei"), 6)
             GasPrice[key] = totalGasFeeGwei
+        print({'MAXPriorityFee': MAXPriorityFee, 'MAX_Fee': MAX_Fee, 'GasPrice': GasPrice})
 
         return {'MAXPriorityFee': MAXPriorityFee, 'MAX_Fee': MAX_Fee, 'GasPrice': GasPrice}
     except Exception as er:
