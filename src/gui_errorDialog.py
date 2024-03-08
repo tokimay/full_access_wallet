@@ -3,20 +3,21 @@ from PyQt6.QtWidgets import QDialog
 
 
 class Error(QDialog):
-    def __init__(self, message):
+    def __init__(self, function: str, message: str):
         super().__init__()
-        self.message = ''
+        self.message = message
+        self.function = function
         self.gridLayoutWidget = QtWidgets.QWidget(parent=self)
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.plainTextEdit_error = QtWidgets.QPlainTextEdit(parent=self.gridLayoutWidget)
         self.label_1 = QtWidgets.QLabel(parent=self.gridLayoutWidget)
         self.label_2 = QtWidgets.QLabel(parent=self.gridLayoutWidget)
-        self.initUI(message)
+        self.initUI()
 
-    def initUI(self, message):
+    def initUI(self):
         self.setGeometry(500, 250, 315, 240)
         self.setObjectName("Dialog_error")
-        self.setWindowTitle('ERROR')
+        self.setWindowTitle(f'Error in {self.function}')
         self.gridLayoutWidget.setGeometry(QtCore.QRect(10, 10, 300, 220))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
@@ -30,7 +31,7 @@ class Error(QDialog):
         self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
         self.label_1.setText("Some error has been occurred")
         self.label_2.setText("Error details:")
-        self.plainTextEdit_error.setPlainText(message)
+        self.plainTextEdit_error.setPlainText(self.message)
 
 
 

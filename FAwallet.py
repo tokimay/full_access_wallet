@@ -9,7 +9,7 @@ window = gui_mainWindow.Ui(dbName)
 window.show()
 db = database.Sqlite(dbName)
 if not db.createTable():
-    gui_errorDialog.Error('Data base error..\n ').exec()
+    gui_errorDialog.Error('FAWallet createTable', 'Data base error..\n ').exec()
 
 getBalance = False
 
@@ -34,13 +34,15 @@ else:  # there is no account in database
         if len(acc) == 0:  # random account creation return by some error
             pass
         elif not isinstance(acc, dict) or len(acc) == 0:
-            gui_errorDialog.Error('Account creation failed \n ' + str(type(acc))).exec()
+            gui_errorDialog.Error('FAWallet createT',
+                                  f'Account creation failed \n {str(type(acc))}').exec()
         else:
             if db.insertRow(acc):
                 window.comboBox_activeAddress_val.addItem(acc['address'])
                 getBalance = True
             else:
-                gui_errorDialog.Error('Inserting account details to database failed.\n').exec()
+                gui_errorDialog.Error('FAWallet createT',
+                                      'Inserting account details to database failed.\n').exec()
 
 if getBalance:
     balanceThread = Balance(window)

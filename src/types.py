@@ -9,3 +9,14 @@ class SECRET(Enum):
     PUBLIC_KEY = 'PUK'
     ADDRESS = 'ADR'
     MNEMONIC = 'NEM'
+
+
+class TYPE(Enum):
+    STRING = str
+    INTEGER = int
+    DICTIONARY = dict
+    LIST = list
+    TUPLE = tuple
+    FLOAT = float
+    BOOLEAN = bool
+

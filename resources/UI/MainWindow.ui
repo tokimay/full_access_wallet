@@ -244,7 +244,14 @@
      <addaction name="actionAll_normal"/>
      <addaction name="actionAll_internal"/>
     </widget>
+    <widget class="QMenu" name="menuTools">
+     <property name="title">
+      <string>Tools</string>
+     </property>
+     <addaction name="actionPublicKey_from_TXHash"/>
+    </widget>
     <addaction name="menuTransactions"/>
+    <addaction name="menuTools"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_Wallet"/>
@@ -298,27 +305,32 @@
   </action>
   <action name="action_checkTX">
    <property name="text">
-    <string>Check TX</string>
+    <string>Check transaction</string>
    </property>
   </action>
   <action name="actionAll_normal">
    <property name="text">
-    <string>All normal TX detailes(need API)</string>
+    <string>All normal TXS (need APIkey)</string>
    </property>
   </action>
   <action name="actionTX_nonce">
    <property name="text">
-    <string>TX nounce</string>
+    <string>Transaction nounce</string>
    </property>
   </action>
   <action name="actionSimple_history">
    <property name="text">
-    <string>Simple history(need API)</string>
+    <string>Simple history(need APIkey)</string>
    </property>
   </action>
   <action name="actionAll_internal">
    <property name="text">
-    <string>All internal TX detailes(need API)</string>
+    <string>All internal TXS (need APIkey)</string>
+   </property>
+  </action>
+  <action name="actionPublicKey_from_TXHash">
+   <property name="text">
+    <string>PublicKey from TXHash</string>
    </property>
   </action>
  </widget>
