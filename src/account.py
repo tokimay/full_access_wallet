@@ -1,3 +1,7 @@
+from json import loads
+
+import requests
+
 from src import gui_errorDialog, gui_mouseTracker
 from src.ellipticCurve import secp256k1
 from sha3 import keccak_256
@@ -107,33 +111,37 @@ class New:
             if not checkLen('entropyToMnemonic', entropy, 256):
                 return ''
             else:
-                bip39 = []
                 mnemonic = []
-                with open('resources/bip39EnglishWordList.txt') as file:
-                    while line := file.readline():
-                        bip39.append(line.strip())
-                    sha256Entropy = entropyToSha256(entropy)
-                    if sha256Entropy.startswith('0b'):
-                        sha256Entropy = entropy[2:]
-                    if not checkLen('entropyToMnemonic', sha256Entropy, 256):
+                response = requests.get(
+                    'https://github.com/tokimay/Full_Access_Wallet/blob/main/resources/bip39EnglishWordList.txt')
+                file = loads(response.text)
+                bip39 = file["payload"]['blob']['rawLines']
+                if not checkType('entropyToMnemonic', bip39, TYPE.LIST):
+                    return ''
+                if not checkLen('entropyToMnemonic', bip39, 2048):
+                    return ''
+                sha256Entropy = entropyToSha256(entropy)
+                if sha256Entropy.startswith('0b'):
+                    sha256Entropy = entropy[2:]
+                if not checkLen('entropyToMnemonic', sha256Entropy, 256):
+                    return ''
+                else:
+                    checkSumEntropy = entropy + str(sha256Entropy[:8])
+                    if not checkLen('entropyToMnemonic', checkSumEntropy, 264):
                         return ''
                     else:
-                        checkSumEntropy = entropy + str(sha256Entropy[:8])
-                        if not checkLen('entropyToMnemonic', checkSumEntropy, 264):
+                        chunk = 11
+                        while chunk <= 264:
+                            mnemonic.append(bip39[int(checkSumEntropy[(chunk - 11):chunk], 2)])
+                            chunk = chunk + 11
+                        if not len(mnemonic) == 24:
+                            gui_errorDialog.Error('entropyToMnemonic',
+                                                  f'Generating mnemonic failed.\n'
+                                                  f'Incompatible length received.\n'
+                                                  f'{len(mnemonic)}').exec()
                             return ''
                         else:
-                            chunk = 11
-                            while chunk <= 264:
-                                mnemonic.append(bip39[int(checkSumEntropy[(chunk - 11):chunk], 2)])
-                                chunk = chunk + 11
-                            if not len(mnemonic) == 24:
-                                gui_errorDialog.Error('entropyToMnemonic',
-                                                      f'Generating mnemonic failed.\n'
-                                                      f'Incompatible length received.\n'
-                                                      f'{len(mnemonic)}').exec()
-                                return ''
-                            else:
-                                return ' '.join(mnemonic)
+                            return ' '.join(mnemonic)
         except Exception as er:
             gui_errorDialog.Error('entropyToMnemonic', str(er)).exec()
             return ''
@@ -141,11 +149,15 @@ class New:
     @staticmethod
     def mnemonicToEntropy(mnemonic: str) -> str:
         try:
-            bip39 = []
             entropy = ''
-            with open('resources/bip39EnglishWordList.txt') as file:
-                while line := file.readline():
-                    bip39.append(line.strip())
+            response = requests.get(
+                'https://github.com/tokimay/Full_Access_Wallet/blob/main/resources/bip39EnglishWordList.txt')
+            file = loads(response.text)
+            bip39 = file["payload"]['blob']['rawLines']
+            if not checkType('entropyToMnemonic', bip39, TYPE.LIST):
+                return ''
+            if not checkLen('entropyToMnemonic', bip39, 2048):
+                return ''
             mnemonicList = mnemonic.split()
             if not checkLen('mnemonicToEntropy', mnemonicList, 24):
                 return ''

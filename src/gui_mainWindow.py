@@ -1,8 +1,9 @@
 from webbrowser import open
 from pyperclip import copy
-from PyQt6.QtWidgets import QFrame
+from PyQt6.QtWidgets import (QFrame, QWidget, QGridLayout, QLabel, QPushButton, QComboBox, QLineEdit,
+                             QRadioButton, QTextEdit, QMenuBar, QMenu, QStatusBar)
 from json import loads
-from PyQt6 import QtWidgets, uic
+from PyQt6 import QtWidgets
 from PyQt6.QtCore import QSize, QRect
 from PyQt6.QtGui import QIcon, QPixmap, QAction, QTextCursor
 from src import (database, types, gui_errorDialog, qui_getUserChoice, qui_getUserInput, qui_showMessage, ethereum,
@@ -12,67 +13,295 @@ from src import (database, types, gui_errorDialog, qui_getUserChoice, qui_getUse
 class Ui(QtWidgets.QMainWindow):
     def __init__(self, dbName):
         super().__init__()
-        uic.loadUi('resources/UI/MainWindow.ui', self)
+        self.menubar_file = QMenuBar(self)
 
-        self.gridlayout = self.findChild(QtWidgets.QGridLayout, 'gridlayout')
-        self.line_vertical = self.findChild(QFrame, 'gridlayout')
+        self.menu_Wallet = QMenu(self.menubar_file)
+        self.menuSecrets = QMenu(self.menu_Wallet)
+        self.menuNew_account = QMenu(self.menu_Wallet)
+
+        self.menuNetwork = QMenu(self.menubar_file)
+        self.menuTransactions = QMenu(self.menuNetwork)
+        self.menuTools = QMenu(self.menuNetwork)
+
+        self.setMenuBar(self.menubar_file)
         # ----------------------------------------------------------------------------------
-        self.actionEntropy = self.findChild(QAction, 'actionEntropy')
-        self.actionPrivateKey = self.findChild(QAction, 'actionPrivateKey')
-        self.actionPublicKey_coordinates = self.findChild(QAction, 'actionPublicKey_coordinates')
-        self.actionPublicKey = self.findChild(QAction, 'actionPublicKey')
-        self.actionMnemonic = self.findChild(QAction, 'actionMnemonic')
-
-        self.actionNew_random_account = self.findChild(QAction, 'actionNew_random_account')
-        self.actionRecover_from_mnemonic = self.findChild(QAction, 'actionRecover_from_mnemonic')
-        self.actionRecover_from_entropy = self.findChild(QAction, 'actionRecover_from_entropy')
-        self.actionRecover_from_privateKey = self.findChild(QAction, 'actionRecover_from_privateKey')
-
-        self.action_checkTX = self.findChild(QAction, 'action_checkTX')
-        self.actionTX_nonce = self.findChild(QAction, 'actionTX_nonce')
-        self.actionSimple_history = self.findChild(QAction, 'actionSimple_history')
-        self.actionAll_normal = self.findChild(QAction, 'actionAll_normal')
-        self.actionAll_internal = self.findChild(QAction, 'actionAll_internal')
-
-        self.actionPublicKey_from_TXHash = self.findChild(QAction, 'actionPublicKey_from_TXHash')
+        self.actionEntropy = QAction(self)
+        self.actionPrivateKey = QAction(self)
+        self.actionPublicKey_coordinates = QAction(self)
+        self.actionPublicKey = QAction(self)
+        self.actionMnemonic = QAction(self)
         # ----------------------------------------------------------------------------------
-        self.label_customizationArea = self.findChild(QtWidgets.QLabel, 'label_customizationArea')
-        self.radioButton_mainNet = self.findChild(QtWidgets.QRadioButton, 'radioButton_mainNet')
-        self.radioButton_testNet = self.findChild(QtWidgets.QRadioButton, 'radioButton_testNet')
+        self.actionNew_random_account = QAction(self)
+        self.actionRecover_from_mnemonic = QAction(self)
+        self.actionRecover_from_entropy = QAction(self)
+        self.actionRecover_from_privateKey = QAction(self)
         # ----------------------------------------------------------------------------------
-        self.label_node_provider = self.findChild(QtWidgets.QLabel, 'label_node_provider')
-        self.lineEdit_node_provider = self.findChild(QtWidgets.QLineEdit, 'lineEdit_node_provider')
-        self.pushButton_node_provider = self.findChild(QtWidgets.QPushButton, 'pushButton_node_provider')
-
-        self.label_accountName = self.findChild(QtWidgets.QLabel, 'label_accountName')
-        self.lineEdit_accountName = self.findChild(QtWidgets.QLineEdit, 'lineEdit_accountName')
-        self.pushButton_accountName = self.findChild(QtWidgets.QPushButton, 'pushButton_accountName')
-
-        self.label_activeAddress = self.findChild(QtWidgets.QLabel, 'label_activeAddress')
-        self.comboBox_activeAddress_val = self.findChild(QtWidgets.QComboBox, 'comboBox_activeAddress_val')
-        self.pushButton_copy_address = self.findChild(QtWidgets.QPushButton, 'pushButton_copy_address')
-
-        self.label_amount = self.findChild(QtWidgets.QLabel, 'label_amount')
-        self.label_amount_val = self.findChild(QtWidgets.QLabel, 'label_amount_val')
-        self.pushButton_ETH = self.findChild(QtWidgets.QPushButton, 'pushButton_ETH')
-
-        self.label_send = self.findChild(QtWidgets.QLabel, 'label_send')
-        self.lineEdit_send = self.findChild(QtWidgets.QLineEdit, 'lineEdit_send')
-
-        self.label_value = self.findChild(QtWidgets.QLabel, 'label_value')
-        self.lineEdit_sendValue = self.findChild(QtWidgets.QLineEdit, 'lineEdit_sendValue')
-        self.label_estimated = self.findChild(QtWidgets.QLabel, 'label_estimated')
-        self.label_gasEstimated_val = self.findChild(QtWidgets.QLabel, 'label_gasEstimated_val')
-        self.pushButton_send = self.findChild(QtWidgets.QPushButton, 'pushButton_send')
+        self.action_checkTX = QAction(self)
+        self.actionTX_nonce = QAction(self)
+        self.actionSimple_history = QAction(self)
+        self.actionAll_normal = QAction(self)
+        self.actionAll_internal = QAction(self)
         # ----------------------------------------------------------------------------------
-        self.textEdit_main = self.findChild(QtWidgets.QTextEdit, 'textEdit_main')
+        self.actionPublicKey_from_TXHash = QAction(self)
+        # ----------------------------------------------------------------------------------
+        self.centralWidget = QWidget(self)
+        self.gridLayoutWidget = QWidget(self.centralWidget)
+        self.gridlayout = QGridLayout(self.gridLayoutWidget)
+        # ----------------------------------------------------------------------------------
+        # row 1
+        self.label_node_provider = QLabel(self.gridLayoutWidget)
+        self.lineEdit_node_provider = QLineEdit(self.gridLayoutWidget)
+        self.pushButton_node_provider = QPushButton(self.gridLayoutWidget)
+
+        # row 2
+        self.label_accountName = QLabel(self.gridLayoutWidget)
+        self.lineEdit_accountName = QLineEdit(self.gridLayoutWidget)
+        self.pushButton_accountName = QPushButton(self.gridLayoutWidget)
+
+        # row 3
+        self.label_activeAddress = QLabel(self.gridLayoutWidget)
+        self.comboBox_activeAddress_val = QComboBox(self.gridLayoutWidget)
+        self.pushButton_copy_address = QPushButton(self.gridLayoutWidget)
+
+        # row 4
+        self.label_amount = QLabel(self.gridLayoutWidget)
+        self.label_amount_val = QLabel(self.gridLayoutWidget)
+        self.pushButton_ETH = QPushButton(self.gridLayoutWidget)
+
+        # row 5
+        self.label_send = QLabel(self.gridLayoutWidget)
+        self.lineEdit_send = QLineEdit(self.gridLayoutWidget)
+
+        # row 6
+        self.label_sendValue = QLabel(self.gridLayoutWidget)
+        self.lineEdit_sendValue = QLineEdit(self.gridLayoutWidget)
+        self.pushButton_send = QPushButton(self.gridLayoutWidget)
+        self.label_estimated = QLabel(self.gridLayoutWidget)
+        self.label_gasEstimated_val = QLabel(self.gridLayoutWidget)
+
+        # row 7
+        self.textEdit_main = QTextEdit(self.gridLayoutWidget)
+
+        # customization
+        self.label_customizationArea = QLabel(self.gridLayoutWidget)
+        self.radioButton_mainNet = QRadioButton(self.gridLayoutWidget)
+        self.radioButton_testNet = QRadioButton(self.gridLayoutWidget)
+
+        self.line_vertical = QFrame(self.gridLayoutWidget)
+        # ----------------------------------------------------------------------------------
+        self.statusbar = QStatusBar(self)
 
         self.db = database.Sqlite(dbName)
         self.initUI()
 
     def initUI(self):
+        self.setObjectName("MainWindow")
+        self.setWindowTitle("FAwallet")
         self.resize(800, 600)
+
+        self.setCentralWidget(self.centralWidget)
+        self.centralWidget.setObjectName("centralWidget")
+        self.gridLayoutWidget.setObjectName("gridLayoutWidget")
+        self.gridLayoutWidget.setGeometry(QRect(10, 10, 780, 580))
+        self.gridlayout.setObjectName("gridlayout")
         self.gridlayout.setGeometry(QRect(10, 10, 780, 580))
+        self.gridlayout.setContentsMargins(0, 0, 0, 0)
+        # ----------------------------------------------------------------------------------
+        self.actionEntropy.setObjectName("actionEntropy")
+        self.actionPrivateKey.setObjectName("actionPrivateKey")
+        self.actionPublicKey_coordinates.setObjectName("actionPublicKey_coordinates")
+        self.actionPublicKey.setObjectName("actionPublicKey")
+        self.actionMnemonic.setObjectName("actionMnemonic")
+
+        self.actionNew_random_account.setObjectName("actionNew_random_account")
+        self.actionRecover_from_mnemonic.setObjectName("actionRecover_from_mnemonic")
+        self.actionRecover_from_entropy.setObjectName("actionRecover_from_entropy")
+        self.actionRecover_from_privateKey.setObjectName("actionRecover_from_privateKey")
+        # ----------------------------------------------------------------------------------
+        self.action_checkTX.setObjectName("action_checkTX")
+        self.actionTX_nonce.setObjectName("actionTX_nonce")
+        self.actionSimple_history.setObjectName("actionSimple_history")
+        self.actionAll_normal.setObjectName("actionAll_normal")
+        self.actionAll_internal.setObjectName("actionAll_internal")
+
+        self.actionPublicKey_from_TXHash.setObjectName("actionPublicKey_from_TXHash")
+        # ----------------------------------------------------------------------------------
+        self.menubar_file.setObjectName("menubar_file")
+        self.menubar_file.setGeometry(QRect(0, 0, 800, 25))
+        # ----------------------------------------------------------------------------------
+        # wallet menu
+        self.menubar_file.addAction(self.menu_Wallet.menuAction())
+        self.menu_Wallet.setObjectName("menu_Wallet")
+        self.menu_Wallet.setTitle("&Wallet")
+
+        #  wallet menu -> account menu
+        self.menu_Wallet.addAction(self.menuNew_account.menuAction())
+        self.menuNew_account.setObjectName("menuNew_account")
+        self.menuNew_account.setTitle("New account")
+        self.menuNew_account.addAction(self.actionNew_random_account)
+        self.actionNew_random_account.setText("New random account")
+        self.menuNew_account.addAction(self.actionRecover_from_mnemonic)
+        self.actionRecover_from_mnemonic.setText("Recover from mnemonic")
+        self.menuNew_account.addAction(self.actionRecover_from_entropy)
+        self.actionRecover_from_entropy.setText("Recover from entropy")
+        self.menuNew_account.addAction(self.actionRecover_from_privateKey)
+        self.actionRecover_from_privateKey.setText("Recover from privateKey")
+
+        #  wallet menu -> Secrets menu
+        self.menu_Wallet.addAction(self.menuSecrets.menuAction())
+        self.menuSecrets.setObjectName("menuSecrets")
+        self.menuSecrets.setTitle("Secrets")
+        self.menuSecrets.addSeparator()
+        self.menuSecrets.addAction(self.actionEntropy)
+        self.actionEntropy.setText("Entropy")
+        self.menuSecrets.addAction(self.actionPrivateKey)
+        self.actionPrivateKey.setText("PrivateKey")
+        self.menuSecrets.addAction(self.actionPublicKey_coordinates)
+        self.actionPublicKey_coordinates.setText("PublicKey coordinates")
+        self.menuSecrets.addAction(self.actionPublicKey)
+        self.actionPublicKey.setText('PublicKey')
+        self.menuSecrets.addAction(self.actionMnemonic)
+        self.actionMnemonic.setText("Mnemonic")
+        # ----------------------------------------------------------------------------------
+        # Network menu
+        self.menubar_file.addAction(self.menuNetwork.menuAction())
+        self.menuNetwork.setObjectName("menuNetwork")
+        self.menuNetwork.setTitle("&Network")
+
+        # Network menu -> Transactions menu
+        self.menuNetwork.addAction(self.menuTransactions.menuAction())
+        self.menuTransactions.setObjectName("menuTransactions")
+        self.menuTransactions.setTitle("Transactions")
+        self.menuTransactions.addAction(self.action_checkTX)
+        self.action_checkTX.setText("Check transaction")
+        self.menuTransactions.addAction(self.actionTX_nonce)
+        self.actionTX_nonce.setText("Transaction nounce")
+        self.menuTransactions.addAction(self.actionSimple_history)
+        self.actionSimple_history.setText("Simple history(need APIkey)")
+        self.menuTransactions.addAction(self.actionAll_normal)
+        self.actionAll_normal.setText("All normal TXS (need APIkey)")
+        self.menuTransactions.addAction(self.actionAll_internal)
+        self.actionAll_internal.setText("All internal TXS (need APIkey)")
+
+        # Network menu -> Tools menu
+        self.menuNetwork.addAction(self.menuTools.menuAction())
+        self.menuTools.setObjectName("menuTools")
+        self.menuTools.setTitle("Tools")
+        self.menuTools.addAction(self.actionPublicKey_from_TXHash)
+        self.actionPublicKey_from_TXHash.setText("PublicKey from TXHash")
+        # ----------------------------------------------------------------------------------
+        # row 1
+        self.label_node_provider.setObjectName("label_node_provider")
+        self.label_node_provider.setText("Node provider:")
+        self.lineEdit_node_provider.setText("https://nodes.mewapi.io/rpc/eth")
+        self.lineEdit_node_provider.setObjectName("lineEdit_node_provider")
+        self.pushButton_node_provider.setObjectName("pushButton_node_provider")
+        self.pushButton_node_provider.setText("Providers")
+
+        # row 2
+        self.label_accountName.setObjectName("label_accountName")
+        self.label_accountName.setText("Account name:")
+        self.lineEdit_accountName.setObjectName("lineEdit_accountName")
+        self.pushButton_accountName.setObjectName("pushButton_accountName")
+        self.pushButton_accountName.setText("Edit")
+
+        # row 3
+        self.label_activeAddress.setObjectName("label_activeAddress")
+        self.label_activeAddress.setText("Active address:")
+        self.comboBox_activeAddress_val.setObjectName(u"comboBox_activeAddress_val")
+        self.pushButton_copy_address.setObjectName("pushButton_copy_address")
+        self.pushButton_copy_address.setText("Copy address")
+
+        # row 4
+        self.label_amount.setObjectName("label_amount")
+        self.label_amount.setText("Amount:")
+        self.label_amount_val.setObjectName("label_amount_val")
+        self.label_amount_val.setText("0")
+        self.pushButton_ETH.setObjectName("pushButton_ETH")
+        self.pushButton_ETH.setText("etherescan.io")
+
+        # row 5
+        self.label_send.setObjectName("label_send")
+        self.label_send.setText("Send ETH to:")
+        self.lineEdit_send.setObjectName("lineEdit_send")
+
+        # row 6
+        self.label_sendValue.setObjectName("label_sendValue")
+        self.label_sendValue.setText("Value to send:")
+        self.lineEdit_sendValue.setObjectName("lineEdit_sendValue")
+        self.pushButton_send.setObjectName("pushButton_send")
+        self.pushButton_send.setText("Send")
+        self.label_estimated.setObjectName("label_estimated")
+        self.label_estimated.setText("Estimated gas:")
+        self.label_gasEstimated_val.setObjectName("label_gasEstimated_val")
+        self.label_gasEstimated_val.setText("0")
+
+        # row 7
+        self.textEdit_main.setObjectName("textEdit_main")
+
+        # customization
+        self.label_customizationArea.setObjectName("label_customizationArea")
+        self.label_customizationArea.setText("Customization area")
+        self.radioButton_mainNet.setObjectName("radioButton_mainNet")
+        self.radioButton_mainNet.setText("MainNet")
+        self.radioButton_testNet.setObjectName("radioButton_testNet")
+        self.radioButton_testNet.setText("TestNet(Sepolia)")
+
+        self.line_vertical.setObjectName("line_vertical")
+        # self.line_vertical.setFrameShape(QFrame.VLine)
+        # self.line_vertical.setFrameShadow(QFrame.Sunken)
+        # ----------------------------------------------------------------------------------
+        self.setStatusBar(self.statusbar)
+        self.statusbar.setObjectName(u"statusbar")
+        # ----------------------------------------------------------------------------------
+        # row 1
+        self.gridlayout.addWidget(self.label_node_provider, 1, 0, 1, 1)
+        self.gridlayout.addWidget(self.lineEdit_node_provider, 1, 1, 1, 3)
+        self.gridlayout.addWidget(self.pushButton_node_provider, 1, 4, 1, 1)
+        self.gridlayout.addWidget(self.line_vertical, 1, 5, 7, 1)
+        self.gridlayout.addWidget(self.label_customizationArea, 1, 6, 1, 1)
+
+        # row 2
+        self.gridlayout.addWidget(self.label_accountName, 2, 0, 1, 1)
+        self.gridlayout.addWidget(self.lineEdit_accountName, 2, 1, 1, 3)
+        self.gridlayout.addWidget(self.pushButton_accountName, 2, 4, 1, 1)
+        # col 5 empty
+        # col 6 empty
+
+        # row 3
+        self.gridlayout.addWidget(self.label_activeAddress, 3, 0, 1, 1)
+        self.gridlayout.addWidget(self.comboBox_activeAddress_val, 3, 1, 1, 3)
+        self.gridlayout.addWidget(self.pushButton_copy_address, 3, 4, 1, 1)
+        # col 5 empty
+        self.gridlayout.addWidget(self.radioButton_mainNet, 3, 6, 1, 1)
+
+        # row 4
+        self.gridlayout.addWidget(self.label_amount, 4, 0, 1, 1)
+        self.gridlayout.addWidget(self.label_amount_val, 4, 1, 1, 3)
+        self.gridlayout.addWidget(self.pushButton_ETH, 4, 4, 1, 1)
+        # col 5 empty
+        self.gridlayout.addWidget(self.radioButton_testNet, 4, 6, 1, 1)
+
+        # row 5
+        self.gridlayout.addWidget(self.label_send, 5, 0, 1, 1)
+        self.gridlayout.addWidget(self.lineEdit_send, 5, 1, 1, 3)
+        # col 3 empty
+        # col 4 empty
+        # col 5 empty
+        # col 6 empty
+
+        # row 6
+        self.gridlayout.addWidget(self.label_sendValue, 6, 0, 1, 1)
+        self.gridlayout.addWidget(self.lineEdit_sendValue, 6, 1, 1, 1)
+        self.gridlayout.addWidget(self.label_estimated, 6, 2, 1, 1)
+        self.gridlayout.addWidget(self.label_gasEstimated_val, 6, 3, 1, 1)
+        self.gridlayout.addWidget(self.pushButton_send, 6, 4, 1, 1)
+        # col 5 empty
+        # col 6 empty
+
+        # row 7
+        self.gridlayout.addWidget(self.textEdit_main, 7, 0, 1, 7)
+
         # self.gridlayout.setRowMinimumHeight(1, 100)
         # self.gridlayout.setRowMinimumHeight(1, 27)
         # self.gridlayout.setRowMinimumHeight(2, 27)
@@ -100,7 +329,7 @@ class Ui(QtWidgets.QMainWindow):
         self.label_send.setMinimumHeight(height)
         self.lineEdit_send.setMinimumHeight(height)
 
-        self.label_value.setMinimumHeight(height)
+        self.label_sendValue.setMinimumHeight(height)
         self.lineEdit_sendValue.setMinimumHeight(height)
         self.label_estimated.setMinimumHeight(height)
         self.label_gasEstimated_val.setMinimumHeight(height)
