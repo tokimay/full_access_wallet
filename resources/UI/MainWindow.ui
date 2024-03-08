@@ -159,20 +159,6 @@
        </property>
       </widget>
      </item>
-     <item row="5" column="6">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="4">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>TextLabel</string>
-       </property>
-      </widget>
-     </item>
      <item row="5" column="1" colspan="3">
       <widget class="QLineEdit" name="lineEdit_send"/>
      </item>
