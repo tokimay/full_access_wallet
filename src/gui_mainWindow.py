@@ -43,6 +43,7 @@ class Ui(QtWidgets.QMainWindow):
         self.actionAll_internal = QAction(self)
         # ----------------------------------------------------------------------------------
         self.actionPublicKey_from_TXHash = QAction(self)
+        self.actionTransactionMessage = QAction(self)
         # ----------------------------------------------------------------------------------
         self.centralWidget = QWidget(self)
         self.gridLayoutWidget = QWidget(self.centralWidget)
@@ -76,8 +77,8 @@ class Ui(QtWidgets.QMainWindow):
         self.label_sendValue = QLabel(self.gridLayoutWidget)
         self.lineEdit_sendValue = QLineEdit(self.gridLayoutWidget)
         self.pushButton_send = QPushButton(self.gridLayoutWidget)
-        self.label_estimated = QLabel(self.gridLayoutWidget)
-        self.label_gasEstimated_val = QLabel(self.gridLayoutWidget)
+        self.label_message = QLabel(self.gridLayoutWidget)
+        self.LineEdit_message = QLineEdit(self.gridLayoutWidget)
 
         # row 7
         self.textEdit_main = QTextEdit(self.gridLayoutWidget)
@@ -125,6 +126,7 @@ class Ui(QtWidgets.QMainWindow):
         self.actionAll_internal.setObjectName("actionAll_internal")
 
         self.actionPublicKey_from_TXHash.setObjectName("actionPublicKey_from_TXHash")
+        self.actionTransactionMessage.setObjectName('actionTransactionMessage')
         # ----------------------------------------------------------------------------------
         self.menubar_file.setObjectName("menubar_file")
         self.menubar_file.setGeometry(QRect(0, 0, 800, 25))
@@ -189,6 +191,8 @@ class Ui(QtWidgets.QMainWindow):
         self.menuTools.setTitle("Tools")
         self.menuTools.addAction(self.actionPublicKey_from_TXHash)
         self.actionPublicKey_from_TXHash.setText("PublicKey from TXHash")
+        self.menuTools.addAction(self.actionTransactionMessage)
+        self.actionTransactionMessage.setText('Show transaction message')
         # ----------------------------------------------------------------------------------
         # row 1
         self.label_node_provider.setObjectName("label_node_provider")
@@ -230,11 +234,10 @@ class Ui(QtWidgets.QMainWindow):
         self.label_sendValue.setText("Value to send:")
         self.lineEdit_sendValue.setObjectName("lineEdit_sendValue")
         self.pushButton_send.setObjectName("pushButton_send")
-        self.pushButton_send.setText("Send")
-        self.label_estimated.setObjectName("label_estimated")
-        self.label_estimated.setText("Estimated gas:")
-        self.label_gasEstimated_val.setObjectName("label_gasEstimated_val")
-        self.label_gasEstimated_val.setText("0")
+        self.pushButton_send.setText("Send TX")
+        self.label_message.setObjectName("label_message")
+        self.label_message.setText("Message:")
+        self.LineEdit_message.setObjectName("LineEdit_message")
 
         # row 7
         self.textEdit_main.setObjectName("textEdit_main")
@@ -266,21 +269,21 @@ class Ui(QtWidgets.QMainWindow):
         self.gridlayout.addWidget(self.lineEdit_accountName, 2, 1, 1, 3)
         self.gridlayout.addWidget(self.pushButton_accountName, 2, 4, 1, 1)
         # col 5 empty
-        # col 6 empty
+        self.gridlayout.addWidget(self.radioButton_mainNet, 2, 6, 1, 1)
 
         # row 3
         self.gridlayout.addWidget(self.label_activeAddress, 3, 0, 1, 1)
         self.gridlayout.addWidget(self.comboBox_activeAddress_val, 3, 1, 1, 3)
         self.gridlayout.addWidget(self.pushButton_copy_address, 3, 4, 1, 1)
         # col 5 empty
-        self.gridlayout.addWidget(self.radioButton_mainNet, 3, 6, 1, 1)
+        self.gridlayout.addWidget(self.radioButton_testNet, 3, 6, 1, 1)
 
         # row 4
         self.gridlayout.addWidget(self.label_amount, 4, 0, 1, 1)
         self.gridlayout.addWidget(self.label_amount_val, 4, 1, 1, 3)
         self.gridlayout.addWidget(self.pushButton_ETH, 4, 4, 1, 1)
         # col 5 empty
-        self.gridlayout.addWidget(self.radioButton_testNet, 4, 6, 1, 1)
+        # col 6 empty
 
         # row 5
         self.gridlayout.addWidget(self.label_send, 5, 0, 1, 1)
@@ -293,8 +296,8 @@ class Ui(QtWidgets.QMainWindow):
         # row 6
         self.gridlayout.addWidget(self.label_sendValue, 6, 0, 1, 1)
         self.gridlayout.addWidget(self.lineEdit_sendValue, 6, 1, 1, 1)
-        self.gridlayout.addWidget(self.label_estimated, 6, 2, 1, 1)
-        self.gridlayout.addWidget(self.label_gasEstimated_val, 6, 3, 1, 1)
+        self.gridlayout.addWidget(self.label_message, 6, 2, 1, 1)
+        self.gridlayout.addWidget(self.LineEdit_message, 6, 3, 1, 1)
         self.gridlayout.addWidget(self.pushButton_send, 6, 4, 1, 1)
         # col 5 empty
         # col 6 empty
@@ -331,8 +334,8 @@ class Ui(QtWidgets.QMainWindow):
 
         self.label_sendValue.setMinimumHeight(height)
         self.lineEdit_sendValue.setMinimumHeight(height)
-        self.label_estimated.setMinimumHeight(height)
-        self.label_gasEstimated_val.setMinimumHeight(height)
+        self.label_message.setMinimumHeight(height)
+        self.LineEdit_message.setMinimumHeight(height)
         self.pushButton_send.setMinimumHeight(height)
 
         # self.textEdit_main.setMinimumHeight(400)
@@ -343,12 +346,11 @@ class Ui(QtWidgets.QMainWindow):
 
         self.comboBox_activeAddress_val.clear()
 
-        self.lineEdit_node_provider.setText('https://nodes.mewapi.io/rpc/eth')
+        self.lineEdit_node_provider.setText('https://rpc.sepolia.org')
         self.lineEdit_node_provider.setStyleSheet('background-color: white; color: black;')
 
-        self.radioButton_mainNet.setChecked(True)
-
-        self.radioButton_testNet.setChecked(False)
+        self.radioButton_mainNet.setChecked(False)
+        self.radioButton_testNet.setChecked(True)
 
         self.lineEdit_accountName.setEnabled(False)
         self.lineEdit_accountName.setStyleSheet("color: yellow; border: none")
@@ -384,6 +386,7 @@ class Ui(QtWidgets.QMainWindow):
 
         self.lineEdit_send.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
         self.lineEdit_sendValue.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
+        self.LineEdit_message.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
 
         self.initIcons()
         self.setClickEvents()
@@ -394,7 +397,7 @@ class Ui(QtWidgets.QMainWindow):
         self.pushButton_ETH.clicked.connect(self.goToEtherscan)
         self.pushButton_node_provider.clicked.connect(self.goToEtherNodes)
         self.pushButton_accountName.clicked.connect(self.editAccountName)
-        self.pushButton_send.clicked.connect(self.sentETH)
+        self.pushButton_send.clicked.connect(self.sendTransaction)
         # Wallets-New wallet---------------------------------------------------------------------------------
         self.actionNew_random_account.triggered.connect(self.createAccountRandom)
         self.actionRecover_from_mnemonic.triggered.connect(self.createAccountFromMnemonic)
@@ -414,6 +417,7 @@ class Ui(QtWidgets.QMainWindow):
         self.actionAll_internal.triggered.connect(self.showInternalTransactions)
         # Network-Tools---------------------------------------------------------------------------------
         self.actionPublicKey_from_TXHash.triggered.connect(self.showSenderPublicKey)
+        self.actionTransactionMessage.triggered.connect(self.showCustomTransactionMessage)
         # ----------------------------------------------------------------------------------
         self.radioButton_mainNet.toggled.connect(self.changeNetwork)
         self.radioButton_testNet.toggled.connect(self.changeNetwork)
@@ -730,6 +734,26 @@ class Ui(QtWidgets.QMainWindow):
         except Exception as er:
             gui_errorDialog.Error('getBalance', str(er)).exec()
 
+    def sendTransaction(self, isContract: bool = False):
+        if not self.LineEdit_message.text() == '' or not self.lineEdit_sendValue.text() == '':
+            if self.lineEdit_send.text() == '' and isContract:  # deploy contract
+                pass
+            elif self.lineEdit_send.text() == '' and not isContract:  # send transaction need address
+                qui_showMessage.Ui('sendTransaction', "Enter the recipient\'s address").exec()
+                return {}
+            else:
+                if self.LineEdit_message.text() == '':  # it is normal transaction
+                    if self.lineEdit_sendValue.text() == '':
+                        qui_showMessage.Ui('sendTransaction', "Enter value to send").exec()
+                        return {}
+                    else:
+                        self.sentETH()
+                elif not self.LineEdit_message.text() == '':  # it is message transaction
+                    self.sentETHMessage()
+        else:
+            qui_showMessage.Ui('sendTransaction', 'Please fill the required sections').exec()
+            return {}
+
     def sentETH(self):
         try:
             transactions = self.transactionElements()
@@ -752,7 +776,7 @@ class Ui(QtWidgets.QMainWindow):
                                        'You are in safe',
                                        'Nothing has been sent').exec()
                 else:
-                    transactionHash = ethereum.sendTransaction(privateKey=(self.db.readColumnByCondition(
+                    transactionHash = ethereum.sendValueTransaction(privateKey=(self.db.readColumnByCondition(
                         types.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0], txElements=transactions)
                     if transactionHash == '':
                         pass  # Transaction failed
@@ -764,7 +788,41 @@ class Ui(QtWidgets.QMainWindow):
         except Exception as er:
             gui_errorDialog.Error('sentETH', str(er)).exec()
 
-    def transactionElements(self):
+    def sentETHMessage(self):
+        try:
+            transactions = self.transactionElements(data=self.LineEdit_message.text().encode("utf-8").hex())
+            if not transactions:
+                pass  # error
+            else:
+                gas = ethereum.estimateGas(transactions)
+                if not gas:
+                    pass  # error
+                senETH = qui_getUserChoice.Ui('Sending your money to others',
+                                              f'Send {transactions["vale"]} ETH to {transactions["receiver"]}'
+                                              f"\nestimated gas fee is:\n"
+                                              f"Lowest = {gas['GasPrice']['low']} ETH\n"
+                                              f"Median = {gas['GasPrice']['medium']} ETH\n"
+                                              f"Highest = {gas['GasPrice']['high']} ETH\n",
+                                              'Are you sure?')
+                senETH.exec()
+                if not senETH.getAnswer():  # cancel by user
+                    qui_showMessage.Ui('I\'m entranced with joy',
+                                       'You are in safe',
+                                       'Nothing has been sent').exec()
+                else:
+                    transactionHash = ethereum.sendMessageTransaction(privateKey=(self.db.readColumnByCondition(
+                        types.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0], txElements=transactions)
+                    if transactionHash == '':
+                        pass  # Transaction failed
+                    else:
+                        qui_showMessage.Ui('Your job is done',
+                                           'Transaction succeed:',
+                                           f'Hash: {transactionHash}').exec()
+                        self.showTransaction(transactionHash)
+        except Exception as er:
+            gui_errorDialog.Error('sentETH', str(er)).exec()
+
+    def transactionElements(self, data: str = ''):
         try:
             if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
                 chainId = 1  # Ethereum chain ID
@@ -775,18 +833,19 @@ class Ui(QtWidgets.QMainWindow):
                 chainId = 0
             if chainId > 0:
                 if self.lineEdit_sendValue.text() == '':
-                    qui_showMessage.Ui('transaction elements', 'Enter amount!').exec()
-                    return {}
+                    val = 0
                 else:
-                    return {
-                        'sender': self.comboBox_activeAddress_val.currentText(),
-                        'receiver': self.lineEdit_send.text(),
-                        'vale': float(self.lineEdit_sendValue.text()),
-                        'provider': self.lineEdit_node_provider.text(),
-                        'chainId': chainId
-                    }
+                    val = float(self.lineEdit_sendValue.text())
+                return {
+                    'sender': self.comboBox_activeAddress_val.currentText(),
+                    'receiver': self.lineEdit_send.text(),
+                    'vale': val,
+                    'provider': self.lineEdit_node_provider.text(),
+                    'chainId': chainId,
+                    'data': data
+                }
             else:
-                pass  # select network error
+                pass  # network selection error
         except Exception as er:
             gui_errorDialog.Error('transactionElements', str(er)).exec()
 
@@ -797,10 +856,7 @@ class Ui(QtWidgets.QMainWindow):
                 pass  # error getting transaction
             else:
                 self.textEdit_main.clear()
-                print(tx)
-                print(type(tx))
                 tx = loads(tx)  # convert to json
-                print(type(tx))
                 for t in tx:
                     if tx[t] is None:
                         pass  # too soon
@@ -817,6 +873,29 @@ class Ui(QtWidgets.QMainWindow):
         except Exception as er:
             gui_errorDialog.Error('showTransaction', str(er)).exec()
 
+    def showTransactionMessage(self, txHash):
+        try:
+            tx = ethereum.getTransaction(txHash, self.lineEdit_node_provider.text())
+            if tx == '':
+                pass  # error getting transaction
+            else:
+                self.textEdit_main.clear()
+                tx = loads(tx)  # convert to json
+                self.textEdit_main.append(f"Transaction message is:\n\n"
+                                          f" {bytearray.fromhex(tx['input'][2:]).decode('utf-8')}\n")
+                self.textEdit_main.append('-' * 10)
+                self.textEdit_main.append(f'transactionHash = {txHash}')
+                for t in tx:
+                    if t == 'blockNumber' or t == 'blockHash' or t == 'from' or t == 'to':
+                        self.textEdit_main.append(f'{t} = {tx[t]}')
+                    else:
+                        pass
+                cursor = QTextCursor(self.textEdit_main.document())
+                cursor.setPosition(0)
+                self.textEdit_main.setTextCursor(cursor)
+        except Exception as er:
+            gui_errorDialog.Error('showTransaction', str(er)).exec()
+
     def showCustomTransaction(self):
         try:
             TXHashWindow = qui_getUserInput.Ui('Show custom transaction',
@@ -830,6 +909,20 @@ class Ui(QtWidgets.QMainWindow):
                 self.showTransaction(TXHash)
         except Exception as er:
             gui_errorDialog.Error('showCustomTransaction', str(er)).exec()
+
+    def showCustomTransactionMessage(self):
+        try:
+            TXHashWindow = qui_getUserInput.Ui('Show custom transaction message',
+                                               'Enter transaction hash:\n'
+                                               '(Notice about mainNet and testNet)')
+            TXHashWindow.exec()
+            TXHash = TXHashWindow.getInput()
+            if TXHash == '':
+                qui_showMessage.Ui('Show custom transaction message', 'Nothing received').exec()
+            else:
+                self.showTransactionMessage(TXHash)
+        except Exception as er:
+            gui_errorDialog.Error('Show custom transaction message', str(er)).exec()
 
     def showNonce(self):
         try:

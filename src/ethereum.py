@@ -30,7 +30,7 @@ def getBalance(address: str, provider: str) -> int:
         return -1
 
 
-def sendTransaction(privateKey: str, txElements: dict) -> str:
+def sendValueTransaction(privateKey: str, txElements: dict) -> str:
     try:
         if not checkType('sendTransaction', privateKey, TYPE.STRING):
             return ''
@@ -52,7 +52,55 @@ def sendTransaction(privateKey: str, txElements: dict) -> str:
             'maxFeePerGas': 2000000000,
             'maxPriorityFeePerGas': 1000000000,
             'nonce': w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender'])),
-            'chainId': txElements['chainId']})
+            'chainId': txElements['chainId'],
+            # 'hardfork': 'petersburg'
+        })
+        gas = w3.eth.estimate_gas(transaction)
+        transaction.update({'gas': gas})
+        signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
+        # print(signed.rawTransaction)
+        # print(signed.hash)
+        # print(signed.r)
+        # print(signed.s)
+        # print(signed.v)
+        txHash = w3.eth.send_raw_transaction(signed.rawTransaction)
+        return txHash.hex()
+    except Exception as er:
+        gui_errorDialog.Error('sendTransaction', str(er)).exec()
+        return ''
+
+
+def sendMessageTransaction(privateKey: str, txElements: dict) -> str:
+    try:
+        if not checkType(' sendMessage', privateKey, TYPE.STRING):
+            return ''
+        if not checkType(' sendMessage', txElements, TYPE.DICTIONARY):
+            return ''
+        if not checkURL(' sendMessage', txElements['provider']):
+            return ''
+        if not checkType(' sendMessage', txElements['data'], TYPE.STRING):
+            return ''
+        txHash = ''
+        w3 = Web3(HTTPProvider(txElements['provider']))
+        if not w3.is_connected():
+            gui_errorDialog.Error('sendTransaction',
+                                  f"Connect to {txElements['provider']} failed.").exec()
+            return ''
+        print("txElements['data']")
+        print(txElements['data'])
+        print(type(txElements['data']))
+        print('==========================')
+        transaction = ({
+            'to': Web3.to_checksum_address(txElements['receiver']),
+            'value': w3.to_wei(txElements['vale'], 'ether'),
+            'gas': 2000000,
+            'maxFeePerGas': 2000000000,
+            'maxPriorityFeePerGas': 1000000000,
+            'nonce': w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender'])),
+            'chainId': txElements['chainId'],
+            # 'hardfork': 'petersburg',
+            'data': txElements['data']
+        })
         gas = w3.eth.estimate_gas(transaction)
         transaction.update({'gas': gas})
         signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
@@ -144,7 +192,7 @@ def getTransaction(txHash: str, provider: str) -> str:
             return ''
         w3 = Web3(HTTPProvider(provider))
         if not w3.is_connected():
-            gui_errorDialog.Error('getTransaction',f"Connect to {provider} failed.").exec()
+            gui_errorDialog.Error('getTransaction', f"Connect to {provider} failed.").exec()
             return ''
 
         tx = w3.eth.get_transaction(txHash)
