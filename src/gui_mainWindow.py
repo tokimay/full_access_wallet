@@ -1,16 +1,18 @@
-
-from webbrowser import open
+from webbrowser import open as web_browser_open
 from pyperclip import copy
-from PyQt6.QtWidgets import (QFrame, QWidget, QGridLayout, QLabel, QPushButton, QComboBox, QLineEdit,
-                             QRadioButton, QTextEdit, QMenuBar, QMenu, QStatusBar)
-from json import loads
+from PyQt6.QtWidgets import (QWidget, QGridLayout, QLabel, QPushButton, QComboBox, QLineEdit,
+                             QRadioButton, QTextEdit, QMenuBar, QMenu, QStatusBar, QSplitter)
+from PyQt6.QtWidgets import QFrame
+from json import loads, dump, dumps
 from PyQt6 import QtWidgets
-from PyQt6.QtCore import QSize, QRect
+from PyQt6.QtCore import QSize, QRect, Qt
 from PyQt6.QtGui import QIcon, QPixmap, QAction, QTextCursor
 from src import (database, dataTypes, gui_errorDialog, qui_getUserChoice, qui_getUserInput, qui_showMessage, ethereum,
                  account, system)
+from pathlib import Path
+from tkinter import filedialog, Tk
 
-
+from src.cryptography import DES
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -19,8 +21,9 @@ class Ui(QtWidgets.QMainWindow):
         self.menubar_file = QMenuBar(self)
 
         self.menu_Wallet = QMenu(self.menubar_file)
-        self.menuSecrets = QMenu(self.menu_Wallet)
         self.menuNew_account = QMenu(self.menu_Wallet)
+        self.menuSecrets = QMenu(self.menu_Wallet)
+        self.menuBackupAndRestore = QMenu(self.menu_Wallet)
 
         self.menuNetwork = QMenu(self.menubar_file)
         self.menuTransactions = QMenu(self.menuNetwork)
@@ -38,6 +41,9 @@ class Ui(QtWidgets.QMainWindow):
         self.actionRecover_from_mnemonic = QAction(self)
         self.actionRecover_from_entropy = QAction(self)
         self.actionRecover_from_privateKey = QAction(self)
+        # ----------------------------------------------------------------------------------
+        self.actionBackup = QAction(self)
+        self.actionRestore = QAction(self)
         # ----------------------------------------------------------------------------------
         self.action_checkTX = QAction(self)
         self.actionTX_nonce = QAction(self)
@@ -75,11 +81,11 @@ class Ui(QtWidgets.QMainWindow):
         # row 5
         self.label_send = QLabel(self.gridLayoutWidget)
         self.lineEdit_send = QLineEdit(self.gridLayoutWidget)
+        self.pushButton_send = QPushButton(self.gridLayoutWidget)
 
         # row 6
         self.label_sendValue = QLabel(self.gridLayoutWidget)
         self.lineEdit_sendValue = QLineEdit(self.gridLayoutWidget)
-        self.pushButton_send = QPushButton(self.gridLayoutWidget)
         self.label_message = QLabel(self.gridLayoutWidget)
         self.LineEdit_message = QLineEdit(self.gridLayoutWidget)
 
@@ -156,7 +162,7 @@ class Ui(QtWidgets.QMainWindow):
         self.menu_Wallet.addAction(self.menuSecrets.menuAction())
         self.menuSecrets.setObjectName("menuSecrets")
         self.menuSecrets.setTitle("Secrets")
-        self.menuSecrets.addSeparator()
+        # self.menuSecrets.addSeparator()
         self.menuSecrets.addAction(self.actionEntropy)
         self.actionEntropy.setText("Entropy")
         self.menuSecrets.addAction(self.actionPrivateKey)
@@ -167,6 +173,16 @@ class Ui(QtWidgets.QMainWindow):
         self.actionPublicKey.setText('PublicKey')
         self.menuSecrets.addAction(self.actionMnemonic)
         self.actionMnemonic.setText("Mnemonic")
+
+        #  wallet menu -> Backup and restore menu
+        self.menu_Wallet.addAction(self.menuBackupAndRestore.menuAction())
+        self.menuBackupAndRestore.setObjectName("menuBackupAndRestore")
+        self.menuBackupAndRestore.setTitle("Backup and Restore")
+        self.menuBackupAndRestore.addAction(self.actionBackup)
+        self.actionBackup.setText("Backup account")
+        self.menuBackupAndRestore.addAction(self.actionRestore)
+        self.actionRestore.setText('Restore account')
+
         # ----------------------------------------------------------------------------------
         # Network menu
         self.menubar_file.addAction(self.menuNetwork.menuAction())
@@ -231,13 +247,13 @@ class Ui(QtWidgets.QMainWindow):
         self.label_send.setObjectName("label_send")
         self.label_send.setText("Send ETH to:")
         self.lineEdit_send.setObjectName("lineEdit_send")
+        self.pushButton_send.setObjectName("pushButton_send")
+        self.pushButton_send.setText("Send TX")
 
         # row 6
         self.label_sendValue.setObjectName("label_sendValue")
         self.label_sendValue.setText("Value to send:")
         self.lineEdit_sendValue.setObjectName("lineEdit_sendValue")
-        self.pushButton_send.setObjectName("pushButton_send")
-        self.pushButton_send.setText("Send TX")
         self.label_message.setObjectName("label_message")
         self.label_message.setText("Message:")
         self.LineEdit_message.setObjectName("LineEdit_message")
@@ -254,8 +270,8 @@ class Ui(QtWidgets.QMainWindow):
         self.radioButton_testNet.setText("TestNet(Sepolia)")
 
         self.line_vertical.setObjectName("line_vertical")
-        # self.line_vertical.setFrameShape(QFrame.VLine)
-        # self.line_vertical.setFrameShadow(QFrame.Sunken)
+        self.line_vertical.setFrameShape(QFrame.Shape.VLine)
+        # self.line_vertical.setFrameShadow(QFrame.Shape.Sunken)
         # ----------------------------------------------------------------------------------
         self.setStatusBar(self.statusbar)
         self.statusbar.setObjectName(u"statusbar")
@@ -264,7 +280,7 @@ class Ui(QtWidgets.QMainWindow):
         self.gridlayout.addWidget(self.label_node_provider, 1, 0, 1, 1)
         self.gridlayout.addWidget(self.lineEdit_node_provider, 1, 1, 1, 3)
         self.gridlayout.addWidget(self.pushButton_node_provider, 1, 4, 1, 1)
-        self.gridlayout.addWidget(self.line_vertical, 1, 5, 7, 1)
+        self.gridlayout.addWidget(self.line_vertical, 1, 5, 6, 1)
         self.gridlayout.addWidget(self.label_customizationArea, 1, 6, 1, 1)
 
         # row 2
@@ -291,17 +307,16 @@ class Ui(QtWidgets.QMainWindow):
         # row 5
         self.gridlayout.addWidget(self.label_send, 5, 0, 1, 1)
         self.gridlayout.addWidget(self.lineEdit_send, 5, 1, 1, 3)
-        # col 3 empty
-        # col 4 empty
+        self.gridlayout.addWidget(self.pushButton_send, 5, 4, 1, 1)
         # col 5 empty
         # col 6 empty
 
         # row 6
-        self.gridlayout.addWidget(self.label_sendValue, 6, 0, 1, 1)
-        self.gridlayout.addWidget(self.lineEdit_sendValue, 6, 1, 1, 1)
-        self.gridlayout.addWidget(self.label_message, 6, 2, 1, 1)
-        self.gridlayout.addWidget(self.LineEdit_message, 6, 3, 1, 1)
-        self.gridlayout.addWidget(self.pushButton_send, 6, 4, 1, 1)
+        self.gridlayout.addWidget(self.label_message, 6, 0, 1, 1)
+        self.gridlayout.addWidget(self.LineEdit_message, 6, 1, 1, 1)
+        self.gridlayout.addWidget(self.label_sendValue, 6, 2, 1, 1)
+        # col 3 empty
+        self.gridlayout.addWidget(self.lineEdit_sendValue, 6, 4, 1, 1)
         # col 5 empty
         # col 6 empty
 
@@ -414,6 +429,9 @@ class Ui(QtWidgets.QMainWindow):
         self.actionPublicKey_coordinates.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.PUBLIC_KEY_X))
         self.actionPublicKey.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.PUBLIC_KEY))
         self.actionMnemonic.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.MNEMONIC))
+        # Network-Transactions---------------------------------------------------------------------------------
+        self.actionBackup.triggered.connect(self.backupWallet)
+        self.actionRestore.triggered.connect(self.restoreWallet)
         # Network-Transactions---------------------------------------------------------------------------------
         self.action_checkTX.triggered.connect(self.showCustomTransaction)
         self.actionTX_nonce.triggered.connect(self.showNonce)
@@ -638,9 +656,9 @@ class Ui(QtWidgets.QMainWindow):
                 gui_errorDialog.Error('goToEtherscan', 'No address selected').exec()
             else:
                 if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
-                    open('https://etherscan.io/address/' + active_address)
+                    web_browser_open('https://etherscan.io/address/' + active_address)
                 elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
-                    open('https://sepolia.etherscan.io/address/' + active_address)
+                    web_browser_open('https://sepolia.etherscan.io/address/' + active_address)
                 else:
                     gui_errorDialog.Error('goToEtherscan', 'Unknown network').exec()
         except Exception as er:
@@ -649,9 +667,9 @@ class Ui(QtWidgets.QMainWindow):
     def goToEtherNodes(self):
         try:
             if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
-                open('https://ethereumnodes.com/')
+                web_browser_open('https://ethereumnodes.com/')
             elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
-                open('https://sepolia.dev/')
+                web_browser_open('https://sepolia.dev/')
             else:
                 gui_errorDialog.Error('goToEtherNodes', 'Unknown network').exec()
         except Exception as er:
@@ -802,8 +820,9 @@ class Ui(QtWidgets.QMainWindow):
                 gas = ethereum.estimateGas(transactions)
                 if not gas:
                     pass  # error
-                senETH = qui_getUserChoice.Ui('Sending your money to others',
-                                              f'Send {transactions["vale"]} ETH to {transactions["receiver"]}'
+                senETH = qui_getUserChoice.Ui('Sending your message to others',
+                                              f'Send {transactions["data"]}\n'
+                                              f'to {transactions["receiver"]}'
                                               f"\nestimated gas fee is:\n"
                                               f"Lowest = {gas['GasPrice']['low']} ETH\n"
                                               f"Median = {gas['GasPrice']['medium']} ETH\n"
@@ -1011,7 +1030,7 @@ class Ui(QtWidgets.QMainWindow):
                 txHistoryNormal = self.getNormalTransactions(APIkey)
                 txHistoryInternal = self.getInternalTransactions(APIkey)
 
-                if len(txHistoryNormal) > 0 or len(txHistoryInternal) > 0: #  there is something for show
+                if len(txHistoryNormal) > 0 or len(txHistoryInternal) > 0:  # there is something for show
                     allTransactions = txHistoryNormal + txHistoryInternal
                     #  sort ace
                     sortedTransactions = sorted(allTransactions, key=lambda d: d['blockNumber'])
@@ -1116,3 +1135,114 @@ class Ui(QtWidgets.QMainWindow):
                     self.textEdit_main.setTextCursor(cursor)
         except Exception as er:
             gui_errorDialog.Error('showSenderPublicKey', str(er)).exec()
+
+    def backupWallet(self):
+        try:
+            rowData = self.db.readRowByCondition(self.comboBox_activeAddress_val.currentText())[0]
+            data = {'entropy': rowData[0],
+                    'privateKey': rowData[1],
+                    'publicKeyCoordinate': (rowData[2], rowData[3]),
+                    'publicKey': rowData[4],
+                    'address': rowData[5],
+                    'mnemonic': rowData[6],
+                    'Name': rowData[7]}
+            WriteOnFile = False
+            folderSelected = ''
+            root = Tk()
+            root.withdraw()
+            folderSelected = filedialog.askdirectory()
+            print(folderSelected)
+            if not folderSelected:
+                pass  # cancel by user
+            else:
+                passwordWindow = qui_getUserInput.Ui('backupWallet',
+                                                     'Exporting the secrets of your account to the file.\n'
+                                                     'For more security set a password on the file\n'
+                                                     'or cancel for skip password protection')
+                passwordWindow.exec()
+                password = passwordWindow.getInput()
+                if password == '':  # no password
+                    if Path(f'{folderSelected}/{rowData[7].replace(" ", "_")}.json').is_file():
+                        reWriteWindow = qui_getUserChoice.Ui('backupWallet',
+                                                             'File is exist!',
+                                                             'Overwrite it?')
+
+                        reWriteWindow.exec()
+                        WriteOnFile = reWriteWindow.getAnswer()
+                    else:
+                        WriteOnFile = True
+                    if WriteOnFile:
+                        with open(f'{folderSelected}/{rowData[7].replace(" ", "_")}.json', 'w+') as fp:
+                            dump(data, fp)
+                    else:
+                        pass  # cancel by user
+                else:
+                    if Path(f'{folderSelected}/{rowData[7].replace(" ", "_")}.wallet').is_file():
+                        reWriteWindow = qui_getUserChoice.Ui('backupWallet',
+                                                             'File is exist!',
+                                                             'Overwrite it?')
+
+                        reWriteWindow.exec()
+                        WriteOnFile = reWriteWindow.getAnswer()
+                    else:
+                        WriteOnFile = True
+                    if WriteOnFile:
+                        b_password = password.encode('utf-8')
+                        b_data = dumps(data, indent=2).encode('utf-8')
+                        encrypted = DES.encrypt(b_password, b_data)
+                        with open(f'{folderSelected}/{rowData[7].replace(" ", "_")}.wallet', 'w+') as fp:
+                            dump(encrypted, fp)
+                    else:
+                        pass  # cancel by user
+        except Exception as er:
+            gui_errorDialog.Error('backupWallet', str(er)).exec()
+
+    def restoreWallet(self):
+        try:
+            root = Tk()
+            root.withdraw()
+            filePath = filedialog.askopenfilename()
+            with open(filePath, 'r') as f:  # open the file
+                data = f.readlines()[0]
+            if filePath.endswith('.json'):  # non encrypted file
+                jsonData = loads(data)
+                if self.db.insertRow(jsonData):
+                    self.comboBox_activeAddress_val.addItem(jsonData['address'])
+                    self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                    self.lineEdit_accountName.setText(jsonData['Name'])
+            elif filePath.endswith('.wallet'):  # an encrypted file
+                passwordWindow = qui_getUserInput.Ui('restoreWallet',
+                                                     'This is an encrypted file.\n'
+                                                     "Enter the file password:\n")
+                passwordWindow.exec()
+                password = passwordWindow.getInput()
+                if password == '':  # no password
+                    gui_errorDialog.Error('restoreWallet', f'Nothing received\n'
+                                                           f'{filePath}').exec()
+                else:
+                    decrypted = DES.decrypt(password.encode('utf-8'), data)
+                    jsonData = loads(decrypted.decode('utf-8'))
+                    self.showWallet(jsonData, filePath)
+                    if self.db.insertRow(jsonData):
+                        self.comboBox_activeAddress_val.addItem(jsonData['address'])
+                        self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                        self.lineEdit_accountName.setText(jsonData['Name'])
+            else:
+                gui_errorDialog.Error('restoreWallet', f'Unknown file format\n'
+                                                       f'{filePath}').exec()
+        except Exception as er:
+            gui_errorDialog.Error('restoreWallet', str(er)).exec()
+
+    def showWallet(self, jsonData: dict, path: str):
+        try:
+            self.textEdit_main.clear()
+            self.textEdit_main.append(f'New account from {path} loaded:')
+            self.textEdit_main.append('-' * 10)
+            for key in jsonData:
+                self.textEdit_main.append(f'{key} = {jsonData[key]}')
+            self.textEdit_main.append('-' * 10)
+            cursor = QTextCursor(self.textEdit_main.document())
+            cursor.setPosition(0)
+            self.textEdit_main.setTextCursor(cursor)
+        except Exception as er:
+            gui_errorDialog.Error('showWallet', str(er)).exec()

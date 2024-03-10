@@ -5,7 +5,7 @@ import requests
 from src import gui_errorDialog, gui_mouseTracker
 from src.ellipticCurve import secp256k1
 from sha3 import keccak_256
-from src.encrypt import entropyToSha256, entropyToPbkdf2HmacSha256
+from src.cryptography import ENTROPY
 from src.dataTypes import TYPE
 from src.validators import checkType, checkHex, checkLen
 
@@ -38,7 +38,7 @@ class New:
             if not checkLen('entropyToPrivateKey', entropy, 256):
                 return ''
             else:
-                return entropyToPbkdf2HmacSha256(entropy)  # need complete by hashing
+                return ENTROPY.ToPbkdf2HmacSha256(entropy)  # need complete by hashing
         except Exception as er:
             gui_errorDialog.Error('entropyToPrivateKey', str(er)).exec()
             return ''
@@ -120,7 +120,7 @@ class New:
                     return ''
                 if not checkLen('entropyToMnemonic', bip39, 2048):
                     return ''
-                sha256Entropy = entropyToSha256(entropy)
+                sha256Entropy = ENTROPY.ToSha256(entropy)
                 if sha256Entropy.startswith('0b'):
                     sha256Entropy = entropy[2:]
                 if not checkLen('entropyToMnemonic', sha256Entropy, 256):
@@ -176,7 +176,7 @@ class New:
                 else:
                     checkSum = entropy[-8:]
                     entropy = entropy[:-8]  # remove checksum
-                    sha256Entropy = entropyToSha256(entropy)
+                    sha256Entropy = ENTROPY.ToSha256(entropy)
                     if sha256Entropy.startswith('0b'):
                         sha256Entropy = entropy[2:]
                     if not checkLen('mnemonicToEntropy', sha256Entropy, 256):

@@ -83,7 +83,7 @@ class Sqlite:
             existAccount = self.isRowExist('ADR', acc['address'])
             if existAccount:
                 gui_errorDialog.Error('insertRow', 'This account is already exist.\n').exec()
-                return True
+                return False
             else:
                 connection = connect(self.databaseName)
                 cursor = connection.cursor()
@@ -118,6 +118,19 @@ class Sqlite:
             return ls
         except Exception as er:
             gui_errorDialog.Error('readAllRows', str(er)).exec()
+            return []
+
+    def readRowByCondition(self, condition: str) -> list:
+        try:
+            connection = connect(self.databaseName)
+            cursor = connection.cursor()
+            cursor.execute(f"""SELECT * FROM accounts WHERE ADR = ?""", (condition,))
+            ls = cursor.fetchall()
+            connection.commit()
+            connection.close()
+            return ls
+        except Exception as er:
+            gui_errorDialog.Error('readRowByCondition', str(er)).exec()
             return []
 
     def readColumnAllRows(self, columnName) -> list:
