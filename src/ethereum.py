@@ -4,7 +4,7 @@ from eth_account._utils.legacy_transactions import serializable_unsigned_transac
 from eth_account._utils.signing import to_standard_v, extract_chain_id
 from src import gui_errorDialog
 from web3 import Web3, HTTPProvider
-from src.types import TYPE
+from src.dataTypes import TYPE
 from src.validators import checkType, checkHex, checkLen, checkURL
 
 

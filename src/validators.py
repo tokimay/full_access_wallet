@@ -1,7 +1,7 @@
 from urllib.parse import urlparse
 
 from src import gui_errorDialog
-from src.types import TYPE
+from src.dataTypes import TYPE
 
 
 def checkHex(caller: str, value) -> bool:

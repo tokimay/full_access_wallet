@@ -1,5 +1,5 @@
 import sys
-from src import account, database, gui_mainWindow, types, qui_getUserChoice, qui_showMessage, gui_errorDialog
+from src import account, database, gui_mainWindow, dataTypes, qui_getUserChoice, qui_showMessage, gui_errorDialog
 from PyQt6.QtWidgets import QApplication
 from src.threads import Balance
 
@@ -14,7 +14,7 @@ if not db.createTable():
 getBalance = False
 
 if db.isAccountExist():
-    accounts = db.readColumnAllRows(types.SECRET.ADDRESS.value)
+    accounts = db.readColumnAllRows(dataTypes.SECRET.ADDRESS.value)
     for ad in accounts:
         window.comboBox_activeAddress_val.addItem(ad[0])
         accountName = db.readColumnByCondition('NAM',  window.comboBox_activeAddress_val.currentText())

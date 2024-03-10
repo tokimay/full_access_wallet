@@ -6,7 +6,7 @@ from src import gui_errorDialog, gui_mouseTracker
 from src.ellipticCurve import secp256k1
 from sha3 import keccak_256
 from src.encrypt import entropyToSha256, entropyToPbkdf2HmacSha256
-from src.types import TYPE
+from src.dataTypes import TYPE
 from src.validators import checkType, checkHex, checkLen
 
 """

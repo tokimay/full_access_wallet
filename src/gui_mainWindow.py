@@ -1,3 +1,4 @@
+
 from webbrowser import open
 from pyperclip import copy
 from PyQt6.QtWidgets import (QFrame, QWidget, QGridLayout, QLabel, QPushButton, QComboBox, QLineEdit,
@@ -6,8 +7,10 @@ from json import loads
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import QSize, QRect
 from PyQt6.QtGui import QIcon, QPixmap, QAction, QTextCursor
-from src import (database, types, gui_errorDialog, qui_getUserChoice, qui_getUserInput, qui_showMessage, ethereum,
-                 account)
+from src import (database, dataTypes, gui_errorDialog, qui_getUserChoice, qui_getUserInput, qui_showMessage, ethereum,
+                 account, system)
+
+
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -362,27 +365,29 @@ class Ui(QtWidgets.QMainWindow):
             '<span style = "color: red; font-weight: bold;" > 0'
             '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
 
-        self.radioButton_mainNet.setStyleSheet("QRadioButton::indicator:unchecked{"
-                                               "border: 1px solid red;"
-                                               "}"
-                                               "QRadioButton::indicator:checked{"
-                                               "border: 1px solid green;"
-                                               "background-image : url(resources/UI/icons/fill.png)"
-                                               "}"
-                                               "QRadioButton::indicator:checked:pressed{"
-                                               "border: 1px solid white;"
-                                               "};")
+        self.radioButton_mainNet.setStyleSheet(f"QRadioButton::indicator:unchecked{{"
+                                               f"border: 1px solid red;"
+                                               f"}}"
+                                               f"QRadioButton::indicator:checked{{"
+                                               f"border: 1px solid green;"
+                                               f"background-image : url("
+                                               f"{system.getIconPath('fill.png')}"
+                                               f")}}"
+                                               f"QRadioButton::indicator:checked:pressed{{"
+                                               f"border: 1px solid white;"
+                                               f"}};")
 
-        self.radioButton_testNet.setStyleSheet("QRadioButton::indicator:unchecked{"
-                                               "border: 1px solid red;"
-                                               "}"
-                                               "QRadioButton::indicator:checked{"
-                                               "border: 1px solid green;"
-                                               "background-image : url(resources/UI/icons/fill.png)"
-                                               "}"
-                                               "QRadioButton::indicator:checked:pressed{"
-                                               "border: 1px solid white;"
-                                               "};")
+        self.radioButton_testNet.setStyleSheet(f"QRadioButton::indicator:unchecked{{"
+                                               f"border: 1px solid red;"
+                                               f"}}"
+                                               f"QRadioButton::indicator:checked{{"
+                                               f"border: 1px solid green;"
+                                               f"background-image : url("
+                                               f"{system.getIconPath('fill.png')}"
+                                               f")}}"
+                                               f"QRadioButton::indicator:checked:pressed{{"
+                                               f"border: 1px solid white;"
+                                               f"}};")
 
         self.lineEdit_send.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
         self.lineEdit_sendValue.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
@@ -404,11 +409,11 @@ class Ui(QtWidgets.QMainWindow):
         self.actionRecover_from_entropy.triggered.connect(self.createAccountFromEntropy)
         self.actionRecover_from_privateKey.triggered.connect(self.createAccountFromPrivateKey)
         # Wallets-Secrets---------------------------------------------------------------------------------
-        self.actionEntropy.triggered.connect(lambda: self.showSecrets(types.SECRET.ENTROPY))
-        self.actionPrivateKey.triggered.connect(lambda: self.showSecrets(types.SECRET.PRIVATE_KEY))
-        self.actionPublicKey_coordinates.triggered.connect(lambda: self.showSecrets(types.SECRET.PUBLIC_KEY_X))
-        self.actionPublicKey.triggered.connect(lambda: self.showSecrets(types.SECRET.PUBLIC_KEY))
-        self.actionMnemonic.triggered.connect(lambda: self.showSecrets(types.SECRET.MNEMONIC))
+        self.actionEntropy.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.ENTROPY))
+        self.actionPrivateKey.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.PRIVATE_KEY))
+        self.actionPublicKey_coordinates.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.PUBLIC_KEY_X))
+        self.actionPublicKey.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.PUBLIC_KEY))
+        self.actionMnemonic.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.MNEMONIC))
         # Network-Transactions---------------------------------------------------------------------------------
         self.action_checkTX.triggered.connect(self.showCustomTransaction)
         self.actionTX_nonce.triggered.connect(self.showNonce)
@@ -429,23 +434,23 @@ class Ui(QtWidgets.QMainWindow):
         icon = QIcon()
         size = 20
 
-        icon.addPixmap(QPixmap('resources/UI/icons/copy_w.png'))
+        icon.addPixmap(QPixmap(system.getIconPath('copy_w.png')))
         self.pushButton_copy_address.setIcon(icon)
         self.pushButton_copy_address.setIconSize(QSize(size, size))
 
-        icon.addPixmap(QPixmap('resources/UI/icons/ethereum_c_b.png'))
+        icon.addPixmap(QPixmap(system.getIconPath('ethereum_c_b.png')))
         self.pushButton_ETH.setIcon(icon)
         self.pushButton_ETH.setIconSize(QSize(size, size))
 
-        icon.addPixmap(QPixmap('resources/UI/icons/node64.png'))
+        icon.addPixmap(QPixmap(system.getIconPath('node64.png')))
         self.pushButton_node_provider.setIcon(icon)
         self.pushButton_node_provider.setIconSize(QSize(size, size))
 
-        icon.addPixmap(QPixmap('resources/UI/icons/moneyTransfer48.png'))
+        icon.addPixmap(QPixmap(system.getIconPath('moneyTransfer48.png')))
         self.pushButton_send.setIcon(icon)
         self.pushButton_send.setIconSize(QSize(size, size))
 
-        icon.addPixmap(QPixmap('resources/UI/icons/edit40.png'))
+        icon.addPixmap(QPixmap(system.getIconPath('edit40.png')))
         self.pushButton_accountName.setIcon(icon)
         self.pushButton_node_provider.setIconSize(QSize(size, size))
 
@@ -496,7 +501,7 @@ class Ui(QtWidgets.QMainWindow):
                 self.lineEdit_accountName.setEnabled(True)
                 self.lineEdit_accountName.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
                 self.pushButton_accountName.setText('Save')
-                icon.addPixmap(QPixmap('resources/UI/icons/save48.png'))
+                icon.addPixmap(QPixmap(system.getIconPath('save48.png')))
                 self.pushButton_accountName.setIcon(icon)
                 self.pushButton_node_provider.setIconSize(QSize(16, 16))
             elif self.pushButton_accountName.text() == 'Save':
@@ -504,7 +509,7 @@ class Ui(QtWidgets.QMainWindow):
                 self.lineEdit_accountName.setStyleSheet(
                     'background-color: rgb(30, 40, 50); color: white; border: none;')
                 self.pushButton_accountName.setText('Edit')
-                icon.addPixmap(QPixmap('resources/UI/icons/edit40.png'))
+                icon.addPixmap(QPixmap(system.getIconPath('edit40.png')))
                 self.pushButton_accountName.setIcon(icon)
                 self.pushButton_node_provider.setIconSize(QSize(16, 16))
                 self.db.updateRowValue(columnName='NAM',
@@ -661,29 +666,29 @@ class Ui(QtWidgets.QMainWindow):
         except Exception as er:
             gui_errorDialog.Error('copyAddress', str(er)).exec()
 
-    def showSecrets(self, secretType: types.SECRET):
+    def showSecrets(self, secretType: dataTypes.SECRET):
         try:
             self.textEdit_main.clear()
-            if secretType == types.SECRET.ENTROPY and (
+            if secretType == dataTypes.SECRET.ENTROPY and (
                     self.db.readColumnByCondition(
-                        types.SECRET.ENTROPY.value, self.comboBox_activeAddress_val.currentText()
-                    ) == self.db.readColumnByCondition(types.SECRET.PRIVATE_KEY.value,
+                        dataTypes.SECRET.ENTROPY.value, self.comboBox_activeAddress_val.currentText()
+                    ) == self.db.readColumnByCondition(dataTypes.SECRET.PRIVATE_KEY.value,
                                                        self.comboBox_activeAddress_val.currentText())):
                 qui_showMessage.Ui('Show secrets',
                                    'You have recovered an old account.',
                                    'Entropy is not recoverable from private key').exec()
-            elif secretType == types.SECRET.MNEMONIC and (
+            elif secretType == dataTypes.SECRET.MNEMONIC and (
                     self.db.readColumnByCondition(
-                        types.SECRET.MNEMONIC.value, self.comboBox_activeAddress_val.currentText()
-                    ) == self.db.readColumnByCondition(types.SECRET.PRIVATE_KEY.value,
+                        dataTypes.SECRET.MNEMONIC.value, self.comboBox_activeAddress_val.currentText()
+                    ) == self.db.readColumnByCondition(dataTypes.SECRET.PRIVATE_KEY.value,
                                                        self.comboBox_activeAddress_val.currentText())):
                 qui_showMessage.Ui('Show secrets',
                                    'You have recovered an old account.',
                                    'Mnemonic is not recoverable from private key').exec()
-            elif secretType == types.SECRET.PUBLIC_KEY_X or secretType == types.SECRET.PUBLIC_KEY_Y:
-                result_X = self.db.readColumnByCondition(types.SECRET.PUBLIC_KEY_X.value,
+            elif secretType == dataTypes.SECRET.PUBLIC_KEY_X or secretType == dataTypes.SECRET.PUBLIC_KEY_Y:
+                result_X = self.db.readColumnByCondition(dataTypes.SECRET.PUBLIC_KEY_X.value,
                                                          self.comboBox_activeAddress_val.currentText())
-                result_Y = self.db.readColumnByCondition(types.SECRET.PUBLIC_KEY_Y.value,
+                result_Y = self.db.readColumnByCondition(dataTypes.SECRET.PUBLIC_KEY_Y.value,
                                                          self.comboBox_activeAddress_val.currentText())
                 if len(result_X) <= 0 or len(result_Y) <= 0:
                     gui_errorDialog.Error('showSecrets', 'Reading database failed').exec()
@@ -705,11 +710,11 @@ class Ui(QtWidgets.QMainWindow):
                 elif len(result) == 1:
                     self.textEdit_main.append(f'Your account {secretType.name} keep it safe:\n')
                     self.textEdit_main.append(f'{result[0][0]}\n')
-                    if secretType == types.SECRET.MNEMONIC or secretType == types.SECRET.ENTROPY:
+                    if secretType == dataTypes.SECRET.MNEMONIC or secretType == dataTypes.SECRET.ENTROPY:
                         self.textEdit_main.append(f'{secretType.name} + Passphrase = your account\n\n'
                                                   f'{secretType.name} without Passphrase = unknown account\n'
                                                   f'(If no passphrase set = your account)')
-                    elif secretType == types.SECRET.PRIVATE_KEY:
+                    elif secretType == dataTypes.SECRET.PRIVATE_KEY:
                         self.textEdit_main.append(f'{secretType.name} = your account')
                 else:
                     for res in result:
@@ -777,7 +782,7 @@ class Ui(QtWidgets.QMainWindow):
                                        'Nothing has been sent').exec()
                 else:
                     transactionHash = ethereum.sendValueTransaction(privateKey=(self.db.readColumnByCondition(
-                        types.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0], txElements=transactions)
+                        dataTypes.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0], txElements=transactions)
                     if transactionHash == '':
                         pass  # Transaction failed
                     else:
@@ -811,7 +816,7 @@ class Ui(QtWidgets.QMainWindow):
                                        'Nothing has been sent').exec()
                 else:
                     transactionHash = ethereum.sendMessageTransaction(privateKey=(self.db.readColumnByCondition(
-                        types.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0], txElements=transactions)
+                        dataTypes.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0], txElements=transactions)
                     if transactionHash == '':
                         pass  # Transaction failed
                     else:

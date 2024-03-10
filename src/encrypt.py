@@ -1,7 +1,7 @@
 from binascii import a2b_hex
 from hashlib import sha256, pbkdf2_hmac
 from src import gui_errorDialog, qui_getUserInput
-from src.types import TYPE
+from src.dataTypes import TYPE
 from src.validators import checkType, checkLen
 
 
