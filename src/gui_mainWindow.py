@@ -5,7 +5,7 @@ from PyQt6.QtWidgets import (QWidget, QGridLayout, QLabel, QPushButton, QComboBo
 from PyQt6.QtWidgets import QFrame
 from json import loads, dump, dumps
 from PyQt6 import QtWidgets
-from PyQt6.QtCore import QSize, QRect, Qt
+from PyQt6.QtCore import QSize, QRect
 from PyQt6.QtGui import QIcon, QPixmap, QAction, QTextCursor
 from src import (database, dataTypes, gui_errorDialog, qui_getUserChoice, qui_getUserInput, qui_showMessage, ethereum,
                  account, system)
@@ -20,10 +20,10 @@ class Ui(QtWidgets.QMainWindow):
         super().__init__()
         self.menubar_file = QMenuBar(self)
 
-        self.menu_Wallet = QMenu(self.menubar_file)
-        self.menuNew_account = QMenu(self.menu_Wallet)
-        self.menuSecrets = QMenu(self.menu_Wallet)
-        self.menuBackupAndRestore = QMenu(self.menu_Wallet)
+        self.menuWallet = QMenu(self.menubar_file)
+        self.menuNewAccount = QMenu(self.menuWallet)
+        self.menuSecrets = QMenu(self.menuWallet)
+        self.menuBackupAndRestore = QMenu(self.menuWallet)
 
         self.menuNetwork = QMenu(self.menubar_file)
         self.menuTransactions = QMenu(self.menuNetwork)
@@ -87,7 +87,7 @@ class Ui(QtWidgets.QMainWindow):
         self.label_sendValue = QLabel(self.gridLayoutWidget)
         self.lineEdit_sendValue = QLineEdit(self.gridLayoutWidget)
         self.label_message = QLabel(self.gridLayoutWidget)
-        self.LineEdit_message = QLineEdit(self.gridLayoutWidget)
+        self.lineEdit_message = QLineEdit(self.gridLayoutWidget)
 
         # row 7
         self.textEdit_main = QTextEdit(self.gridLayoutWidget)
@@ -103,11 +103,16 @@ class Ui(QtWidgets.QMainWindow):
 
         self.db = database.Sqlite(dbName)
         self.initUI()
+        self.initIcons()
+        self.initStyleSheet()
+        self.setClickEvents()
+        self.setMenuActions()
 
     def initUI(self):
         self.setObjectName("MainWindow")
         self.setWindowTitle("FAwallet")
         self.resize(800, 600)
+        self.setFixedSize(800, 600)
 
         self.setCentralWidget(self.centralWidget)
         self.centralWidget.setObjectName("centralWidget")
@@ -138,28 +143,28 @@ class Ui(QtWidgets.QMainWindow):
         self.actionTransactionMessage.setObjectName('actionTransactionMessage')
         # ----------------------------------------------------------------------------------
         self.menubar_file.setObjectName("menubar_file")
-        self.menubar_file.setGeometry(QRect(0, 0, 800, 25))
+        self.menubar_file.setGeometry(QRect(0, 0, 800, 30))
         # ----------------------------------------------------------------------------------
         # wallet menu
-        self.menubar_file.addAction(self.menu_Wallet.menuAction())
-        self.menu_Wallet.setObjectName("menu_Wallet")
-        self.menu_Wallet.setTitle("&Wallet")
+        self.menubar_file.addAction(self.menuWallet.menuAction())
+        self.menuWallet.setObjectName("menu_Wallet")
+        self.menuWallet.setTitle("&Wallet")
 
         #  wallet menu -> account menu
-        self.menu_Wallet.addAction(self.menuNew_account.menuAction())
-        self.menuNew_account.setObjectName("menuNew_account")
-        self.menuNew_account.setTitle("New account")
-        self.menuNew_account.addAction(self.actionNew_random_account)
+        self.menuWallet.addAction(self.menuNewAccount.menuAction())
+        self.menuNewAccount.setObjectName("menuNew_account")
+        self.menuNewAccount.setTitle("New account")
+        self.menuNewAccount.addAction(self.actionNew_random_account)
         self.actionNew_random_account.setText("New random account")
-        self.menuNew_account.addAction(self.actionRecover_from_mnemonic)
+        self.menuNewAccount.addAction(self.actionRecover_from_mnemonic)
         self.actionRecover_from_mnemonic.setText("Recover from mnemonic")
-        self.menuNew_account.addAction(self.actionRecover_from_entropy)
+        self.menuNewAccount.addAction(self.actionRecover_from_entropy)
         self.actionRecover_from_entropy.setText("Recover from entropy")
-        self.menuNew_account.addAction(self.actionRecover_from_privateKey)
+        self.menuNewAccount.addAction(self.actionRecover_from_privateKey)
         self.actionRecover_from_privateKey.setText("Recover from privateKey")
 
         #  wallet menu -> Secrets menu
-        self.menu_Wallet.addAction(self.menuSecrets.menuAction())
+        self.menuWallet.addAction(self.menuSecrets.menuAction())
         self.menuSecrets.setObjectName("menuSecrets")
         self.menuSecrets.setTitle("Secrets")
         # self.menuSecrets.addSeparator()
@@ -175,7 +180,7 @@ class Ui(QtWidgets.QMainWindow):
         self.actionMnemonic.setText("Mnemonic")
 
         #  wallet menu -> Backup and restore menu
-        self.menu_Wallet.addAction(self.menuBackupAndRestore.menuAction())
+        self.menuWallet.addAction(self.menuBackupAndRestore.menuAction())
         self.menuBackupAndRestore.setObjectName("menuBackupAndRestore")
         self.menuBackupAndRestore.setTitle("Backup and Restore")
         self.menuBackupAndRestore.addAction(self.actionBackup)
@@ -256,7 +261,7 @@ class Ui(QtWidgets.QMainWindow):
         self.lineEdit_sendValue.setObjectName("lineEdit_sendValue")
         self.label_message.setObjectName("label_message")
         self.label_message.setText("Message:")
-        self.LineEdit_message.setObjectName("LineEdit_message")
+        self.lineEdit_message.setObjectName("LineEdit_message")
 
         # row 7
         self.textEdit_main.setObjectName("textEdit_main")
@@ -313,7 +318,7 @@ class Ui(QtWidgets.QMainWindow):
 
         # row 6
         self.gridlayout.addWidget(self.label_message, 6, 0, 1, 1)
-        self.gridlayout.addWidget(self.LineEdit_message, 6, 1, 1, 1)
+        self.gridlayout.addWidget(self.lineEdit_message, 6, 1, 1, 1)
         self.gridlayout.addWidget(self.label_sendValue, 6, 2, 1, 1)
         # col 3 empty
         self.gridlayout.addWidget(self.lineEdit_sendValue, 6, 4, 1, 1)
@@ -323,13 +328,6 @@ class Ui(QtWidgets.QMainWindow):
         # row 7
         self.gridlayout.addWidget(self.textEdit_main, 7, 0, 1, 7)
 
-        # self.gridlayout.setRowMinimumHeight(1, 100)
-        # self.gridlayout.setRowMinimumHeight(1, 27)
-        # self.gridlayout.setRowMinimumHeight(2, 27)
-        # self.gridlayout.setRowMinimumHeight(3, 27)
-        # self.gridlayout.setRowMinimumHeight(4, 27)
-        # self.gridlayout.setRowMinimumHeight(5, 27)
-        # self.gridlayout.setRowMinimumHeight(6, 700)
         height = 27
         self.label_node_provider.setMinimumHeight(height)
         self.lineEdit_node_provider.setMinimumHeight(height)
@@ -353,64 +351,123 @@ class Ui(QtWidgets.QMainWindow):
         self.label_sendValue.setMinimumHeight(height)
         self.lineEdit_sendValue.setMinimumHeight(height)
         self.label_message.setMinimumHeight(height)
-        self.LineEdit_message.setMinimumHeight(height)
+        self.lineEdit_message.setMinimumHeight(height)
         self.pushButton_send.setMinimumHeight(height)
 
-        # self.textEdit_main.setMinimumHeight(400)
-        # self.textEdit_main.resize(780, 400)
-
-        self.setStyleSheet("background-color: rgb(30, 40, 50);")
-        self.textEdit_main.setStyleSheet("background-color: black; color: cyan")
+        heightMenu = 20
+        self.menuWallet.setMinimumHeight(heightMenu)
+        self.menuNetwork.setMinimumHeight(heightMenu)
 
         self.comboBox_activeAddress_val.clear()
-
         self.lineEdit_node_provider.setText('https://rpc.sepolia.org')
-        self.lineEdit_node_provider.setStyleSheet('background-color: white; color: black;')
-
         self.radioButton_mainNet.setChecked(False)
         self.radioButton_testNet.setChecked(True)
-
         self.lineEdit_accountName.setEnabled(False)
-        self.lineEdit_accountName.setStyleSheet("color: yellow; border: none")
-
         self.pushButton_accountName.setText('Edit')
-        self.lineEdit_accountName.setStyleSheet('background-color: rgb(30, 40, 50); color: white; border: none;')
 
+    def initIcons(self):
+        icon = QIcon()
+        size = 20
+
+        icon.addPixmap(QPixmap(system.getIconPath('copy_w.png')))
+        self.pushButton_copy_address.setIcon(icon)
+        self.pushButton_copy_address.setIconSize(QSize(size, size))
+
+        icon.addPixmap(QPixmap(system.getIconPath('ethereum_c_b.png')))
+        self.pushButton_ETH.setIcon(icon)
+        self.pushButton_ETH.setIconSize(QSize(size, size))
+
+        icon.addPixmap(QPixmap(system.getIconPath('node64.png')))
+        self.pushButton_node_provider.setIcon(icon)
+        self.pushButton_node_provider.setIconSize(QSize(size, size))
+
+        icon.addPixmap(QPixmap(system.getIconPath('moneyTransfer48.png')))
+        self.pushButton_send.setIcon(icon)
+        self.pushButton_send.setIconSize(QSize(size, size))
+
+        icon.addPixmap(QPixmap(system.getIconPath('edit40.png')))
+        self.pushButton_accountName.setIcon(icon)
+        self.pushButton_node_provider.setIconSize(QSize(size, size))
+
+    def initStyleSheet(self):
+        mainStyle = (
+            "background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+            "stop:0 rgb(30, 76, 108) , stop:1 rgb(47, 54, 60));"
+        )
+        self.setStyleSheet(mainStyle)
+        menuBarStyle = (
+            "QMenuBar {background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+            "stop:0 rgb(47, 54, 60) , stop:1 rgb(30, 76, 108));"
+            "spacing: 3 px;}"
+            "QMenuBar::item {background: rgb(47, 54, 60);"
+            "padding: 2px 25px 2px 20px; border: 1px solid rgb(108, 204, 244);; border-radius: 10px;}"
+            "QMenuBar::item:selected {border: 2px solid rgb(108, 204, 244); background: rgb(30, 76, 108);}"
+            "QMenuBar::item:pressed{background: rgb(108, 204, 244); color: black}"
+        )
+        self.menubar_file.setStyleSheet(menuBarStyle)
+        menuStyle = (
+            "QMenu {background-color: rgb(47, 54, 60); margin: 2px;}"
+            "QMenu::item { padding: 2px 25px 2px 20px; border: 1px solid transparent; border-radius: 10px;}"
+            "QMenu::item:selected {border: 2px solid rgb(108, 204, 244); background: rgb(30, 76, 108);}"
+            "QMenu::item:pressed {background: rgb(108, 204, 244); color: black}"
+        )
+        self.menuWallet.setStyleSheet(menuStyle)
+        self.menuNetwork.setStyleSheet(menuStyle)
+        buttonStyle = (
+            "QPushButton {border: 2px solid rgb(108, 204, 244);"
+            "border-radius: 13px;"
+            "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+            "stop:0 rgb(30, 76, 108) , stop:1 rgb(47, 54, 60));"
+            "min-width: 80px;}"
+            "QPushButton:hover {color: black; background-color: rgb(190, 200, 207);}"
+            "QPushButton:pressed {background-color: rgb(108, 204, 244);}"
+        )
+        self.pushButton_send.setStyleSheet(buttonStyle)
+        self.pushButton_ETH.setStyleSheet(buttonStyle)
+        self.pushButton_accountName.setStyleSheet(buttonStyle)
+        self.pushButton_node_provider.setStyleSheet(buttonStyle)
+        self.pushButton_copy_address.setStyleSheet(buttonStyle)
+        labelStyle = (
+            "color: white;"
+            "background-color: transparent;"
+        )
+        self.label_send.setStyleSheet(labelStyle)
+        self.label_message.setStyleSheet(labelStyle)
+        self.label_amount.setStyleSheet(labelStyle)
+        self.label_accountName.setStyleSheet(labelStyle)
+        self.label_sendValue.setStyleSheet(labelStyle)
+        self.label_activeAddress.setStyleSheet(labelStyle)
+        self.label_customizationArea.setStyleSheet(labelStyle)
+        self.label_node_provider.setStyleSheet(labelStyle)
+        self.label_amount_val.setStyleSheet(labelStyle)
         self.label_amount_val.setText(
             '<span style = "color: red; font-weight: bold;" > 0'
             '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
+        lineEditStyle = (
+            "background-color: rgb(250, 240, 200); color: black"
+        )
+        self.lineEdit_node_provider.setStyleSheet(lineEditStyle)
+        self.lineEdit_send.setStyleSheet(lineEditStyle)
+        self.lineEdit_sendValue.setStyleSheet(lineEditStyle)
+        self.lineEdit_message.setStyleSheet(lineEditStyle)
+        self.lineEdit_accountName.setStyleSheet("background-color: transparent; border: none;"
+                                                "color: rgb(108, 204, 244); font-weight: bold;")
+        radioButtonStyle = (
+            "QRadioButton {background-color: transparent;}"
+            "QRadioButton::indicator { width: 24px; height: 12px; border-radius: 7px;}"
+            "QRadioButton::indicator:unchecked{border: 1px solid red;}"
+            "QRadioButton::indicator:checked{border: 1px solid green;background-image : url("
+            f"{system.getIconPath('fill.png')})}}"
+            "QRadioButton::indicator:checked:pressed{border: 1px solid white;}"
+        )
+        self.radioButton_testNet.setStyleSheet(radioButtonStyle)
+        self.radioButton_mainNet.setStyleSheet(radioButtonStyle)
 
-        self.radioButton_mainNet.setStyleSheet(f"QRadioButton::indicator:unchecked{{"
-                                               f"border: 1px solid red;"
-                                               f"}}"
-                                               f"QRadioButton::indicator:checked{{"
-                                               f"border: 1px solid green;"
-                                               f"background-image : url("
-                                               f"{system.getIconPath('fill.png')}"
-                                               f")}}"
-                                               f"QRadioButton::indicator:checked:pressed{{"
-                                               f"border: 1px solid white;"
-                                               f"}};")
-
-        self.radioButton_testNet.setStyleSheet(f"QRadioButton::indicator:unchecked{{"
-                                               f"border: 1px solid red;"
-                                               f"}}"
-                                               f"QRadioButton::indicator:checked{{"
-                                               f"border: 1px solid green;"
-                                               f"background-image : url("
-                                               f"{system.getIconPath('fill.png')}"
-                                               f")}}"
-                                               f"QRadioButton::indicator:checked:pressed{{"
-                                               f"border: 1px solid white;"
-                                               f"}};")
-
-        self.lineEdit_send.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
-        self.lineEdit_sendValue.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
-        self.LineEdit_message.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
-
-        self.initIcons()
-        self.setClickEvents()
-        self.setMenuActions()
+        self.comboBox_activeAddress_val.setStyleSheet(
+            "background-color: rgb(30, 76, 108); color: black; "
+            "selection-background-color: rgb(47, 54, 60); selection-color: white; "
+        )
+        self.textEdit_main.setStyleSheet("background-color: black; color: cyan")
 
     def setClickEvents(self):
         self.pushButton_copy_address.clicked.connect(self.copyAddress)
@@ -447,30 +504,6 @@ class Ui(QtWidgets.QMainWindow):
         # ----------------------------------------------------------------------------------
         self.lineEdit_sendValue.textChanged.connect(self.lineEditSendValueChange)
         self.comboBox_activeAddress_val.currentTextChanged.connect(self.comboBoxChange)
-
-    def initIcons(self):
-        icon = QIcon()
-        size = 20
-
-        icon.addPixmap(QPixmap(system.getIconPath('copy_w.png')))
-        self.pushButton_copy_address.setIcon(icon)
-        self.pushButton_copy_address.setIconSize(QSize(size, size))
-
-        icon.addPixmap(QPixmap(system.getIconPath('ethereum_c_b.png')))
-        self.pushButton_ETH.setIcon(icon)
-        self.pushButton_ETH.setIconSize(QSize(size, size))
-
-        icon.addPixmap(QPixmap(system.getIconPath('node64.png')))
-        self.pushButton_node_provider.setIcon(icon)
-        self.pushButton_node_provider.setIconSize(QSize(size, size))
-
-        icon.addPixmap(QPixmap(system.getIconPath('moneyTransfer48.png')))
-        self.pushButton_send.setIcon(icon)
-        self.pushButton_send.setIconSize(QSize(size, size))
-
-        icon.addPixmap(QPixmap(system.getIconPath('edit40.png')))
-        self.pushButton_accountName.setIcon(icon)
-        self.pushButton_node_provider.setIconSize(QSize(size, size))
 
     def setMenuActions(self):
         self.actionNew_random_account.setShortcut('Ctrl+n')
@@ -517,7 +550,7 @@ class Ui(QtWidgets.QMainWindow):
             icon = QIcon()
             if self.pushButton_accountName.text() == 'Edit':
                 self.lineEdit_accountName.setEnabled(True)
-                self.lineEdit_accountName.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
+                self.lineEdit_accountName.setStyleSheet("background-color: rgb(250, 240, 200); color: black")
                 self.pushButton_accountName.setText('Save')
                 icon.addPixmap(QPixmap(system.getIconPath('save48.png')))
                 self.pushButton_accountName.setIcon(icon)
@@ -525,7 +558,8 @@ class Ui(QtWidgets.QMainWindow):
             elif self.pushButton_accountName.text() == 'Save':
                 self.lineEdit_accountName.setEnabled(False)
                 self.lineEdit_accountName.setStyleSheet(
-                    'background-color: rgb(30, 40, 50); color: white; border: none;')
+                    "background-color: transparent; border: none;"
+                    "color: rgb(108, 204, 244); font-weight: bold;")
                 self.pushButton_accountName.setText('Edit')
                 icon.addPixmap(QPixmap(system.getIconPath('edit40.png')))
                 self.pushButton_accountName.setIcon(icon)
@@ -758,20 +792,20 @@ class Ui(QtWidgets.QMainWindow):
             gui_errorDialog.Error('getBalance', str(er)).exec()
 
     def sendTransaction(self, isContract: bool = False):
-        if not self.LineEdit_message.text() == '' or not self.lineEdit_sendValue.text() == '':
+        if not self.lineEdit_message.text() == '' or not self.lineEdit_sendValue.text() == '':
             if self.lineEdit_send.text() == '' and isContract:  # deploy contract
                 pass
             elif self.lineEdit_send.text() == '' and not isContract:  # send transaction need address
                 qui_showMessage.Ui('sendTransaction', "Enter the recipient\'s address").exec()
                 return {}
             else:
-                if self.LineEdit_message.text() == '':  # it is normal transaction
+                if self.lineEdit_message.text() == '':  # it is normal transaction
                     if self.lineEdit_sendValue.text() == '':
                         qui_showMessage.Ui('sendTransaction', "Enter value to send").exec()
                         return {}
                     else:
                         self.sentETH()
-                elif not self.LineEdit_message.text() == '':  # it is message transaction
+                elif not self.lineEdit_message.text() == '':  # it is message transaction
                     self.sentETHMessage()
         else:
             qui_showMessage.Ui('sendTransaction', 'Please fill the required sections').exec()
@@ -813,7 +847,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def sentETHMessage(self):
         try:
-            transactions = self.transactionElements(data=self.LineEdit_message.text().encode("utf-8").hex())
+            transactions = self.transactionElements(data=self.lineEdit_message.text().encode("utf-8").hex())
             if not transactions:
                 pass  # error
             else:
