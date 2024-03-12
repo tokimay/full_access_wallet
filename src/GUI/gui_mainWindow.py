@@ -511,7 +511,7 @@ class Ui(QtWidgets.QMainWindow):
         self.radioButton_testNet.toggled.connect(self.changeNetwork)
         # ----------------------------------------------------------------------------------
         self.lineEdit_sendValue.textChanged.connect(self.lineEditSendValueChange)
-        self.comboBox_activeAddressVal.currentTextChanged.connect(self.comboBoxChange)
+        # self.comboBox_activeAddressVal.currentTextChanged.connect(self.comboBoxChange)
 
     def setMenuActions(self):
         self.action_newRandomAccount.setShortcut('Ctrl+n')
@@ -545,14 +545,14 @@ class Ui(QtWidgets.QMainWindow):
                 raise
         except Exception as er:
             gui_errorDialog.Error('changeNetwork', str(er)).exec()
-
+    """       
     def comboBoxChange(self):
         try:
             accountName = self.db.readColumnByCondition('NAM', self.comboBox_activeAddressVal.currentText())
             self.lineEdit_accountName.setText(str(accountName[0][0]))
         except Exception as er:
             gui_errorDialog.Error('comboBoxChange', str(er)).exec()
-
+    """
     def editAccountName(self):
         try:
             icon = QIcon()
@@ -1312,8 +1312,10 @@ class Ui(QtWidgets.QMainWindow):
                 if self.db.deleteRow(self.comboBox_activeAddressVal.currentText()):
                     if self.comboBox_activeAddressVal.count() == 1:
                         self.comboBox_activeAddressVal.clear()
+                        print('=================== 1')
                     else:
                         self.comboBox_activeAddressVal.removeItem(accountIndex)
+                        print('=================== 2')
                     qui_showMessage.Ui('deleteAccount', 'the account was deleted.').exec()
                 else:
                     pass  # error
