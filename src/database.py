@@ -171,3 +171,15 @@ class Sqlite:
             print('here')
             gui_errorDialog.Error('updateRowValue', str(er)).exec()
             return False
+
+    def deleteRow(self, condition: str) -> bool:
+        try:
+            connection = connect(self.databaseName)
+            cursor = connection.cursor()
+            cursor.execute(f"""DELETE from accounts WHERE ADR = ?""", (condition,))
+            connection.commit()
+            connection.close()
+            return True
+        except Exception as er:
+            gui_errorDialog.Error('readAllRows', str(er)).exec()
+            return False

@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (QWidget, QGridLayout, QLabel, QPushButton, QComboBo
                              QRadioButton, QTextEdit, QMenuBar, QMenu, QStatusBar, QSplitter)
 from PyQt6.QtWidgets import QFrame
 from json import loads, dump, dumps
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets, QtGui
 from PyQt6.QtCore import QSize, QRect
 from PyQt6.QtGui import QIcon, QPixmap, QAction, QTextCursor
 from src import (database, dataTypes, gui_errorDialog, qui_getUserChoice, qui_getUserInput, qui_showMessage, ethereum,
@@ -20,84 +20,83 @@ class Ui(QtWidgets.QMainWindow):
         super().__init__()
         self.menubar_file = QMenuBar(self)
 
-        self.menuWallet = QMenu(self.menubar_file)
-        self.menuNewAccount = QMenu(self.menuWallet)
-        self.menuSecrets = QMenu(self.menuWallet)
-        self.menuBackupAndRestore = QMenu(self.menuWallet)
+        self.menu_wallet = QMenu(self.menubar_file)
+        self.menu_newAccount = QMenu(self.menu_wallet)
+        self.menu_secrets = QMenu(self.menu_wallet)
+        self.menu_backupAndRestore = QMenu(self.menu_wallet)
 
-        self.menuNetwork = QMenu(self.menubar_file)
-        self.menuTransactions = QMenu(self.menuNetwork)
-        self.menuTools = QMenu(self.menuNetwork)
-
-        self.setMenuBar(self.menubar_file)
+        self.menu_network = QMenu(self.menubar_file)
+        self.menu_transactions = QMenu(self.menu_network)
+        self.menu_tools = QMenu(self.menu_network)
         # ----------------------------------------------------------------------------------
-        self.actionEntropy = QAction(self)
-        self.actionPrivateKey = QAction(self)
-        self.actionPublicKey_coordinates = QAction(self)
-        self.actionPublicKey = QAction(self)
-        self.actionMnemonic = QAction(self)
+        self.action_entropy = QAction(self)
+        self.action_privateKey = QAction(self)
+        self.action_publicKeyCoordinates = QAction(self)
+        self.action_publicKey = QAction(self)
+        self.action_mnemonic = QAction(self)
         # ----------------------------------------------------------------------------------
-        self.actionNew_random_account = QAction(self)
-        self.actionRecover_from_mnemonic = QAction(self)
-        self.actionRecover_from_entropy = QAction(self)
-        self.actionRecover_from_privateKey = QAction(self)
+        self.action_newRandomAccount = QAction(self)
+        self.action_recoverFromMnemonic = QAction(self)
+        self.action_recoverFromEntropy = QAction(self)
+        self.action_recoverFromPrivateKey = QAction(self)
         # ----------------------------------------------------------------------------------
-        self.actionBackup = QAction(self)
-        self.actionRestore = QAction(self)
+        self.action_backup = QAction(self)
+        self.action_restore = QAction(self)
         # ----------------------------------------------------------------------------------
-        self.action_checkTX = QAction(self)
-        self.actionTX_nonce = QAction(self)
-        self.actionSimple_history = QAction(self)
-        self.actionAll_normal = QAction(self)
-        self.actionAll_internal = QAction(self)
+        self.action_checkTx = QAction(self)
+        self.action_txNonce = QAction(self)
+        self.action_simpleHistory = QAction(self)
+        self.action_allNormal = QAction(self)
+        self.action_allInternal = QAction(self)
         # ----------------------------------------------------------------------------------
-        self.actionPublicKey_from_TXHash = QAction(self)
-        self.actionTransactionMessage = QAction(self)
+        self.action_publicKeyFromTxHash = QAction(self)
+        self.action_transactionMessage = QAction(self)
         # ----------------------------------------------------------------------------------
-        self.centralWidget = QWidget(self)
-        self.gridLayoutWidget = QWidget(self.centralWidget)
-        self.gridlayout = QGridLayout(self.gridLayoutWidget)
+        self.central_widget = QWidget(self)
+        self.gridLayout_widget = QWidget(self.central_widget)
+        self.gridlayout = QGridLayout(self.gridLayout_widget)
         # ----------------------------------------------------------------------------------
         # row 1
-        self.label_node_provider = QLabel(self.gridLayoutWidget)
-        self.lineEdit_node_provider = QLineEdit(self.gridLayoutWidget)
-        self.pushButton_node_provider = QPushButton(self.gridLayoutWidget)
+        self.label_nodeProvider = QLabel(self.gridLayout_widget)
+        self.lineEdit_nodeProvider = QLineEdit(self.gridLayout_widget)
+        self.pushButton_nodeProvider = QPushButton(self.gridLayout_widget)
 
         # row 2
-        self.label_accountName = QLabel(self.gridLayoutWidget)
-        self.lineEdit_accountName = QLineEdit(self.gridLayoutWidget)
-        self.pushButton_accountName = QPushButton(self.gridLayoutWidget)
+        self.label_accountName = QLabel(self.gridLayout_widget)
+        self.lineEdit_accountName = QLineEdit(self.gridLayout_widget)
+        self.pushButton_accountName = QPushButton(self.gridLayout_widget)
+        self.pushButton_deleteAccount = QPushButton(self.gridLayout_widget)
 
         # row 3
-        self.label_activeAddress = QLabel(self.gridLayoutWidget)
-        self.comboBox_activeAddress_val = QComboBox(self.gridLayoutWidget)
-        self.pushButton_copy_address = QPushButton(self.gridLayoutWidget)
+        self.label_activeAddress = QLabel(self.gridLayout_widget)
+        self.comboBox_activeAddressVal = QComboBox(self.gridLayout_widget)
+        self.pushButton_copyAddress = QPushButton(self.gridLayout_widget)
 
         # row 4
-        self.label_amount = QLabel(self.gridLayoutWidget)
-        self.label_amount_val = QLabel(self.gridLayoutWidget)
-        self.pushButton_ETH = QPushButton(self.gridLayoutWidget)
+        self.label_amount = QLabel(self.gridLayout_widget)
+        self.label_amountVal = QLabel(self.gridLayout_widget)
+        self.pushButton_etherScan = QPushButton(self.gridLayout_widget)
 
         # row 5
-        self.label_send = QLabel(self.gridLayoutWidget)
-        self.lineEdit_send = QLineEdit(self.gridLayoutWidget)
-        self.pushButton_send = QPushButton(self.gridLayoutWidget)
+        self.label_send = QLabel(self.gridLayout_widget)
+        self.lineEdit_send = QLineEdit(self.gridLayout_widget)
+        self.pushButton_send = QPushButton(self.gridLayout_widget)
 
         # row 6
-        self.label_sendValue = QLabel(self.gridLayoutWidget)
-        self.lineEdit_sendValue = QLineEdit(self.gridLayoutWidget)
-        self.label_message = QLabel(self.gridLayoutWidget)
-        self.lineEdit_message = QLineEdit(self.gridLayoutWidget)
+        self.label_sendValue = QLabel(self.gridLayout_widget)
+        self.lineEdit_sendValue = QLineEdit(self.gridLayout_widget)
+        self.label_message = QLabel(self.gridLayout_widget)
+        self.lineEdit_message = QLineEdit(self.gridLayout_widget)
 
         # row 7
-        self.textEdit_main = QTextEdit(self.gridLayoutWidget)
+        self.textEdit_main = QTextEdit(self.gridLayout_widget)
 
         # customization
-        self.label_customizationArea = QLabel(self.gridLayoutWidget)
-        self.radioButton_mainNet = QRadioButton(self.gridLayoutWidget)
-        self.radioButton_testNet = QRadioButton(self.gridLayoutWidget)
+        self.label_customizationArea = QLabel(self.gridLayout_widget)
+        self.radioButton_mainNet = QRadioButton(self.gridLayout_widget)
+        self.radioButton_testNet = QRadioButton(self.gridLayout_widget)
 
-        self.line_vertical = QFrame(self.gridLayoutWidget)
+        self.line_vertical = QFrame(self.gridLayout_widget)
         # ----------------------------------------------------------------------------------
         self.statusbar = QStatusBar(self)
 
@@ -113,118 +112,119 @@ class Ui(QtWidgets.QMainWindow):
         self.setWindowTitle("FAwallet")
         self.resize(800, 600)
         self.setFixedSize(800, 600)
+        self.setMenuBar(self.menubar_file)
 
-        self.setCentralWidget(self.centralWidget)
-        self.centralWidget.setObjectName("centralWidget")
-        self.gridLayoutWidget.setObjectName("gridLayoutWidget")
-        self.gridLayoutWidget.setGeometry(QRect(10, 10, 780, 580))
+        self.setCentralWidget(self.central_widget)
+        self.central_widget.setObjectName("centralWidget")
+        self.gridLayout_widget.setObjectName("gridLayoutWidget")
+        self.gridLayout_widget.setGeometry(QRect(10, 10, 780, 580))
         self.gridlayout.setObjectName("gridlayout")
         self.gridlayout.setGeometry(QRect(10, 10, 780, 580))
         self.gridlayout.setContentsMargins(0, 0, 0, 0)
         # ----------------------------------------------------------------------------------
-        self.actionEntropy.setObjectName("actionEntropy")
-        self.actionPrivateKey.setObjectName("actionPrivateKey")
-        self.actionPublicKey_coordinates.setObjectName("actionPublicKey_coordinates")
-        self.actionPublicKey.setObjectName("actionPublicKey")
-        self.actionMnemonic.setObjectName("actionMnemonic")
+        self.action_entropy.setObjectName("actionEntropy")
+        self.action_privateKey.setObjectName("actionPrivateKey")
+        self.action_publicKeyCoordinates.setObjectName("actionPublicKey_coordinates")
+        self.action_publicKey.setObjectName("actionPublicKey")
+        self.action_mnemonic.setObjectName("actionMnemonic")
 
-        self.actionNew_random_account.setObjectName("actionNew_random_account")
-        self.actionRecover_from_mnemonic.setObjectName("actionRecover_from_mnemonic")
-        self.actionRecover_from_entropy.setObjectName("actionRecover_from_entropy")
-        self.actionRecover_from_privateKey.setObjectName("actionRecover_from_privateKey")
+        self.action_newRandomAccount.setObjectName("actionNewRandomAccount")
+        self.action_recoverFromMnemonic.setObjectName("actionRecover_from_mnemonic")
+        self.action_recoverFromEntropy.setObjectName("actionRecover_from_entropy")
+        self.action_recoverFromPrivateKey.setObjectName("actionRecover_from_privateKey")
         # ----------------------------------------------------------------------------------
-        self.action_checkTX.setObjectName("action_checkTX")
-        self.actionTX_nonce.setObjectName("actionTX_nonce")
-        self.actionSimple_history.setObjectName("actionSimple_history")
-        self.actionAll_normal.setObjectName("actionAll_normal")
-        self.actionAll_internal.setObjectName("actionAll_internal")
+        self.action_checkTx.setObjectName("action_checkTX")
+        self.action_txNonce.setObjectName("actionTX_nonce")
+        self.action_simpleHistory.setObjectName("actionSimple_history")
+        self.action_allNormal.setObjectName("actionAll_normal")
+        self.action_allInternal.setObjectName("actionAll_internal")
 
-        self.actionPublicKey_from_TXHash.setObjectName("actionPublicKey_from_TXHash")
-        self.actionTransactionMessage.setObjectName('actionTransactionMessage')
+        self.action_publicKeyFromTxHash.setObjectName("actionPublicKey_from_TXHash")
+        self.action_transactionMessage.setObjectName('actionTransactionMessage')
         # ----------------------------------------------------------------------------------
         self.menubar_file.setObjectName("menubar_file")
         self.menubar_file.setGeometry(QRect(0, 0, 800, 30))
         # ----------------------------------------------------------------------------------
         # wallet menu
-        self.menubar_file.addAction(self.menuWallet.menuAction())
-        self.menuWallet.setObjectName("menu_Wallet")
-        self.menuWallet.setTitle("&Wallet")
+        self.menubar_file.addAction(self.menu_wallet.menuAction())
+        self.menu_wallet.setObjectName("menu_Wallet")
+        self.menu_wallet.setTitle("&Wallet")
 
         #  wallet menu -> account menu
-        self.menuWallet.addAction(self.menuNewAccount.menuAction())
-        self.menuNewAccount.setObjectName("menuNew_account")
-        self.menuNewAccount.setTitle("New account")
-        self.menuNewAccount.addAction(self.actionNew_random_account)
-        self.actionNew_random_account.setText("New random account")
-        self.menuNewAccount.addAction(self.actionRecover_from_mnemonic)
-        self.actionRecover_from_mnemonic.setText("Recover from mnemonic")
-        self.menuNewAccount.addAction(self.actionRecover_from_entropy)
-        self.actionRecover_from_entropy.setText("Recover from entropy")
-        self.menuNewAccount.addAction(self.actionRecover_from_privateKey)
-        self.actionRecover_from_privateKey.setText("Recover from privateKey")
+        self.menu_wallet.addAction(self.menu_newAccount.menuAction())
+        self.menu_newAccount.setObjectName("menuNew_account")
+        self.menu_newAccount.setTitle("New account")
+        self.menu_newAccount.addAction(self.action_newRandomAccount)
+        self.action_newRandomAccount.setText("New random account")
+        self.menu_newAccount.addAction(self.action_recoverFromMnemonic)
+        self.action_recoverFromMnemonic.setText("Recover from mnemonic")
+        self.menu_newAccount.addAction(self.action_recoverFromEntropy)
+        self.action_recoverFromEntropy.setText("Recover from entropy")
+        self.menu_newAccount.addAction(self.action_recoverFromPrivateKey)
+        self.action_recoverFromPrivateKey.setText("Recover from privateKey")
 
         #  wallet menu -> Secrets menu
-        self.menuWallet.addAction(self.menuSecrets.menuAction())
-        self.menuSecrets.setObjectName("menuSecrets")
-        self.menuSecrets.setTitle("Secrets")
+        self.menu_wallet.addAction(self.menu_secrets.menuAction())
+        self.menu_secrets.setObjectName("menuSecrets")
+        self.menu_secrets.setTitle("Secrets")
         # self.menuSecrets.addSeparator()
-        self.menuSecrets.addAction(self.actionEntropy)
-        self.actionEntropy.setText("Entropy")
-        self.menuSecrets.addAction(self.actionPrivateKey)
-        self.actionPrivateKey.setText("PrivateKey")
-        self.menuSecrets.addAction(self.actionPublicKey_coordinates)
-        self.actionPublicKey_coordinates.setText("PublicKey coordinates")
-        self.menuSecrets.addAction(self.actionPublicKey)
-        self.actionPublicKey.setText('PublicKey')
-        self.menuSecrets.addAction(self.actionMnemonic)
-        self.actionMnemonic.setText("Mnemonic")
+        self.menu_secrets.addAction(self.action_entropy)
+        self.action_entropy.setText("Entropy")
+        self.menu_secrets.addAction(self.action_privateKey)
+        self.action_privateKey.setText("PrivateKey")
+        self.menu_secrets.addAction(self.action_publicKeyCoordinates)
+        self.action_publicKeyCoordinates.setText("PublicKey coordinates")
+        self.menu_secrets.addAction(self.action_publicKey)
+        self.action_publicKey.setText('PublicKey')
+        self.menu_secrets.addAction(self.action_mnemonic)
+        self.action_mnemonic.setText("Mnemonic")
 
         #  wallet menu -> Backup and restore menu
-        self.menuWallet.addAction(self.menuBackupAndRestore.menuAction())
-        self.menuBackupAndRestore.setObjectName("menuBackupAndRestore")
-        self.menuBackupAndRestore.setTitle("Backup and Restore")
-        self.menuBackupAndRestore.addAction(self.actionBackup)
-        self.actionBackup.setText("Backup account")
-        self.menuBackupAndRestore.addAction(self.actionRestore)
-        self.actionRestore.setText('Restore account')
+        self.menu_wallet.addAction(self.menu_backupAndRestore.menuAction())
+        self.menu_backupAndRestore.setObjectName("menuBackupAndRestore")
+        self.menu_backupAndRestore.setTitle("Backup and Restore")
+        self.menu_backupAndRestore.addAction(self.action_backup)
+        self.action_backup.setText("Backup account")
+        self.menu_backupAndRestore.addAction(self.action_restore)
+        self.action_restore.setText('Restore account')
 
         # ----------------------------------------------------------------------------------
         # Network menu
-        self.menubar_file.addAction(self.menuNetwork.menuAction())
-        self.menuNetwork.setObjectName("menuNetwork")
-        self.menuNetwork.setTitle("&Network")
+        self.menubar_file.addAction(self.menu_network.menuAction())
+        self.menu_network.setObjectName("menu_network")
+        self.menu_network.setTitle("&Network")
 
         # Network menu -> Transactions menu
-        self.menuNetwork.addAction(self.menuTransactions.menuAction())
-        self.menuTransactions.setObjectName("menuTransactions")
-        self.menuTransactions.setTitle("Transactions")
-        self.menuTransactions.addAction(self.action_checkTX)
-        self.action_checkTX.setText("Check transaction")
-        self.menuTransactions.addAction(self.actionTX_nonce)
-        self.actionTX_nonce.setText("Transaction nounce")
-        self.menuTransactions.addAction(self.actionSimple_history)
-        self.actionSimple_history.setText("Simple history(need APIkey)")
-        self.menuTransactions.addAction(self.actionAll_normal)
-        self.actionAll_normal.setText("All normal TXS (need APIkey)")
-        self.menuTransactions.addAction(self.actionAll_internal)
-        self.actionAll_internal.setText("All internal TXS (need APIkey)")
+        self.menu_network.addAction(self.menu_transactions.menuAction())
+        self.menu_transactions.setObjectName("menu_transactions")
+        self.menu_transactions.setTitle("Transactions")
+        self.menu_transactions.addAction(self.action_checkTx)
+        self.action_checkTx.setText("Check transaction")
+        self.menu_transactions.addAction(self.action_txNonce)
+        self.action_txNonce.setText("Transaction nounce")
+        self.menu_transactions.addAction(self.action_simpleHistory)
+        self.action_simpleHistory.setText("Simple history(need APIkey)")
+        self.menu_transactions.addAction(self.action_allNormal)
+        self.action_allNormal.setText("All normal TXS (need APIkey)")
+        self.menu_transactions.addAction(self.action_allInternal)
+        self.action_allInternal.setText("All internal TXS (need APIkey)")
 
         # Network menu -> Tools menu
-        self.menuNetwork.addAction(self.menuTools.menuAction())
-        self.menuTools.setObjectName("menuTools")
-        self.menuTools.setTitle("Tools")
-        self.menuTools.addAction(self.actionPublicKey_from_TXHash)
-        self.actionPublicKey_from_TXHash.setText("PublicKey from TXHash")
-        self.menuTools.addAction(self.actionTransactionMessage)
-        self.actionTransactionMessage.setText('Show transaction message')
+        self.menu_network.addAction(self.menu_tools.menuAction())
+        self.menu_tools.setObjectName("menu_tools")
+        self.menu_tools.setTitle("Tools")
+        self.menu_tools.addAction(self.action_publicKeyFromTxHash)
+        self.action_publicKeyFromTxHash.setText("PublicKey from TXHash")
+        self.menu_tools.addAction(self.action_transactionMessage)
+        self.action_transactionMessage.setText('Show transaction message')
         # ----------------------------------------------------------------------------------
         # row 1
-        self.label_node_provider.setObjectName("label_node_provider")
-        self.label_node_provider.setText("Node provider:")
-        self.lineEdit_node_provider.setText("https://nodes.mewapi.io/rpc/eth")
-        self.lineEdit_node_provider.setObjectName("lineEdit_node_provider")
-        self.pushButton_node_provider.setObjectName("pushButton_node_provider")
-        self.pushButton_node_provider.setText("Providers")
+        self.label_nodeProvider.setObjectName("label_nodeProvider")
+        self.label_nodeProvider.setText("Node provider:")
+        self.lineEdit_nodeProvider.setText("https://nodes.mewapi.io/rpc/eth")
+        self.lineEdit_nodeProvider.setObjectName("lineEdit_nodeProvider")
+        self.pushButton_nodeProvider.setObjectName("pushButton_nodeProvider")
+        self.pushButton_nodeProvider.setText("Providers")
 
         # row 2
         self.label_accountName.setObjectName("label_accountName")
@@ -232,21 +232,23 @@ class Ui(QtWidgets.QMainWindow):
         self.lineEdit_accountName.setObjectName("lineEdit_accountName")
         self.pushButton_accountName.setObjectName("pushButton_accountName")
         self.pushButton_accountName.setText("Edit")
+        self.pushButton_deleteAccount.setObjectName("pushButton_deleteAccount")
+        self.pushButton_deleteAccount.setText('Delete current account')
 
         # row 3
         self.label_activeAddress.setObjectName("label_activeAddress")
         self.label_activeAddress.setText("Active address:")
-        self.comboBox_activeAddress_val.setObjectName(u"comboBox_activeAddress_val")
-        self.pushButton_copy_address.setObjectName("pushButton_copy_address")
-        self.pushButton_copy_address.setText("Copy address")
+        self.comboBox_activeAddressVal.setObjectName("comboBox_activeAddressVal")
+        self.pushButton_copyAddress.setObjectName("pushButton_copyAddress")
+        self.pushButton_copyAddress.setText("Copy address")
 
         # row 4
         self.label_amount.setObjectName("label_amount")
         self.label_amount.setText("Amount:")
-        self.label_amount_val.setObjectName("label_amount_val")
-        self.label_amount_val.setText("0")
-        self.pushButton_ETH.setObjectName("pushButton_ETH")
-        self.pushButton_ETH.setText("etherescan.io")
+        self.label_amountVal.setObjectName("label_amountVal")
+        self.label_amountVal.setText("0")
+        self.pushButton_etherScan.setObjectName("pushButton_etherScan")
+        self.pushButton_etherScan.setText("etherescan.io")
 
         # row 5
         self.label_send.setObjectName("label_send")
@@ -261,7 +263,7 @@ class Ui(QtWidgets.QMainWindow):
         self.lineEdit_sendValue.setObjectName("lineEdit_sendValue")
         self.label_message.setObjectName("label_message")
         self.label_message.setText("Message:")
-        self.lineEdit_message.setObjectName("LineEdit_message")
+        self.lineEdit_message.setObjectName("lineEdit_message")
 
         # row 7
         self.textEdit_main.setObjectName("textEdit_main")
@@ -279,33 +281,34 @@ class Ui(QtWidgets.QMainWindow):
         # self.line_vertical.setFrameShadow(QFrame.Shape.Sunken)
         # ----------------------------------------------------------------------------------
         self.setStatusBar(self.statusbar)
-        self.statusbar.setObjectName(u"statusbar")
+        self.statusbar.setObjectName("statusbar")
         # ----------------------------------------------------------------------------------
         # row 1
-        self.gridlayout.addWidget(self.label_node_provider, 1, 0, 1, 1)
-        self.gridlayout.addWidget(self.lineEdit_node_provider, 1, 1, 1, 3)
-        self.gridlayout.addWidget(self.pushButton_node_provider, 1, 4, 1, 1)
+        self.gridlayout.addWidget(self.label_nodeProvider, 1, 0, 1, 1)
+        self.gridlayout.addWidget(self.lineEdit_nodeProvider, 1, 1, 1, 3)
+        self.gridlayout.addWidget(self.pushButton_nodeProvider, 1, 4, 1, 1)
         self.gridlayout.addWidget(self.line_vertical, 1, 5, 6, 1)
         self.gridlayout.addWidget(self.label_customizationArea, 1, 6, 1, 1)
 
         # row 2
         self.gridlayout.addWidget(self.label_accountName, 2, 0, 1, 1)
-        self.gridlayout.addWidget(self.lineEdit_accountName, 2, 1, 1, 3)
+        self.gridlayout.addWidget(self.lineEdit_accountName, 2, 1, 1, 2)
+        self.gridlayout.addWidget(self.pushButton_deleteAccount, 2, 3, 1, 1)
         self.gridlayout.addWidget(self.pushButton_accountName, 2, 4, 1, 1)
         # col 5 empty
         self.gridlayout.addWidget(self.radioButton_mainNet, 2, 6, 1, 1)
 
         # row 3
         self.gridlayout.addWidget(self.label_activeAddress, 3, 0, 1, 1)
-        self.gridlayout.addWidget(self.comboBox_activeAddress_val, 3, 1, 1, 3)
-        self.gridlayout.addWidget(self.pushButton_copy_address, 3, 4, 1, 1)
+        self.gridlayout.addWidget(self.comboBox_activeAddressVal, 3, 1, 1, 3)
+        self.gridlayout.addWidget(self.pushButton_copyAddress, 3, 4, 1, 1)
         # col 5 empty
         self.gridlayout.addWidget(self.radioButton_testNet, 3, 6, 1, 1)
 
         # row 4
         self.gridlayout.addWidget(self.label_amount, 4, 0, 1, 1)
-        self.gridlayout.addWidget(self.label_amount_val, 4, 1, 1, 3)
-        self.gridlayout.addWidget(self.pushButton_ETH, 4, 4, 1, 1)
+        self.gridlayout.addWidget(self.label_amountVal, 4, 1, 1, 3)
+        self.gridlayout.addWidget(self.pushButton_etherScan, 4, 4, 1, 1)
         # col 5 empty
         # col 6 empty
 
@@ -328,66 +331,68 @@ class Ui(QtWidgets.QMainWindow):
         # row 7
         self.gridlayout.addWidget(self.textEdit_main, 7, 0, 1, 7)
 
-        height = 27
-        self.label_node_provider.setMinimumHeight(height)
-        self.lineEdit_node_provider.setMinimumHeight(height)
-        self.pushButton_node_provider.setMinimumHeight(height)
+        HEIGHT = 25
+        self.label_nodeProvider.setMinimumHeight(HEIGHT)
+        self.lineEdit_nodeProvider.setMinimumHeight(HEIGHT)
+        self.pushButton_nodeProvider.setMinimumHeight(HEIGHT)
 
-        self.label_accountName.setMinimumHeight(height)
-        self.lineEdit_accountName.setMinimumHeight(height)
-        self.pushButton_accountName.setMinimumHeight(height)
+        self.label_accountName.setMinimumHeight(HEIGHT)
+        self.lineEdit_accountName.setMinimumHeight(HEIGHT)
+        self.pushButton_accountName.setMinimumHeight(HEIGHT)
+        self.pushButton_deleteAccount.setMinimumHeight(HEIGHT)
 
-        self.label_activeAddress.setMinimumHeight(height)
-        self.comboBox_activeAddress_val.setMinimumHeight(height)
-        self.pushButton_copy_address.setMinimumHeight(height)
+        self.label_activeAddress.setMinimumHeight(HEIGHT)
+        self.comboBox_activeAddressVal.setMinimumHeight(HEIGHT)
+        self.pushButton_copyAddress.setMinimumHeight(HEIGHT)
 
-        self.label_amount.setMinimumHeight(height)
-        self.label_amount_val.setMinimumHeight(height)
-        self.pushButton_ETH.setMinimumHeight(height)
+        self.label_amount.setMinimumHeight(HEIGHT)
+        self.label_amountVal.setMinimumHeight(HEIGHT)
+        self.pushButton_etherScan.setMinimumHeight(HEIGHT)
 
-        self.label_send.setMinimumHeight(height)
-        self.lineEdit_send.setMinimumHeight(height)
+        self.label_send.setMinimumHeight(HEIGHT)
+        self.lineEdit_send.setMinimumHeight(HEIGHT)
 
-        self.label_sendValue.setMinimumHeight(height)
-        self.lineEdit_sendValue.setMinimumHeight(height)
-        self.label_message.setMinimumHeight(height)
-        self.lineEdit_message.setMinimumHeight(height)
-        self.pushButton_send.setMinimumHeight(height)
+        self.label_sendValue.setMinimumHeight(HEIGHT)
+        self.lineEdit_sendValue.setMinimumHeight(HEIGHT)
+        self.label_message.setMinimumHeight(HEIGHT)
+        self.lineEdit_message.setMinimumHeight(HEIGHT)
+        self.pushButton_send.setMinimumHeight(HEIGHT)
 
-        heightMenu = 20
-        self.menuWallet.setMinimumHeight(heightMenu)
-        self.menuNetwork.setMinimumHeight(heightMenu)
+        MENU_HEIGHT = 20
+        self.menu_wallet.setMinimumHeight(MENU_HEIGHT)
+        self.menu_network.setMinimumHeight(MENU_HEIGHT)
 
-        self.comboBox_activeAddress_val.clear()
-        self.lineEdit_node_provider.setText('https://rpc.sepolia.org')
+        self.comboBox_activeAddressVal.clear()
+        self.lineEdit_nodeProvider.setText('https://rpc.sepolia.org')
         self.radioButton_mainNet.setChecked(False)
         self.radioButton_testNet.setChecked(True)
         self.lineEdit_accountName.setEnabled(False)
-        self.pushButton_accountName.setText('Edit')
 
     def initIcons(self):
         icon = QIcon()
-        size = 20
+        ICON_SIZE = 25
 
-        icon.addPixmap(QPixmap(system.getIconPath('copy_w.png')))
-        self.pushButton_copy_address.setIcon(icon)
-        self.pushButton_copy_address.setIconSize(QSize(size, size))
+        # icon.addPixmap(QPixmap(system.getIconPath('copy_w.png')))
+        # self.setWindowIcon(QtGui.QIcon('icon.png'))
+        # self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-        icon.addPixmap(QPixmap(system.getIconPath('ethereum_c_b.png')))
-        self.pushButton_ETH.setIcon(icon)
-        self.pushButton_ETH.setIconSize(QSize(size, size))
+        self.pushButton_copyAddress.setIcon(QtGui.QIcon('copy_w.png'))
+        self.pushButton_copyAddress.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-        icon.addPixmap(QPixmap(system.getIconPath('node64.png')))
-        self.pushButton_node_provider.setIcon(icon)
-        self.pushButton_node_provider.setIconSize(QSize(size, size))
+        self.pushButton_etherScan.setIcon(QtGui.QIcon('ethereum_c_b.png'))
+        self.pushButton_etherScan.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-        icon.addPixmap(QPixmap(system.getIconPath('moneyTransfer48.png')))
-        self.pushButton_send.setIcon(icon)
-        self.pushButton_send.setIconSize(QSize(size, size))
+        self.pushButton_nodeProvider.setIcon(QtGui.QIcon('node64.png'))
+        self.pushButton_nodeProvider.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-        icon.addPixmap(QPixmap(system.getIconPath('edit40.png')))
-        self.pushButton_accountName.setIcon(icon)
-        self.pushButton_node_provider.setIconSize(QSize(size, size))
+        self.pushButton_send.setIcon(QtGui.QIcon('moneyTransfer48.png'))
+        self.pushButton_send.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
+
+        self.pushButton_accountName.setIcon(QtGui.QIcon('edit40.png'))
+        self.pushButton_accountName.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
+
+        self.pushButton_deleteAccount.setIcon(QtGui.QIcon('delete100.png'))
+        self.pushButton_deleteAccount.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
     def initStyleSheet(self):
         mainStyle = (
@@ -411,8 +416,8 @@ class Ui(QtWidgets.QMainWindow):
             "QMenu::item:selected {border: 2px solid rgb(108, 204, 244); background: rgb(30, 76, 108);}"
             "QMenu::item:pressed {background: rgb(108, 204, 244); color: black}"
         )
-        self.menuWallet.setStyleSheet(menuStyle)
-        self.menuNetwork.setStyleSheet(menuStyle)
+        self.menu_wallet.setStyleSheet(menuStyle)
+        self.menu_network.setStyleSheet(menuStyle)
         buttonStyle = (
             "QPushButton {border: 2px solid rgb(108, 204, 244);"
             "border-radius: 13px;"
@@ -423,10 +428,11 @@ class Ui(QtWidgets.QMainWindow):
             "QPushButton:pressed {background-color: rgb(108, 204, 244);}"
         )
         self.pushButton_send.setStyleSheet(buttonStyle)
-        self.pushButton_ETH.setStyleSheet(buttonStyle)
+        self.pushButton_etherScan.setStyleSheet(buttonStyle)
         self.pushButton_accountName.setStyleSheet(buttonStyle)
-        self.pushButton_node_provider.setStyleSheet(buttonStyle)
-        self.pushButton_copy_address.setStyleSheet(buttonStyle)
+        self.pushButton_nodeProvider.setStyleSheet(buttonStyle)
+        self.pushButton_copyAddress.setStyleSheet(buttonStyle)
+        self.pushButton_deleteAccount.setStyleSheet(buttonStyle)
         labelStyle = (
             "color: white;"
             "background-color: transparent;"
@@ -438,15 +444,15 @@ class Ui(QtWidgets.QMainWindow):
         self.label_sendValue.setStyleSheet(labelStyle)
         self.label_activeAddress.setStyleSheet(labelStyle)
         self.label_customizationArea.setStyleSheet(labelStyle)
-        self.label_node_provider.setStyleSheet(labelStyle)
-        self.label_amount_val.setStyleSheet(labelStyle)
-        self.label_amount_val.setText(
+        self.label_nodeProvider.setStyleSheet(labelStyle)
+        self.label_amountVal.setStyleSheet(labelStyle)
+        self.label_amountVal.setText(
             '<span style = "color: red; font-weight: bold;" > 0'
             '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
         lineEditStyle = (
             "background-color: rgb(250, 240, 200); color: black"
         )
-        self.lineEdit_node_provider.setStyleSheet(lineEditStyle)
+        self.lineEdit_nodeProvider.setStyleSheet(lineEditStyle)
         self.lineEdit_send.setStyleSheet(lineEditStyle)
         self.lineEdit_sendValue.setStyleSheet(lineEditStyle)
         self.lineEdit_message.setStyleSheet(lineEditStyle)
@@ -463,76 +469,77 @@ class Ui(QtWidgets.QMainWindow):
         self.radioButton_testNet.setStyleSheet(radioButtonStyle)
         self.radioButton_mainNet.setStyleSheet(radioButtonStyle)
 
-        self.comboBox_activeAddress_val.setStyleSheet(
+        self.comboBox_activeAddressVal.setStyleSheet(
             "background-color: rgb(30, 76, 108); color: black; "
             "selection-background-color: rgb(47, 54, 60); selection-color: white; "
         )
         self.textEdit_main.setStyleSheet("background-color: black; color: cyan")
 
     def setClickEvents(self):
-        self.pushButton_copy_address.clicked.connect(self.copyAddress)
-        self.pushButton_ETH.clicked.connect(self.goToEtherscan)
-        self.pushButton_node_provider.clicked.connect(self.goToEtherNodes)
+        self.pushButton_copyAddress.clicked.connect(self.copyAddress)
+        self.pushButton_etherScan.clicked.connect(self.goToEtherscan)
+        self.pushButton_nodeProvider.clicked.connect(self.goToEtherNodes)
         self.pushButton_accountName.clicked.connect(self.editAccountName)
+        self.pushButton_deleteAccount.clicked.connect(self.deleteAccount)
         self.pushButton_send.clicked.connect(self.sendTransaction)
         # Wallets-New wallet---------------------------------------------------------------------------------
-        self.actionNew_random_account.triggered.connect(self.createAccountRandom)
-        self.actionRecover_from_mnemonic.triggered.connect(self.createAccountFromMnemonic)
-        self.actionRecover_from_entropy.triggered.connect(self.createAccountFromEntropy)
-        self.actionRecover_from_privateKey.triggered.connect(self.createAccountFromPrivateKey)
+        self.action_newRandomAccount.triggered.connect(self.createAccountRandom)
+        self.action_recoverFromMnemonic.triggered.connect(self.createAccountFromMnemonic)
+        self.action_recoverFromEntropy.triggered.connect(self.createAccountFromEntropy)
+        self.action_recoverFromPrivateKey.triggered.connect(self.createAccountFromPrivateKey)
         # Wallets-Secrets---------------------------------------------------------------------------------
-        self.actionEntropy.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.ENTROPY))
-        self.actionPrivateKey.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.PRIVATE_KEY))
-        self.actionPublicKey_coordinates.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.PUBLIC_KEY_X))
-        self.actionPublicKey.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.PUBLIC_KEY))
-        self.actionMnemonic.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.MNEMONIC))
+        self.action_entropy.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.ENTROPY))
+        self.action_privateKey.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.PRIVATE_KEY))
+        self.action_publicKeyCoordinates.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.PUBLIC_KEY_X))
+        self.action_publicKey.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.PUBLIC_KEY))
+        self.action_mnemonic.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.MNEMONIC))
         # Network-Transactions---------------------------------------------------------------------------------
-        self.actionBackup.triggered.connect(self.backupWallet)
-        self.actionRestore.triggered.connect(self.restoreWallet)
+        self.action_backup.triggered.connect(self.backupWallet)
+        self.action_restore.triggered.connect(self.restoreWallet)
         # Network-Transactions---------------------------------------------------------------------------------
-        self.action_checkTX.triggered.connect(self.showCustomTransaction)
-        self.actionTX_nonce.triggered.connect(self.showNonce)
-        self.actionSimple_history.triggered.connect(self.showSimpleHistory)
-        self.actionAll_normal.triggered.connect(self.showNormalTransactions)
-        self.actionAll_internal.triggered.connect(self.showInternalTransactions)
+        self.action_checkTx.triggered.connect(self.showCustomTransaction)
+        self.action_txNonce.triggered.connect(self.showNonce)
+        self.action_simpleHistory.triggered.connect(self.showSimpleHistory)
+        self.action_allNormal.triggered.connect(self.showNormalTransactions)
+        self.action_allInternal.triggered.connect(self.showInternalTransactions)
         # Network-Tools---------------------------------------------------------------------------------
-        self.actionPublicKey_from_TXHash.triggered.connect(self.showSenderPublicKey)
-        self.actionTransactionMessage.triggered.connect(self.showCustomTransactionMessage)
+        self.action_publicKeyFromTxHash.triggered.connect(self.showSenderPublicKey)
+        self.action_transactionMessage.triggered.connect(self.showCustomTransactionMessage)
         # ----------------------------------------------------------------------------------
         self.radioButton_mainNet.toggled.connect(self.changeNetwork)
         self.radioButton_testNet.toggled.connect(self.changeNetwork)
         # ----------------------------------------------------------------------------------
         self.lineEdit_sendValue.textChanged.connect(self.lineEditSendValueChange)
-        self.comboBox_activeAddress_val.currentTextChanged.connect(self.comboBoxChange)
+        self.comboBox_activeAddressVal.currentTextChanged.connect(self.comboBoxChange)
 
     def setMenuActions(self):
-        self.actionNew_random_account.setShortcut('Ctrl+n')
-        self.actionNew_random_account.setStatusTip('create new random account')
-        self.actionRecover_from_mnemonic.setShortcut('Ctrl+m')
-        self.actionRecover_from_mnemonic.setStatusTip('create new account from mnemonic')
-        self.actionRecover_from_entropy.setShortcut('Ctrl+e')
-        self.actionRecover_from_entropy.setStatusTip('create new account from entropy')
-        self.actionRecover_from_privateKey.setShortcut('Ctrl+p')
-        self.actionRecover_from_privateKey.setStatusTip('create new account from privateKey')
+        self.action_newRandomAccount.setShortcut('Ctrl+n')
+        self.action_newRandomAccount.setStatusTip('create new random account')
+        self.action_recoverFromMnemonic.setShortcut('Ctrl+m')
+        self.action_recoverFromMnemonic.setStatusTip('create new account from mnemonic')
+        self.action_recoverFromEntropy.setShortcut('Ctrl+e')
+        self.action_recoverFromEntropy.setStatusTip('create new account from entropy')
+        self.action_recoverFromPrivateKey.setShortcut('Ctrl+p')
+        self.action_recoverFromPrivateKey.setStatusTip('create new account from privateKey')
         # ----------------------------------------------------------------------------------
-        self.actionEntropy.setShortcut('Alt+e')
-        self.actionEntropy.setStatusTip('show account entropy')
-        self.actionPrivateKey.setShortcut('Alt+v')
-        self.actionPrivateKey.setStatusTip('show account privateKey')
-        self.actionPublicKey_coordinates.setShortcut('Alt+c')
-        self.actionPublicKey_coordinates.setStatusTip('show account publicKey coordinates')
-        self.actionPublicKey.setShortcut('Alt+p')
-        self.actionPublicKey.setStatusTip('show account publicKey')
-        self.actionMnemonic.setShortcut('Alt+m')
-        self.actionMnemonic.setStatusTip('show account mnemonic')
+        self.action_entropy.setShortcut('Alt+e')
+        self.action_entropy.setStatusTip('show account entropy')
+        self.action_privateKey.setShortcut('Alt+v')
+        self.action_privateKey.setStatusTip('show account privateKey')
+        self.action_publicKeyCoordinates.setShortcut('Alt+c')
+        self.action_publicKeyCoordinates.setStatusTip('show account publicKey coordinates')
+        self.action_publicKey.setShortcut('Alt+p')
+        self.action_publicKey.setStatusTip('show account publicKey')
+        self.action_mnemonic.setShortcut('Alt+m')
+        self.action_mnemonic.setStatusTip('show account mnemonic')
         # ----------------------------------------------------------------------------------
 
     def changeNetwork(self):
         try:
             if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
-                self.lineEdit_node_provider.setText('https://nodes.mewapi.io/rpc/eth')
+                self.lineEdit_nodeProvider.setText('https://nodes.mewapi.io/rpc/eth')
             elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
-                self.lineEdit_node_provider.setText('https://rpc.sepolia.org')
+                self.lineEdit_nodeProvider.setText('https://rpc.sepolia.org')
             else:
                 raise
         except Exception as er:
@@ -540,7 +547,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def comboBoxChange(self):
         try:
-            accountName = self.db.readColumnByCondition('NAM', self.comboBox_activeAddress_val.currentText())
+            accountName = self.db.readColumnByCondition('NAM', self.comboBox_activeAddressVal.currentText())
             self.lineEdit_accountName.setText(str(accountName[0][0]))
         except Exception as er:
             gui_errorDialog.Error('comboBoxChange', str(er)).exec()
@@ -554,7 +561,7 @@ class Ui(QtWidgets.QMainWindow):
                 self.pushButton_accountName.setText('Save')
                 icon.addPixmap(QPixmap(system.getIconPath('save48.png')))
                 self.pushButton_accountName.setIcon(icon)
-                self.pushButton_node_provider.setIconSize(QSize(16, 16))
+                self.pushButton_nodeProvider.setIconSize(QSize(16, 16))
             elif self.pushButton_accountName.text() == 'Save':
                 self.lineEdit_accountName.setEnabled(False)
                 self.lineEdit_accountName.setStyleSheet(
@@ -563,10 +570,10 @@ class Ui(QtWidgets.QMainWindow):
                 self.pushButton_accountName.setText('Edit')
                 icon.addPixmap(QPixmap(system.getIconPath('edit40.png')))
                 self.pushButton_accountName.setIcon(icon)
-                self.pushButton_node_provider.setIconSize(QSize(16, 16))
+                self.pushButton_nodeProvider.setIconSize(QSize(16, 16))
                 self.db.updateRowValue(columnName='NAM',
                                        newValue=self.lineEdit_accountName.text(),
-                                       condition=self.comboBox_activeAddress_val.currentText())
+                                       condition=self.comboBox_activeAddressVal.currentText())
             else:
                 raise
         except Exception as er:
@@ -611,8 +618,8 @@ class Ui(QtWidgets.QMainWindow):
                     pass  # random account creation return by some error
                 else:
                     if self.db.insertRow(acc):
-                        self.comboBox_activeAddress_val.addItem(acc['address'])
-                        self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                        self.comboBox_activeAddressVal.addItem(acc['address'])
+                        self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
                     else:
                         pass  # Inserting account details to database failed
         except Exception as er:
@@ -633,8 +640,8 @@ class Ui(QtWidgets.QMainWindow):
                     pass  # Account creation failed
                 else:
                     if self.db.insertRow(acc):
-                        self.comboBox_activeAddress_val.addItem(acc['address'])
-                        self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                        self.comboBox_activeAddressVal.addItem(acc['address'])
+                        self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
                     else:
                         pass  # Inserting account details to database failed
         except Exception as er:
@@ -655,8 +662,8 @@ class Ui(QtWidgets.QMainWindow):
                     pass  # Account creation failed
                 else:
                     if self.db.insertRow(acc):
-                        self.comboBox_activeAddress_val.addItem(acc['address'])
-                        self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                        self.comboBox_activeAddressVal.addItem(acc['address'])
+                        self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
                     else:
                         pass  # Inserting account details to database failed
         except Exception as er:
@@ -676,8 +683,8 @@ class Ui(QtWidgets.QMainWindow):
                     pass  # Account creation failed
                 else:
                     if self.db.insertRow(acc):
-                        self.comboBox_activeAddress_val.addItem(acc['address'])
-                        self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                        self.comboBox_activeAddressVal.addItem(acc['address'])
+                        self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
                     else:
                         pass  # Inserting account details to database failed
         except Exception as er:
@@ -685,7 +692,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def goToEtherscan(self):
         try:
-            active_address = self.comboBox_activeAddress_val.currentText()
+            active_address = self.comboBox_activeAddressVal.currentText()
             if active_address is None:
                 gui_errorDialog.Error('goToEtherscan', 'No address selected').exec()
             else:
@@ -711,7 +718,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def copyAddress(self):
         try:
-            active_address = self.comboBox_activeAddress_val.currentText()
+            active_address = self.comboBox_activeAddressVal.currentText()
             if active_address is not None:
                 copy(active_address)
             # spam = pyperclip.paste()
@@ -723,25 +730,25 @@ class Ui(QtWidgets.QMainWindow):
             self.textEdit_main.clear()
             if secretType == dataTypes.SECRET.ENTROPY and (
                     self.db.readColumnByCondition(
-                        dataTypes.SECRET.ENTROPY.value, self.comboBox_activeAddress_val.currentText()
+                        dataTypes.SECRET.ENTROPY.value, self.comboBox_activeAddressVal.currentText()
                     ) == self.db.readColumnByCondition(dataTypes.SECRET.PRIVATE_KEY.value,
-                                                       self.comboBox_activeAddress_val.currentText())):
+                                                       self.comboBox_activeAddressVal.currentText())):
                 qui_showMessage.Ui('Show secrets',
                                    'You have recovered an old account.',
                                    'Entropy is not recoverable from private key').exec()
             elif secretType == dataTypes.SECRET.MNEMONIC and (
                     self.db.readColumnByCondition(
-                        dataTypes.SECRET.MNEMONIC.value, self.comboBox_activeAddress_val.currentText()
+                        dataTypes.SECRET.MNEMONIC.value, self.comboBox_activeAddressVal.currentText()
                     ) == self.db.readColumnByCondition(dataTypes.SECRET.PRIVATE_KEY.value,
-                                                       self.comboBox_activeAddress_val.currentText())):
+                                                       self.comboBox_activeAddressVal.currentText())):
                 qui_showMessage.Ui('Show secrets',
                                    'You have recovered an old account.',
                                    'Mnemonic is not recoverable from private key').exec()
             elif secretType == dataTypes.SECRET.PUBLIC_KEY_X or secretType == dataTypes.SECRET.PUBLIC_KEY_Y:
                 result_X = self.db.readColumnByCondition(dataTypes.SECRET.PUBLIC_KEY_X.value,
-                                                         self.comboBox_activeAddress_val.currentText())
+                                                         self.comboBox_activeAddressVal.currentText())
                 result_Y = self.db.readColumnByCondition(dataTypes.SECRET.PUBLIC_KEY_Y.value,
-                                                         self.comboBox_activeAddress_val.currentText())
+                                                         self.comboBox_activeAddressVal.currentText())
                 if len(result_X) <= 0 or len(result_Y) <= 0:
                     gui_errorDialog.Error('showSecrets', 'Reading database failed').exec()
                 elif len(result_X) == 1 or len(result_Y) == 1:
@@ -756,7 +763,7 @@ class Ui(QtWidgets.QMainWindow):
                         self.textEdit_main.append('Y:' + res[0][0])
             else:
                 result = self.db.readColumnByCondition(secretType.value,
-                                                       self.comboBox_activeAddress_val.currentText())
+                                                       self.comboBox_activeAddressVal.currentText())
                 if len(result) <= 0:
                     gui_errorDialog.Error('showSecrets', 'Reading database failed').exec()
                 elif len(result) == 1:
@@ -776,15 +783,15 @@ class Ui(QtWidgets.QMainWindow):
 
     def getBalance(self):
         try:
-            balance = ethereum.getBalance(self.comboBox_activeAddress_val.currentText(),
-                                          self.lineEdit_node_provider.text())
+            balance = ethereum.getBalance(self.comboBox_activeAddressVal.currentText(),
+                                          self.lineEdit_nodeProvider.text())
             if balance < 0:
                 pass  # error in getting balance
             else:
                 color = 'red'
                 if balance > 0:
                     color = 'green'
-                self.label_amount_val.setText(
+                self.label_amountVal.setText(
                     '<span style = "color: ' + color + '; font-weight: bold;" > ' + str(balance) +
                     '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
                 print('balance = ', balance)
@@ -895,10 +902,10 @@ class Ui(QtWidgets.QMainWindow):
                 else:
                     val = float(self.lineEdit_sendValue.text())
                 return {
-                    'sender': self.comboBox_activeAddress_val.currentText(),
+                    'sender': self.comboBox_activeAddressVal.currentText(),
                     'receiver': self.lineEdit_send.text(),
                     'vale': val,
-                    'provider': self.lineEdit_node_provider.text(),
+                    'provider': self.lineEdit_nodeProvider.text(),
                     'chainId': chainId,
                     'data': data
                 }
@@ -909,7 +916,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def showTransaction(self, txHash):
         try:
-            tx = ethereum.getTransaction(txHash, self.lineEdit_node_provider.text())
+            tx = ethereum.getTransaction(txHash, self.lineEdit_nodeProvider.text())
             if tx == '':
                 pass  # error getting transaction
             else:
@@ -933,7 +940,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def showTransactionMessage(self, txHash):
         try:
-            tx = ethereum.getTransaction(txHash, self.lineEdit_node_provider.text())
+            tx = ethereum.getTransaction(txHash, self.lineEdit_nodeProvider.text())
             if tx == '':
                 pass  # error getting transaction
             else:
@@ -984,8 +991,8 @@ class Ui(QtWidgets.QMainWindow):
 
     def showNonce(self):
         try:
-            nonce = ethereum.getAccountNonce(self.comboBox_activeAddress_val.currentText(),
-                                             self.lineEdit_node_provider.text())
+            nonce = ethereum.getAccountNonce(self.comboBox_activeAddressVal.currentText(),
+                                             self.lineEdit_nodeProvider.text())
             if nonce < 0:
                 pass  # error
             else:
@@ -1004,8 +1011,8 @@ class Ui(QtWidgets.QMainWindow):
                 gui_errorDialog.Error('getNormalTransactions', 'Unknown network').exec()
                 return []
 
-            txHistory = ethereum.getNormalHistory(self.comboBox_activeAddress_val.currentText(),
-                                                  self.lineEdit_node_provider.text(), APIkey, mainNet)
+            txHistory = ethereum.getNormalHistory(self.comboBox_activeAddressVal.currentText(),
+                                                  self.lineEdit_nodeProvider.text(), APIkey, mainNet)
             if not txHistory:
                 return []  # error
             else:
@@ -1032,8 +1039,8 @@ class Ui(QtWidgets.QMainWindow):
             else:
                 gui_errorDialog.Error('getInternalTransactions', 'Unknown network').exec()
                 return []
-            txHistory = ethereum.getInternalHistory(self.comboBox_activeAddress_val.currentText(),
-                                                    self.lineEdit_node_provider.text(), APIkey, mainNet)
+            txHistory = ethereum.getInternalHistory(self.comboBox_activeAddressVal.currentText(),
+                                                    self.lineEdit_nodeProvider.text(), APIkey, mainNet)
             if not txHistory:
                 pass  # error
             else:
@@ -1157,7 +1164,7 @@ class Ui(QtWidgets.QMainWindow):
             if TxHash == '':
                 (qui_showMessage.Ui('Show sender publicKey', 'Nothing received').exec())
             else:
-                result = ethereum.getPublicKeyFromTransaction(TxHash, self.lineEdit_node_provider.text())
+                result = ethereum.getPublicKeyFromTransaction(TxHash, self.lineEdit_nodeProvider.text())
                 if not result:
                     pass  # Error
                 else:
@@ -1172,7 +1179,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def backupWallet(self):
         try:
-            rowData = self.db.readRowByCondition(self.comboBox_activeAddress_val.currentText())[0]
+            rowData = self.db.readRowByCondition(self.comboBox_activeAddressVal.currentText())[0]
             data = {'entropy': rowData[0],
                     'privateKey': rowData[1],
                     'publicKeyCoordinate': (rowData[2], rowData[3]),
@@ -1241,8 +1248,8 @@ class Ui(QtWidgets.QMainWindow):
             if filePath.endswith('.json'):  # non encrypted file
                 jsonData = loads(data)
                 if self.db.insertRow(jsonData):
-                    self.comboBox_activeAddress_val.addItem(jsonData['address'])
-                    self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                    self.comboBox_activeAddressVal.addItem(jsonData['address'])
+                    self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
                     self.lineEdit_accountName.setText(jsonData['Name'])
             elif filePath.endswith('.wallet'):  # an encrypted file
                 passwordWindow = qui_getUserInput.Ui('restoreWallet',
@@ -1258,8 +1265,8 @@ class Ui(QtWidgets.QMainWindow):
                     jsonData = loads(decrypted.decode('utf-8'))
                     self.showWallet(jsonData, filePath)
                     if self.db.insertRow(jsonData):
-                        self.comboBox_activeAddress_val.addItem(jsonData['address'])
-                        self.comboBox_activeAddress_val.setCurrentIndex(self.comboBox_activeAddress_val.count() - 1)
+                        self.comboBox_activeAddressVal.addItem(jsonData['address'])
+                        self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
                         self.lineEdit_accountName.setText(jsonData['Name'])
             else:
                 gui_errorDialog.Error('restoreWallet', f'Unknown file format\n'
@@ -1280,3 +1287,26 @@ class Ui(QtWidgets.QMainWindow):
             self.textEdit_main.setTextCursor(cursor)
         except Exception as er:
             gui_errorDialog.Error('showWallet', str(er)).exec()
+
+    def deleteAccount(self):
+        try:
+            accountToDelete = self.comboBox_activeAddressVal.currentText()
+            accountIndex = self.comboBox_activeAddressVal.currentIndex()
+            deleteIt = False
+            deleteWindow = qui_getUserChoice.Ui('deleteAccount',
+                                                f'Delete account ({accountToDelete}) ?\n',
+                                                'You will lost it\n'
+                                                'Proceed?')
+
+            deleteWindow.exec()
+            deleteIt = deleteWindow.getAnswer()
+            if not deleteIt:
+                gui_errorDialog.Error('deleteAccount', 'Nothing has been removed.').exec()
+            else:
+                if self.db.deleteRow(self.comboBox_activeAddressVal.currentText()):
+                    self.comboBox_activeAddressVal.removeItem(accountIndex)
+                    qui_showMessage.Ui('deleteAccount', 'the account was deleted.').exec()
+                else:
+                    pass  # error
+        except Exception as er:
+            gui_errorDialog.Error('deleteAccount', str(er)).exec()

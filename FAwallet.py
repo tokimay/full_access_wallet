@@ -16,8 +16,8 @@ getBalance = False
 if db.isAccountExist():
     accounts = db.readColumnAllRows(dataTypes.SECRET.ADDRESS.value)
     for ad in accounts:
-        window.comboBox_activeAddress_val.addItem(ad[0])
-        accountName = db.readColumnByCondition('NAM',  window.comboBox_activeAddress_val.currentText())
+        window.comboBox_activeAddressVal.addItem(ad[0])
+        accountName = db.readColumnByCondition('NAM', window.comboBox_activeAddressVal.currentText())
         window.lineEdit_accountName.setText(str(accountName[0][0]))
     getBalance = True
 else:  # there is no account in database
@@ -38,7 +38,7 @@ else:  # there is no account in database
                                   f'Account creation failed \n {str(type(acc))}').exec()
         else:
             if db.insertRow(acc):
-                window.comboBox_activeAddress_val.addItem(acc['address'])
+                window.comboBox_activeAddressVal.addItem(acc['address'])
                 getBalance = True
             else:
                 gui_errorDialog.Error('FAWallet createT',
