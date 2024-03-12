@@ -1,14 +1,15 @@
 from webbrowser import open as web_browser_open
 from pyperclip import copy
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QLabel, QPushButton, QComboBox, QLineEdit,
-                             QRadioButton, QTextEdit, QMenuBar, QMenu, QStatusBar, QSplitter)
+                             QRadioButton, QTextEdit, QMenuBar, QMenu, QStatusBar)
 from PyQt6.QtWidgets import QFrame
 from json import loads, dump, dumps
 from PyQt6 import QtWidgets, QtGui
 from PyQt6.QtCore import QSize, QRect
 from PyQt6.QtGui import QIcon, QPixmap, QAction, QTextCursor
-from src import (database, dataTypes, gui_errorDialog, qui_getUserChoice, qui_getUserInput, qui_showMessage, ethereum,
+from src import (database, dataTypes, ethereum,
                  account, system)
+from src.GUI import qui_getUserChoice, qui_getUserInput, gui_errorDialog, qui_showMessage
 from pathlib import Path
 from tkinter import filedialog, Tk
 
@@ -783,18 +784,21 @@ class Ui(QtWidgets.QMainWindow):
 
     def getBalance(self):
         try:
-            balance = ethereum.getBalance(self.comboBox_activeAddressVal.currentText(),
-                                          self.lineEdit_nodeProvider.text())
-            if balance < 0:
-                pass  # error in getting balance
+            if self.comboBox_activeAddressVal.count() == 0:
+                pass  # no account available
             else:
-                color = 'red'
-                if balance > 0:
-                    color = 'green'
-                self.label_amountVal.setText(
-                    '<span style = "color: ' + color + '; font-weight: bold;" > ' + str(balance) +
-                    '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
-                print('balance = ', balance)
+                balance = ethereum.getBalance(self.comboBox_activeAddressVal.currentText(),
+                                              self.lineEdit_nodeProvider.text())
+                if balance < 0:
+                    pass  # error in getting balance
+                else:
+                    color = 'red'
+                    if balance > 0:
+                        color = 'green'
+                    self.label_amountVal.setText(
+                        '<span style = "color: ' + color + '; font-weight: bold;" > ' + str(balance) +
+                        '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
+                    print('balance = ', balance)
         except Exception as er:
             gui_errorDialog.Error('getBalance', str(er)).exec()
 
@@ -1306,7 +1310,10 @@ class Ui(QtWidgets.QMainWindow):
                 qui_showMessage.Ui('deleteAccount', 'Nothing has been removed.').exec()
             else:
                 if self.db.deleteRow(self.comboBox_activeAddressVal.currentText()):
-                    self.comboBox_activeAddressVal.removeItem(accountIndex)
+                    if self.comboBox_activeAddressVal.count() == 1:
+                        self.comboBox_activeAddressVal.clear()
+                    else:
+                        self.comboBox_activeAddressVal.removeItem(accountIndex)
                     qui_showMessage.Ui('deleteAccount', 'the account was deleted.').exec()
                 else:
                     pass  # error

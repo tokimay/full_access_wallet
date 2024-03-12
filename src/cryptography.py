@@ -1,10 +1,9 @@
 from binascii import a2b_hex
 from hashlib import sha256, pbkdf2_hmac
-from src import gui_errorDialog, qui_getUserInput
+from src.GUI import qui_getUserInput, gui_errorDialog
 from src.dataTypes import TYPE
 from src.validators import checkType, checkLen
 from base64 import b64encode, b64decode
-import json
 from Crypto.Cipher import AES
 from Crypto.Hash import SHA256
 from Crypto import Random

@@ -1,5 +1,6 @@
 import sys
-from src import account, database, gui_mainWindow, dataTypes, qui_getUserChoice, qui_showMessage, gui_errorDialog
+from src import account, database, dataTypes
+from src.GUI import gui_mainWindow, qui_getUserChoice, gui_errorDialog, qui_showMessage
 from PyQt6.QtWidgets import QApplication
 from src.threads import Balance
 

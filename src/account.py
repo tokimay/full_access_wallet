@@ -2,7 +2,7 @@ from json import loads
 
 import requests
 
-from src import gui_errorDialog, gui_mouseTracker
+from src.GUI import gui_mouseTracker, gui_errorDialog
 from src.ellipticCurve import secp256k1
 from sha3 import keccak_256
 from src.cryptography import ENTROPY

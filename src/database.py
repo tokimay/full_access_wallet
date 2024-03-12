@@ -1,4 +1,4 @@
-from src import gui_errorDialog
+from src.GUI import gui_errorDialog
 from sqlite3 import connect
 
 

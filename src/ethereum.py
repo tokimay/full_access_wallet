@@ -2,10 +2,10 @@ from statistics import median
 from urllib import request
 from eth_account._utils.legacy_transactions import serializable_unsigned_transaction_from_dict
 from eth_account._utils.signing import to_standard_v, extract_chain_id
-from src import gui_errorDialog
+from src.GUI import gui_errorDialog
 from web3 import Web3, HTTPProvider
 from src.dataTypes import TYPE
-from src.validators import checkType, checkHex, checkLen, checkURL
+from src.validators import checkType, checkURL
 
 
 def getBalance(address: str, provider: str) -> int:

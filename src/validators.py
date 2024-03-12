@@ -1,6 +1,6 @@
 from urllib.parse import urlparse
 
-from src import gui_errorDialog
+from src.GUI import gui_errorDialog
 from src.dataTypes import TYPE
 
 
