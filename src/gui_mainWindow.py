@@ -331,7 +331,7 @@ class Ui(QtWidgets.QMainWindow):
         # row 7
         self.gridlayout.addWidget(self.textEdit_main, 7, 0, 1, 7)
 
-        HEIGHT = 25
+        HEIGHT = 24
         self.label_nodeProvider.setMinimumHeight(HEIGHT)
         self.lineEdit_nodeProvider.setMinimumHeight(HEIGHT)
         self.pushButton_nodeProvider.setMinimumHeight(HEIGHT)
@@ -358,7 +358,7 @@ class Ui(QtWidgets.QMainWindow):
         self.lineEdit_message.setMinimumHeight(HEIGHT)
         self.pushButton_send.setMinimumHeight(HEIGHT)
 
-        MENU_HEIGHT = 20
+        MENU_HEIGHT = 16
         self.menu_wallet.setMinimumHeight(MENU_HEIGHT)
         self.menu_network.setMinimumHeight(MENU_HEIGHT)
 
@@ -370,28 +370,28 @@ class Ui(QtWidgets.QMainWindow):
 
     def initIcons(self):
         icon = QIcon()
-        ICON_SIZE = 25
+        ICON_SIZE = 16
 
         # icon.addPixmap(QPixmap(system.getIconPath('copy_w.png')))
         # self.setWindowIcon(QtGui.QIcon('icon.png'))
         # self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-        self.pushButton_copyAddress.setIcon(QtGui.QIcon('copy_w.png'))
+        self.pushButton_copyAddress.setIcon(QtGui.QIcon(system.getIconPath('copy.png')))
         self.pushButton_copyAddress.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-        self.pushButton_etherScan.setIcon(QtGui.QIcon('ethereum_c_b.png'))
+        self.pushButton_etherScan.setIcon(QtGui.QIcon(system.getIconPath('ethereum.png')))
         self.pushButton_etherScan.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-        self.pushButton_nodeProvider.setIcon(QtGui.QIcon('node64.png'))
+        self.pushButton_nodeProvider.setIcon(QtGui.QIcon(system.getIconPath('node.png')))
         self.pushButton_nodeProvider.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-        self.pushButton_send.setIcon(QtGui.QIcon('moneyTransfer48.png'))
+        self.pushButton_send.setIcon(QtGui.QIcon(system.getIconPath('moneyTransfer.png')))
         self.pushButton_send.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-        self.pushButton_accountName.setIcon(QtGui.QIcon('edit40.png'))
+        self.pushButton_accountName.setIcon(QtGui.QIcon(system.getIconPath('edit.png')))
         self.pushButton_accountName.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-        self.pushButton_deleteAccount.setIcon(QtGui.QIcon('delete100.png'))
+        self.pushButton_deleteAccount.setIcon(QtGui.QIcon(system.getIconPath('delete.png')))
         self.pushButton_deleteAccount.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
     def initStyleSheet(self):
@@ -420,7 +420,7 @@ class Ui(QtWidgets.QMainWindow):
         self.menu_network.setStyleSheet(menuStyle)
         buttonStyle = (
             "QPushButton {border: 2px solid rgb(108, 204, 244);"
-            "border-radius: 13px;"
+            "border-radius: 12px;"
             "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
             "stop:0 rgb(30, 76, 108) , stop:1 rgb(47, 54, 60));"
             "min-width: 80px;}"
@@ -1292,16 +1292,18 @@ class Ui(QtWidgets.QMainWindow):
         try:
             accountToDelete = self.comboBox_activeAddressVal.currentText()
             accountIndex = self.comboBox_activeAddressVal.currentIndex()
+            accountName = self.lineEdit_accountName.text()
             deleteIt = False
             deleteWindow = qui_getUserChoice.Ui('deleteAccount',
-                                                f'Delete account ({accountToDelete}) ?\n',
-                                                'You will lost it\n'
+                                                f'Delete account \"{accountName}\"?\n'
+                                                f'account address: {accountToDelete}\n',
+                                                'You will lost that\n'
                                                 'Proceed?')
 
             deleteWindow.exec()
             deleteIt = deleteWindow.getAnswer()
             if not deleteIt:
-                gui_errorDialog.Error('deleteAccount', 'Nothing has been removed.').exec()
+                qui_showMessage.Ui('deleteAccount', 'Nothing has been removed.').exec()
             else:
                 if self.db.deleteRow(self.comboBox_activeAddressVal.currentText()):
                     self.comboBox_activeAddressVal.removeItem(accountIndex)
