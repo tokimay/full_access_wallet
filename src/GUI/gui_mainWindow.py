@@ -1,19 +1,23 @@
 from webbrowser import open as web_browser_open
 from pyperclip import copy
-from PyQt6.QtWidgets import (QWidget, QGridLayout, QLabel, QPushButton, QComboBox, QLineEdit,
-                             QRadioButton, QTextEdit, QMenuBar, QMenu, QStatusBar)
 from PyQt6.QtWidgets import QFrame
 from json import loads, dump, dumps
 from PyQt6 import QtWidgets, QtGui
 from PyQt6.QtCore import QSize, QRect
-from PyQt6.QtGui import QIcon, QPixmap, QAction, QTextCursor
-from src import (database, dataTypes, ethereum,
-                 account, system)
-from src.GUI import qui_getUserChoice, qui_getUserInput, gui_errorDialog, qui_showMessage
+from PyQt6.QtGui import QAction, QTextCursor
 from pathlib import Path
 from tkinter import filedialog, Tk
-
 from src.cryptography import DES
+from src.GUI import gui_userChoice, gui_userInput, gui_error, gui_message
+from PyQt6.QtWidgets import (QWidget, QGridLayout, QLabel, QPushButton, QComboBox, QLineEdit,
+                             QRadioButton, QTextEdit, QMenuBar, QMenu, QStatusBar)
+from src import (database, dataTypes, ethereum,
+                 account, system)
+from src.validators import checkHex, checkURL
+
+HEIGHT = 24
+MENU_HEIGHT = 16
+ICON_SIZE = 16
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -30,16 +34,16 @@ class Ui(QtWidgets.QMainWindow):
         self.menu_transactions = QMenu(self.menu_network)
         self.menu_tools = QMenu(self.menu_network)
         # ----------------------------------------------------------------------------------
+        self.action_newRandomAccount = QAction(self)
+        self.action_recoverFromMnemonic = QAction(self)
+        self.action_recoverFromEntropy = QAction(self)
+        self.action_recoverFromPrivateKey = QAction(self)
+        # ----------------------------------------------------------------------------------
         self.action_entropy = QAction(self)
         self.action_privateKey = QAction(self)
         self.action_publicKeyCoordinates = QAction(self)
         self.action_publicKey = QAction(self)
         self.action_mnemonic = QAction(self)
-        # ----------------------------------------------------------------------------------
-        self.action_newRandomAccount = QAction(self)
-        self.action_recoverFromMnemonic = QAction(self)
-        self.action_recoverFromEntropy = QAction(self)
-        self.action_recoverFromPrivateKey = QAction(self)
         # ----------------------------------------------------------------------------------
         self.action_backup = QAction(self)
         self.action_restore = QAction(self)
@@ -79,8 +83,8 @@ class Ui(QtWidgets.QMainWindow):
         self.pushButton_etherScan = QPushButton(self.gridLayout_widget)
 
         # row 5
-        self.label_send = QLabel(self.gridLayout_widget)
-        self.lineEdit_send = QLineEdit(self.gridLayout_widget)
+        self.label_sendAddress = QLabel(self.gridLayout_widget)
+        self.lineEdit_sendAddress = QLineEdit(self.gridLayout_widget)
         self.pushButton_send = QPushButton(self.gridLayout_widget)
 
         # row 6
@@ -106,7 +110,7 @@ class Ui(QtWidgets.QMainWindow):
         self.initIcons()
         self.initStyleSheet()
         self.setClickEvents()
-        self.setMenuActions()
+        self.setMenuActionsTips()
 
     def initUI(self):
         self.setObjectName("MainWindow")
@@ -252,9 +256,9 @@ class Ui(QtWidgets.QMainWindow):
         self.pushButton_etherScan.setText("etherescan.io")
 
         # row 5
-        self.label_send.setObjectName("label_send")
-        self.label_send.setText("Send ETH to:")
-        self.lineEdit_send.setObjectName("lineEdit_send")
+        self.label_sendAddress.setObjectName("label_send")
+        self.label_sendAddress.setText("Send ETH to:")
+        self.lineEdit_sendAddress.setObjectName("lineEdit_send")
         self.pushButton_send.setObjectName("pushButton_send")
         self.pushButton_send.setText("Send TX")
 
@@ -314,8 +318,8 @@ class Ui(QtWidgets.QMainWindow):
         # col 6 empty
 
         # row 5
-        self.gridlayout.addWidget(self.label_send, 5, 0, 1, 1)
-        self.gridlayout.addWidget(self.lineEdit_send, 5, 1, 1, 3)
+        self.gridlayout.addWidget(self.label_sendAddress, 5, 0, 1, 1)
+        self.gridlayout.addWidget(self.lineEdit_sendAddress, 5, 1, 1, 3)
         self.gridlayout.addWidget(self.pushButton_send, 5, 4, 1, 1)
         # col 5 empty
         # col 6 empty
@@ -332,7 +336,6 @@ class Ui(QtWidgets.QMainWindow):
         # row 7
         self.gridlayout.addWidget(self.textEdit_main, 7, 0, 1, 7)
 
-        HEIGHT = 24
         self.label_nodeProvider.setMinimumHeight(HEIGHT)
         self.lineEdit_nodeProvider.setMinimumHeight(HEIGHT)
         self.pushButton_nodeProvider.setMinimumHeight(HEIGHT)
@@ -350,8 +353,8 @@ class Ui(QtWidgets.QMainWindow):
         self.label_amountVal.setMinimumHeight(HEIGHT)
         self.pushButton_etherScan.setMinimumHeight(HEIGHT)
 
-        self.label_send.setMinimumHeight(HEIGHT)
-        self.lineEdit_send.setMinimumHeight(HEIGHT)
+        self.label_sendAddress.setMinimumHeight(HEIGHT)
+        self.lineEdit_sendAddress.setMinimumHeight(HEIGHT)
 
         self.label_sendValue.setMinimumHeight(HEIGHT)
         self.lineEdit_sendValue.setMinimumHeight(HEIGHT)
@@ -359,7 +362,6 @@ class Ui(QtWidgets.QMainWindow):
         self.lineEdit_message.setMinimumHeight(HEIGHT)
         self.pushButton_send.setMinimumHeight(HEIGHT)
 
-        MENU_HEIGHT = 16
         self.menu_wallet.setMinimumHeight(MENU_HEIGHT)
         self.menu_network.setMinimumHeight(MENU_HEIGHT)
 
@@ -370,10 +372,6 @@ class Ui(QtWidgets.QMainWindow):
         self.lineEdit_accountName.setEnabled(False)
 
     def initIcons(self):
-        icon = QIcon()
-        ICON_SIZE = 16
-
-        # icon.addPixmap(QPixmap(system.getIconPath('copy_w.png')))
         # self.setWindowIcon(QtGui.QIcon('icon.png'))
         # self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
@@ -438,7 +436,7 @@ class Ui(QtWidgets.QMainWindow):
             "color: white;"
             "background-color: transparent;"
         )
-        self.label_send.setStyleSheet(labelStyle)
+        self.label_sendAddress.setStyleSheet(labelStyle)
         self.label_message.setStyleSheet(labelStyle)
         self.label_amount.setStyleSheet(labelStyle)
         self.label_accountName.setStyleSheet(labelStyle)
@@ -454,7 +452,7 @@ class Ui(QtWidgets.QMainWindow):
             "background-color: rgb(250, 240, 200); color: black"
         )
         self.lineEdit_nodeProvider.setStyleSheet(lineEditStyle)
-        self.lineEdit_send.setStyleSheet(lineEditStyle)
+        self.lineEdit_sendAddress.setStyleSheet(lineEditStyle)
         self.lineEdit_sendValue.setStyleSheet(lineEditStyle)
         self.lineEdit_message.setStyleSheet(lineEditStyle)
         self.lineEdit_accountName.setStyleSheet("background-color: transparent; border: none;"
@@ -476,25 +474,27 @@ class Ui(QtWidgets.QMainWindow):
         )
         self.textEdit_main.setStyleSheet("background-color: black; color: cyan")
 
+        self.statusbar.setStyleSheet('color: white')
+
     def setClickEvents(self):
         self.pushButton_copyAddress.clicked.connect(self.copyAddress)
         self.pushButton_etherScan.clicked.connect(self.goToEtherscan)
         self.pushButton_nodeProvider.clicked.connect(self.goToEtherNodes)
         self.pushButton_accountName.clicked.connect(self.editAccountName)
         self.pushButton_deleteAccount.clicked.connect(self.deleteAccount)
-        self.pushButton_send.clicked.connect(self.sendTransaction)
+        self.pushButton_send.clicked.connect(self.send)
         # Wallets-New wallet---------------------------------------------------------------------------------
         self.action_newRandomAccount.triggered.connect(self.createAccountRandom)
         self.action_recoverFromMnemonic.triggered.connect(self.createAccountFromMnemonic)
         self.action_recoverFromEntropy.triggered.connect(self.createAccountFromEntropy)
         self.action_recoverFromPrivateKey.triggered.connect(self.createAccountFromPrivateKey)
-        # Wallets-Secrets---------------------------------------------------------------------------------
+        # Wallets-Secrets-------------------------------------------------------------------------------------
         self.action_entropy.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.ENTROPY))
         self.action_privateKey.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.PRIVATE_KEY))
         self.action_publicKeyCoordinates.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.PUBLIC_KEY_X))
         self.action_publicKey.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.PUBLIC_KEY))
         self.action_mnemonic.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.MNEMONIC))
-        # Network-Transactions---------------------------------------------------------------------------------
+        # NWallets-Backup&Restore------------------------------------------------------------------------------
         self.action_backup.triggered.connect(self.backupWallet)
         self.action_restore.triggered.connect(self.restoreWallet)
         # Network-Transactions---------------------------------------------------------------------------------
@@ -503,37 +503,58 @@ class Ui(QtWidgets.QMainWindow):
         self.action_simpleHistory.triggered.connect(self.showSimpleHistory)
         self.action_allNormal.triggered.connect(self.showNormalTransactions)
         self.action_allInternal.triggered.connect(self.showInternalTransactions)
-        # Network-Tools---------------------------------------------------------------------------------
+        # Network-Tools-----------------------------------------------------------------------------------------
         self.action_publicKeyFromTxHash.triggered.connect(self.showSenderPublicKey)
         self.action_transactionMessage.triggered.connect(self.showCustomTransactionMessage)
-        # ----------------------------------------------------------------------------------
+        # -------------------------------------------------------------------------------------------------------
         self.radioButton_mainNet.toggled.connect(self.changeNetwork)
         self.radioButton_testNet.toggled.connect(self.changeNetwork)
-        # ----------------------------------------------------------------------------------
+        # -------------------------------------------------------------------------------------------------------
         self.lineEdit_sendValue.textChanged.connect(self.lineEditSendValueChange)
         # self.comboBox_activeAddressVal.currentTextChanged.connect(self.comboBoxChange)
 
-    def setMenuActions(self):
+    def setMenuActionsTips(self):
+        # Wallets-New wallet-------------------------------------------------------------------------------------
         self.action_newRandomAccount.setShortcut('Ctrl+n')
         self.action_newRandomAccount.setStatusTip('create new random account')
         self.action_recoverFromMnemonic.setShortcut('Ctrl+m')
-        self.action_recoverFromMnemonic.setStatusTip('create new account from mnemonic')
+        self.action_recoverFromMnemonic.setStatusTip('recover an old account from mnemonic')
         self.action_recoverFromEntropy.setShortcut('Ctrl+e')
-        self.action_recoverFromEntropy.setStatusTip('create new account from entropy')
+        self.action_recoverFromEntropy.setStatusTip('recover an old account from entropy')
         self.action_recoverFromPrivateKey.setShortcut('Ctrl+p')
-        self.action_recoverFromPrivateKey.setStatusTip('create new account from privateKey')
-        # ----------------------------------------------------------------------------------
+        self.action_recoverFromPrivateKey.setStatusTip('recover an old account from the private Key')
+        # Wallets-Secrets---------------------------------------------------------------------------------
         self.action_entropy.setShortcut('Alt+e')
-        self.action_entropy.setStatusTip('show account entropy')
-        self.action_privateKey.setShortcut('Alt+v')
-        self.action_privateKey.setStatusTip('show account privateKey')
-        self.action_publicKeyCoordinates.setShortcut('Alt+c')
-        self.action_publicKeyCoordinates.setStatusTip('show account publicKey coordinates')
-        self.action_publicKey.setShortcut('Alt+p')
-        self.action_publicKey.setStatusTip('show account publicKey')
+        self.action_entropy.setStatusTip('see your account entropy')
+        self.action_privateKey.setShortcut('Alt+p')
+        self.action_privateKey.setStatusTip('see your account private key')
+        # self.action_publicKeyCoordinates.setShortcut('Alt+p+c')
+        self.action_publicKeyCoordinates.setStatusTip('see your account public Key Coordinates')
+        self.action_publicKey.setShortcut('Alt+k')
+        self.action_publicKey.setStatusTip('see your account public Key')
         self.action_mnemonic.setShortcut('Alt+m')
-        self.action_mnemonic.setStatusTip('show account mnemonic')
-        # ----------------------------------------------------------------------------------
+        self.action_mnemonic.setStatusTip('see your account mnemonic words')
+        # Wallets-Backup&Restore------------------------------------------------------------------------------
+        self.action_backup.setShortcut('Ctrl+b')
+        self.action_backup.setStatusTip('back up your account to file')
+        self.action_restore.setShortcut('Ctrl+r')
+        self.action_restore.setStatusTip('restore your account from file')
+        # Network-Transactions---------------------------------------------------------------------------------
+        self.action_checkTx.setShortcut('Alt+t')
+        self.action_checkTx.setStatusTip('view a transaction details')
+        self.action_txNonce.setShortcut('Alt+n')
+        self.action_txNonce.setStatusTip('view sent transaction count')
+        self.action_simpleHistory.setShortcut('Alt+h')
+        self.action_simpleHistory.setStatusTip('simple history of your account transactions. up to last 10000 block')
+        # self.action_allNormal.setShortcut('Alt+n+t')
+        self.action_allNormal.setStatusTip('simple history of your normal transactions. up to last 10000 block')
+        # self.action_allInternal.setShortcut('Alt+i+t')
+        self.action_allInternal.setStatusTip('simple history of your internal transactions. up to last 10000 block')
+        # Network-Tools-----------------------------------------------------------------------------------------
+        self.action_publicKeyFromTxHash.setShortcut('Alt+m')
+        self.action_publicKeyFromTxHash.setStatusTip('recover sender public key from transaction hash')
+        self.action_transactionMessage.setShortcut('Alt+m')
+        self.action_transactionMessage.setStatusTip('view the embedded message in a transaction')
 
     def changeNetwork(self):
         try:
@@ -542,43 +563,30 @@ class Ui(QtWidgets.QMainWindow):
             elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
                 self.lineEdit_nodeProvider.setText('https://rpc.sepolia.org')
             else:
-                raise
+                raise Exception("unknown network status")
         except Exception as er:
-            gui_errorDialog.Error('changeNetwork', str(er)).exec()
-    """       
-    def comboBoxChange(self):
-        try:
-            accountName = self.db.readColumnByCondition('NAM', self.comboBox_activeAddressVal.currentText())
-            self.lineEdit_accountName.setText(str(accountName[0][0]))
-        except Exception as er:
-            gui_errorDialog.Error('comboBoxChange', str(er)).exec()
-    """
+            gui_error.WINDOW('changeNetwork', str(er)).exec()
+
     def editAccountName(self):
         try:
-            icon = QIcon()
             if self.pushButton_accountName.text() == 'Edit':
                 self.lineEdit_accountName.setEnabled(True)
                 self.lineEdit_accountName.setStyleSheet("background-color: rgb(250, 240, 200); color: black")
                 self.pushButton_accountName.setText('Save')
-                icon.addPixmap(QPixmap(system.getIconPath('save48.png')))
-                self.pushButton_accountName.setIcon(icon)
-                self.pushButton_nodeProvider.setIconSize(QSize(16, 16))
+                self.pushButton_accountName.setIcon(QtGui.QIcon(system.getIconPath('save.png')))
+                self.pushButton_nodeProvider.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
             elif self.pushButton_accountName.text() == 'Save':
                 self.lineEdit_accountName.setEnabled(False)
                 self.lineEdit_accountName.setStyleSheet(
                     "background-color: transparent; border: none;"
                     "color: rgb(108, 204, 244); font-weight: bold;")
                 self.pushButton_accountName.setText('Edit')
-                icon.addPixmap(QPixmap(system.getIconPath('edit40.png')))
-                self.pushButton_accountName.setIcon(icon)
-                self.pushButton_nodeProvider.setIconSize(QSize(16, 16))
-                self.db.updateRowValue(columnName='NAM',
-                                       newValue=self.lineEdit_accountName.text(),
-                                       condition=self.comboBox_activeAddressVal.currentText())
-            else:
-                raise
+                self.pushButton_accountName.setIcon(QtGui.QIcon(system.getIconPath('edit.png')))
+                self.pushButton_nodeProvider.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
+                self.db.updateRowValue('NAM', self.lineEdit_accountName.text(),
+                                       self.comboBox_activeAddressVal.currentText())
         except Exception as er:
-            gui_errorDialog.Error('editAccountName', str(er)).exec()
+            gui_error.WINDOW('editAccountName', str(er)).exec()
 
     def lineEditSendValueChange(self):
         try:
@@ -599,112 +607,94 @@ class Ui(QtWidgets.QMainWindow):
                     NewValue = 245
                 self.lineEdit_sendValue.setStyleSheet(f'background-color: rgb(245, {NewValue}, 65); color: black')
         except Exception as er:
-            # gui_errorDialog.Error(str(er)).exec()
+            print(str(er))
             pass  # nothing to do
 
     def createAccountRandom(self):
         try:
             userAnswer = True
             if self.db.isAccountExist():
-                createAccount_window = qui_getUserChoice.Ui('Create new random account',
-                                                            'Some account(s) already exist',
-                                                            'Create new one?')
+                createAccount_window = gui_userChoice.WINDOW('Create new random account',
+                                                             'Some account(s) already exist',
+                                                             'Create new one?')
                 createAccount_window.exec()
                 userAnswer = createAccount_window.getAnswer()
+            else:
+                pass  # it is first account continue to create one
             if not userAnswer:
                 pass  # cancel by user or it is new account
             else:
                 acc = account.New.random()  # create new account
-                if not acc:
-                    pass  # random account creation return by some error
-                else:
-                    if self.db.insertRow(acc):
-                        self.comboBox_activeAddressVal.addItem(acc['address'])
-                        self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
-                    else:
-                        pass  # Inserting account details to database failed
+                self.db.insertRow(acc)
+                self.comboBox_activeAddressVal.addItem(acc['address'])
+                self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
         except Exception as er:
-            gui_errorDialog.Error('createAccountRandom', str(er)).exec()
+            gui_error.WINDOW('createAccountRandom', str(er)).exec()
 
     def createAccountFromEntropy(self):
         try:
-            getEntropy = qui_getUserInput.Ui('Recover account from entropy',
-                                             'Enter your entropy:')
+            getEntropy = gui_userInput.WINDOW('Recover account from entropy',
+                                              'Enter your entropy:')
             getEntropy.exec()
             entropy = getEntropy.getInput()
             if entropy == '':
-                qui_showMessage.Ui('Recover account from entropy', 'Nothing received',
+                gui_message.WINDOW('Recover account from entropy', 'Nothing received',
                                    'you can try again from Wallet -> New account -> Recover from entropy').exec()
             else:
                 acc = account.New.fromEntropy(entropy)
-                if not acc:
-                    pass  # Account creation failed
-                else:
-                    if self.db.insertRow(acc):
-                        self.comboBox_activeAddressVal.addItem(acc['address'])
-                        self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
-                    else:
-                        pass  # Inserting account details to database failed
+                self.db.insertRow(acc)
+                self.comboBox_activeAddressVal.addItem(acc['address'])
+                self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
         except Exception as er:
-            gui_errorDialog.Error('createAccountFromEntropy', str(er)).exec()
+            gui_error.WINDOW('createAccountFromEntropy', str(er)).exec()
 
     def createAccountFromPrivateKey(self):
         try:
-            getPrivateKey = qui_getUserInput.Ui('Recover account from privateKey',
-                                                'Enter your private key:')
+            getPrivateKey = gui_userInput.WINDOW('Recover account from privateKey',
+                                                 'Enter your private key:')
             getPrivateKey.exec()
             privateKey = getPrivateKey.getInput()
             if privateKey == '':
-                qui_showMessage.Ui('Recover account from privateKey', 'Nothing received',
+                gui_message.WINDOW('Recover account from privateKey', 'Nothing received',
                                    'you can try again from Wallet -> New account -> Recover from private key').exec()
             else:
                 acc = account.New.fromPrivateKey(privateKey)
-                if not acc:
-                    pass  # Account creation failed
-                else:
-                    if self.db.insertRow(acc):
-                        self.comboBox_activeAddressVal.addItem(acc['address'])
-                        self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
-                    else:
-                        pass  # Inserting account details to database failed
+                self.db.insertRow(acc)
+                self.comboBox_activeAddressVal.addItem(acc['address'])
+                self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
         except Exception as er:
-            gui_errorDialog.Error('createAccountFromPrivateKey', str(er)).exec()
+            gui_error.WINDOW('createAccountFromPrivateKey', str(er)).exec()
 
     def createAccountFromMnemonic(self):
         try:
-            getMnemonic = qui_getUserInput.Ui('Recover account from mnemonic', 'Enter your mnemonic:')
+            getMnemonic = gui_userInput.WINDOW('Recover account from mnemonic', 'Enter your mnemonic:')
             getMnemonic.exec()
             mnemonic = getMnemonic.getInput()
             if mnemonic == '':
-                qui_showMessage.Ui('Recover account from mnemonic', 'Nothing received',
+                gui_message.WINDOW('Recover account from mnemonic', 'Nothing received',
                                    'you can try again from Wallet -> New account -> Recover from mnemonic').exec()
             else:
                 acc = account.New.fromMnemonic(mnemonic)
-                if not acc:
-                    pass  # Account creation failed
-                else:
-                    if self.db.insertRow(acc):
-                        self.comboBox_activeAddressVal.addItem(acc['address'])
-                        self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
-                    else:
-                        pass  # Inserting account details to database failed
+                self.db.insertRow(acc)
+                self.comboBox_activeAddressVal.addItem(acc['address'])
+                self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
         except Exception as er:
-            gui_errorDialog.Error('createAccountFromMnemonic', str(er)).exec()
+            gui_error.WINDOW('createAccountFromMnemonic', str(er)).exec()
 
     def goToEtherscan(self):
         try:
             active_address = self.comboBox_activeAddressVal.currentText()
             if active_address is None:
-                gui_errorDialog.Error('goToEtherscan', 'No address selected').exec()
+                gui_message.WINDOW('goToEtherscan', 'No address selected').exec()
             else:
                 if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
                     web_browser_open('https://etherscan.io/address/' + active_address)
                 elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
                     web_browser_open('https://sepolia.etherscan.io/address/' + active_address)
                 else:
-                    gui_errorDialog.Error('goToEtherscan', 'Unknown network').exec()
+                    raise Exception("unknown network status")
         except Exception as er:
-            gui_errorDialog.Error('goToEtherscan', str(er)).exec()
+            gui_error.WINDOW('goToEtherscan', str(er)).exec()
 
     def goToEtherNodes(self):
         try:
@@ -713,9 +703,9 @@ class Ui(QtWidgets.QMainWindow):
             elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
                 web_browser_open('https://sepolia.dev/')
             else:
-                gui_errorDialog.Error('goToEtherNodes', 'Unknown network').exec()
+                raise Exception("unknown network status")
         except Exception as er:
-            gui_errorDialog.Error('goToEtherNodes', str(er)).exec()
+            gui_error.WINDOW('goToEtherNodes', str(er)).exec()
 
     def copyAddress(self):
         try:
@@ -724,50 +714,39 @@ class Ui(QtWidgets.QMainWindow):
                 copy(active_address)
             # spam = pyperclip.paste()
         except Exception as er:
-            gui_errorDialog.Error('copyAddress', str(er)).exec()
+            gui_error.WINDOW('copyAddress', str(er)).exec()
 
     def showSecrets(self, secretType: dataTypes.SECRET):
         try:
             self.textEdit_main.clear()
-            if secretType == dataTypes.SECRET.ENTROPY and (
-                    self.db.readColumnByCondition(
-                        dataTypes.SECRET.ENTROPY.value, self.comboBox_activeAddressVal.currentText()
-                    ) == self.db.readColumnByCondition(dataTypes.SECRET.PRIVATE_KEY.value,
-                                                       self.comboBox_activeAddressVal.currentText())):
-                qui_showMessage.Ui('Show secrets',
+            if secretType == dataTypes.SECRET.ENTROPY and (self.db.readColumn(
+                    dataTypes.SECRET.ENTROPY.value, self.comboBox_activeAddressVal.currentText()
+            ) == self.db.readColumn(dataTypes.SECRET.PRIVATE_KEY.value,
+                                    self.comboBox_activeAddressVal.currentText())):
+                gui_message.WINDOW('Show secrets',
                                    'You have recovered an old account.',
                                    'Entropy is not recoverable from private key').exec()
-            elif secretType == dataTypes.SECRET.MNEMONIC and (
-                    self.db.readColumnByCondition(
-                        dataTypes.SECRET.MNEMONIC.value, self.comboBox_activeAddressVal.currentText()
-                    ) == self.db.readColumnByCondition(dataTypes.SECRET.PRIVATE_KEY.value,
-                                                       self.comboBox_activeAddressVal.currentText())):
-                qui_showMessage.Ui('Show secrets',
+            elif secretType == dataTypes.SECRET.MNEMONIC and (self.db.readColumn(
+                    dataTypes.SECRET.MNEMONIC.value, self.comboBox_activeAddressVal.currentText()
+            ) == self.db.readColumn(dataTypes.SECRET.PRIVATE_KEY.value,
+                                    self.comboBox_activeAddressVal.currentText())):
+                gui_message.WINDOW('Show secrets',
                                    'You have recovered an old account.',
                                    'Mnemonic is not recoverable from private key').exec()
             elif secretType == dataTypes.SECRET.PUBLIC_KEY_X or secretType == dataTypes.SECRET.PUBLIC_KEY_Y:
-                result_X = self.db.readColumnByCondition(dataTypes.SECRET.PUBLIC_KEY_X.value,
-                                                         self.comboBox_activeAddressVal.currentText())
-                result_Y = self.db.readColumnByCondition(dataTypes.SECRET.PUBLIC_KEY_Y.value,
-                                                         self.comboBox_activeAddressVal.currentText())
-                if len(result_X) <= 0 or len(result_Y) <= 0:
-                    gui_errorDialog.Error('showSecrets', 'Reading database failed').exec()
-                elif len(result_X) == 1 or len(result_Y) == 1:
+                result_X = self.db.readColumn(
+                    dataTypes.SECRET.PUBLIC_KEY_X.value, self.comboBox_activeAddressVal.currentText())
+                result_Y = self.db.readColumn(
+                    dataTypes.SECRET.PUBLIC_KEY_Y.value, self.comboBox_activeAddressVal.currentText())
+                if len(result_X) == 1 and len(result_Y) == 1:
                     self.textEdit_main.append(f'Your account PUBLIC_KEY COORDINATE keep it safe:\n')
                     self.textEdit_main.append('X : ' + result_X[0][0])
                     self.textEdit_main.append('Y : ' + result_Y[0][0])
                 else:
-                    self.textEdit_main.append(f'Receiving unusual account PUBLIC_KEY COORDINATE:\n')
-                    for res in result_X:
-                        self.textEdit_main.append('X:' + res[0][0])
-                    for res in result_Y:
-                        self.textEdit_main.append('Y:' + res[0][0])
+                    raise Exception(f"failed to receive coordinates from database.\nX: {result_X}\nY: {result_Y}")
             else:
-                result = self.db.readColumnByCondition(secretType.value,
-                                                       self.comboBox_activeAddressVal.currentText())
-                if len(result) <= 0:
-                    gui_errorDialog.Error('showSecrets', 'Reading database failed').exec()
-                elif len(result) == 1:
+                result = self.db.readColumn(secretType.value, self.comboBox_activeAddressVal.currentText())
+                if len(result) == 1:
                     self.textEdit_main.append(f'Your account {secretType.name} keep it safe:\n')
                     self.textEdit_main.append(f'{result[0][0]}\n')
                     if secretType == dataTypes.SECRET.MNEMONIC or secretType == dataTypes.SECRET.ENTROPY:
@@ -777,20 +756,19 @@ class Ui(QtWidgets.QMainWindow):
                     elif secretType == dataTypes.SECRET.PRIVATE_KEY:
                         self.textEdit_main.append(f'{secretType.name} = your account')
                 else:
-                    for res in result:
-                        self.textEdit_main.append(f'{res[0]}\n')
+                    raise Exception(f"failed to receive {secretType.name} from database.")
         except Exception as er:
-            gui_errorDialog.Error('showSecrets', str(er)).exec()
+            gui_error.WINDOW('showSecrets', str(er)).exec()
 
     def getBalance(self):
         try:
-            if self.comboBox_activeAddressVal.count() == 0:
-                pass  # no account available
-            else:
+            if not self.comboBox_activeAddressVal.count() == 0:  # 0 means no account available
+                checkURL(self.lineEdit_nodeProvider.text())
                 balance = ethereum.getBalance(self.comboBox_activeAddressVal.currentText(),
                                               self.lineEdit_nodeProvider.text())
                 if balance < 0:
-                    pass  # error in getting balance
+                    # error in getting balance
+                    self.statusbar.showMessage(f"negative balance ! something is wrong")
                 else:
                     color = 'red'
                     if balance > 0:
@@ -800,96 +778,10 @@ class Ui(QtWidgets.QMainWindow):
                         '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
                     print('balance = ', balance)
         except Exception as er:
-            gui_errorDialog.Error('getBalance', str(er)).exec()
-
-    def sendTransaction(self, isContract: bool = False):
-        if not self.lineEdit_message.text() == '' or not self.lineEdit_sendValue.text() == '':
-            if self.lineEdit_send.text() == '' and isContract:  # deploy contract
-                pass
-            elif self.lineEdit_send.text() == '' and not isContract:  # send transaction need address
-                qui_showMessage.Ui('sendTransaction', "Enter the recipient\'s address").exec()
-                return {}
-            else:
-                if self.lineEdit_message.text() == '':  # it is normal transaction
-                    if self.lineEdit_sendValue.text() == '':
-                        qui_showMessage.Ui('sendTransaction', "Enter value to send").exec()
-                        return {}
-                    else:
-                        self.sentETH()
-                elif not self.lineEdit_message.text() == '':  # it is message transaction
-                    self.sentETHMessage()
-        else:
-            qui_showMessage.Ui('sendTransaction', 'Please fill the required sections').exec()
-            return {}
-
-    def sentETH(self):
-        try:
-            transactions = self.transactionElements()
-            if not transactions:
-                pass  # error
-            else:
-                gas = ethereum.estimateGas(transactions)
-                if not gas:
-                    pass  # error
-                senETH = qui_getUserChoice.Ui('Sending your money to others',
-                                              f'Send {transactions["vale"]} ETH to {transactions["receiver"]}'
-                                              f"\nestimated gas fee is:\n"
-                                              f"Lowest = {gas['GasPrice']['low']} ETH\n"
-                                              f"Median = {gas['GasPrice']['medium']} ETH\n"
-                                              f"Highest = {gas['GasPrice']['high']} ETH\n",
-                                              'Are you sure?')
-                senETH.exec()
-                if not senETH.getAnswer():  # cancel by user
-                    qui_showMessage.Ui('I\'m entranced with joy',
-                                       'You are in safe',
-                                       'Nothing has been sent').exec()
-                else:
-                    transactionHash = ethereum.sendValueTransaction(privateKey=(self.db.readColumnByCondition(
-                        dataTypes.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0], txElements=transactions)
-                    if transactionHash == '':
-                        pass  # Transaction failed
-                    else:
-                        qui_showMessage.Ui('Your job is done',
-                                           'Transaction succeed:',
-                                           f'Hash: {transactionHash}').exec()
-                        self.showTransaction(transactionHash)
-        except Exception as er:
-            gui_errorDialog.Error('sentETH', str(er)).exec()
-
-    def sentETHMessage(self):
-        try:
-            transactions = self.transactionElements(data=self.lineEdit_message.text().encode("utf-8").hex())
-            if not transactions:
-                pass  # error
-            else:
-                gas = ethereum.estimateGas(transactions)
-                if not gas:
-                    pass  # error
-                senETH = qui_getUserChoice.Ui('Sending your message to others',
-                                              f'Send {transactions["data"]}\n'
-                                              f'to {transactions["receiver"]}'
-                                              f"\nestimated gas fee is:\n"
-                                              f"Lowest = {gas['GasPrice']['low']} ETH\n"
-                                              f"Median = {gas['GasPrice']['medium']} ETH\n"
-                                              f"Highest = {gas['GasPrice']['high']} ETH\n",
-                                              'Are you sure?')
-                senETH.exec()
-                if not senETH.getAnswer():  # cancel by user
-                    qui_showMessage.Ui('I\'m entranced with joy',
-                                       'You are in safe',
-                                       'Nothing has been sent').exec()
-                else:
-                    transactionHash = ethereum.sendMessageTransaction(privateKey=(self.db.readColumnByCondition(
-                        dataTypes.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0], txElements=transactions)
-                    if transactionHash == '':
-                        pass  # Transaction failed
-                    else:
-                        qui_showMessage.Ui('Your job is done',
-                                           'Transaction succeed:',
-                                           f'Hash: {transactionHash}').exec()
-                        self.showTransaction(transactionHash)
-        except Exception as er:
-            gui_errorDialog.Error('sentETH', str(er)).exec()
+            self.statusbar.setStyleSheet('color: red')
+            self.statusbar.showMessage(f"balance synchronization failed. {er}")
+        finally:
+            self.statusbar.setStyleSheet('color: white')
 
     def transactionElements(self, data: str = ''):
         try:
@@ -898,191 +790,239 @@ class Ui(QtWidgets.QMainWindow):
             elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
                 chainId = 11155111  # Sepolia chain ID
             else:
-                gui_errorDialog.Error('transactionElements', 'Unknown network').exec()
-                chainId = 0
-            if chainId > 0:
-                if self.lineEdit_sendValue.text() == '':
-                    val = 0
+                raise Exception("unknown network status")
+
+            if chainId == 1 or chainId == 11155111:
+                if not self.lineEdit_sendValue.text():
+                    val = 0  # just message no ETH value
                 else:
                     val = float(self.lineEdit_sendValue.text())
+
+                if not self.lineEdit_sendAddress.text():
+                    to = ''  # for contracts
+                else:
+                    to = self.lineEdit_sendAddress.text()
+                checkURL(self.lineEdit_nodeProvider.text())
                 return {
                     'sender': self.comboBox_activeAddressVal.currentText(),
-                    'receiver': self.lineEdit_send.text(),
+                    'receiver': to,
                     'vale': val,
                     'provider': self.lineEdit_nodeProvider.text(),
                     'chainId': chainId,
                     'data': data
                 }
             else:
-                pass  # network selection error
+                raise Exception("selecting main or test net")
         except Exception as er:
-            gui_errorDialog.Error('transactionElements', str(er)).exec()
+            gui_error.WINDOW('transactionElements', str(er)).exec()
+
+    def send(self):
+        try:
+            if not self.lineEdit_sendValue.text() and self.lineEdit_message:
+                self.sentMessage()
+            elif self.lineEdit_sendValue.text() and not self.lineEdit_message:
+                self.sentETH()
+            elif self.lineEdit_sendValue.text() and self.lineEdit_message:
+                self.sentMessage()
+            else:
+                raise Exception(f"sending options are empty")
+        except Exception as er:
+            gui_error.WINDOW('send', str(er)).exec()
+
+    def sentETH(self):
+        try:
+            if not self.lineEdit_sendValue.text():
+                raise Exception(f"value = '{self.lineEdit_sendValue.text()}' !")
+
+            if not self.lineEdit_sendAddress.text():
+                raise Exception(f"address = '{self.lineEdit_sendAddress.text()}' !")
+
+            transactions = self.transactionElements()
+            gas = ethereum.estimateGas(transactions)
+            senETH = gui_userChoice.WINDOW('Sending your money to others',
+                                           f"Send: {transactions['vale']} ETH\n"
+                                           f"to: '{transactions['receiver']}'\n"
+                                           f"estimated gas fee is:\n"
+                                           f"Lowest: {gas['GasPrice']['low']} ETH\n"
+                                           f"Median: {gas['GasPrice']['medium']} ETH\n"
+                                           f"Highest: {gas['GasPrice']['high']} ETH\n",
+                                           'Are you sure?')
+            senETH.exec()
+            if not senETH.getAnswer():  # cancel by user
+                gui_message.WINDOW('I\'m entranced with joy', 'You are in safe',
+                                   'Nothing has been sent').exec()
+            else:
+                transactionHash = ethereum.sendValueTransaction(privateKey=(self.db.readColumn(
+                    dataTypes.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0], txElements=transactions)
+                gui_message.WINDOW('Your job is done', 'Transaction succeed:',
+                                   f'Hash: {transactionHash}').exec()
+                self.showTransaction(transactionHash)
+        except Exception as er:
+            raise Exception(f"sentETH -> {er}")
+
+    def sentMessage(self):
+        try:
+            if not self.lineEdit_message.text():
+                raise Exception(f"message = {self.lineEdit_message.text()} !")
+            transactions = self.transactionElements(data=self.lineEdit_message.text().encode("utf-8").hex())
+            gas = ethereum.estimateGas(transactions)
+            senETH = gui_userChoice.WINDOW("Sending your message to others",
+                                           f"Send message: '{transactions['data']}'\n"
+                                           f"and value: '{transactions['vale']}' ETH\n"
+                                           f"to {transactions['receiver']}\n"
+                                           f"\nestimated gas fee is:\n"
+                                           f"Lowest = {gas['GasPrice']['low']} ETH\n"
+                                           f"Median = {gas['GasPrice']['medium']} ETH\n"
+                                           f"Highest = {gas['GasPrice']['high']} ETH\n",
+                                           'Are you sure?')
+            senETH.exec()
+            if not senETH.getAnswer():  # cancel by user
+                gui_message.WINDOW('sentMessage', 'Nothing has been sent').exec()
+            else:
+                transactionHash = ethereum.sendMessageTransaction(privateKey=(self.db.readColumn(
+                    dataTypes.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0], txElements=transactions)
+                gui_message.WINDOW('Your job is done', 'Transaction succeed:',
+                                   f'Hash: {transactionHash}').exec()
+                self.showTransaction(transactionHash)
+        except Exception as er:
+            raise Exception(f"sentMessage -> {er}")
 
     def showTransaction(self, txHash):
         try:
+            checkURL(self.lineEdit_nodeProvider.text())
+            checkHex(txHash)
             tx = ethereum.getTransaction(txHash, self.lineEdit_nodeProvider.text())
-            if tx == '':
-                pass  # error getting transaction
-            else:
-                self.textEdit_main.clear()
-                tx = loads(tx)  # convert to json
-                for t in tx:
-                    if tx[t] is None:
-                        pass  # too soon
+            self.textEdit_main.clear()
+            tx = loads(tx)  # convert to json
+            for t in tx:
+                if tx[t] is None:
+                    pass  # too soon
+                else:
+                    if t == 'blockHash' or t == 'hash':
+                        self.textEdit_main.append(f'{t} = {tx[t]}')
+                    elif t == 'r' or t == 's':
+                        self.textEdit_main.append(f"{t} = {int(tx[t], 0)}")
                     else:
-                        if t == 'blockHash' or t == 'hash':
-                            self.textEdit_main.append(f'{t} = {tx[t]}')
-                        elif t == 'r' or t == 's':
-                            self.textEdit_main.append(f"{t} = {int(tx[t], 0)}")
-                        else:
-                            self.textEdit_main.append(f'{t} = {tx[t]}')
-                        cursor = QTextCursor(self.textEdit_main.document())
-                        cursor.setPosition(0)
-                        self.textEdit_main.setTextCursor(cursor)
+                        self.textEdit_main.append(f'{t} = {tx[t]}')
+                    cursor = QTextCursor(self.textEdit_main.document())
+                    cursor.setPosition(0)
+                    self.textEdit_main.setTextCursor(cursor)
         except Exception as er:
-            gui_errorDialog.Error('showTransaction', str(er)).exec()
+            raise Exception('showTransaction -> ', str(er))
 
     def showTransactionMessage(self, txHash):
         try:
+            checkURL(self.lineEdit_nodeProvider.text())
+            checkHex(txHash)
             tx = ethereum.getTransaction(txHash, self.lineEdit_nodeProvider.text())
-            if tx == '':
-                pass  # error getting transaction
-            else:
-                self.textEdit_main.clear()
-                tx = loads(tx)  # convert to json
-                self.textEdit_main.append(f"Transaction message is:\n\n"
-                                          f" {bytearray.fromhex(tx['input'][2:]).decode('utf-8')}\n")
-                self.textEdit_main.append('-' * 10)
-                self.textEdit_main.append(f'transactionHash = {txHash}')
-                for t in tx:
-                    if t == 'blockNumber' or t == 'blockHash' or t == 'from' or t == 'to':
-                        self.textEdit_main.append(f'{t} = {tx[t]}')
-                    else:
-                        pass
-                cursor = QTextCursor(self.textEdit_main.document())
-                cursor.setPosition(0)
-                self.textEdit_main.setTextCursor(cursor)
+            self.textEdit_main.clear()
+            tx = loads(tx)  # convert to json
+            self.textEdit_main.append(f"Transaction message is:\n\n"
+                                      f" {bytearray.fromhex(tx['input'][2:]).decode('utf-8')}\n")
+            self.textEdit_main.append('-' * 10)
+            self.textEdit_main.append(f'transactionHash = {txHash}')
+            for t in tx:
+                if t == 'blockNumber' or t == 'blockHash' or t == 'from' or t == 'to':
+                    self.textEdit_main.append(f'{t} = {tx[t]}')
+                else:
+                    pass
+            cursor = QTextCursor(self.textEdit_main.document())
+            cursor.setPosition(0)
+            self.textEdit_main.setTextCursor(cursor)
         except Exception as er:
-            gui_errorDialog.Error('showTransaction', str(er)).exec()
+            gui_error.WINDOW('showTransactionMessage', str(er)).exec()
 
     def showCustomTransaction(self):
         try:
-            TXHashWindow = qui_getUserInput.Ui('Show custom transaction',
-                                               'Enter transaction hash:\n'
-                                               '(Notice about mainNet and testNet)')
+            TXHashWindow = gui_userInput.WINDOW('Show custom transaction',
+                                                'Enter transaction hash:\n'
+                                                '(Notice about mainNet and testNet)')
             TXHashWindow.exec()
             TXHash = TXHashWindow.getInput()
-            if TXHash == '':
-                qui_showMessage.Ui('Show custom transaction', 'Nothing received').exec()
-            else:
+            if TXHash:
+                checkHex(TXHash)
                 self.showTransaction(TXHash)
         except Exception as er:
-            gui_errorDialog.Error('showCustomTransaction', str(er)).exec()
+            gui_error.WINDOW('showCustomTransaction', str(er)).exec()
 
     def showCustomTransactionMessage(self):
         try:
-            TXHashWindow = qui_getUserInput.Ui('Show custom transaction message',
-                                               'Enter transaction hash:\n'
-                                               '(Notice about mainNet and testNet)')
+            TXHashWindow = gui_userInput.WINDOW('Show custom transaction message',
+                                                'Enter transaction hash:\n'
+                                                '(Notice about mainNet and testNet)')
             TXHashWindow.exec()
             TXHash = TXHashWindow.getInput()
-            if TXHash == '':
-                qui_showMessage.Ui('Show custom transaction message', 'Nothing received').exec()
-            else:
+            if TXHash:
+                checkHex(TXHash)
                 self.showTransactionMessage(TXHash)
         except Exception as er:
-            gui_errorDialog.Error('Show custom transaction message', str(er)).exec()
+            gui_error.WINDOW('showCustomTransactionMessage', str(er)).exec()
 
     def showNonce(self):
         try:
+            checkURL(self.lineEdit_nodeProvider.text())
             nonce = ethereum.getAccountNonce(self.comboBox_activeAddressVal.currentText(),
                                              self.lineEdit_nodeProvider.text())
-            if nonce < 0:
-                pass  # error
-            else:
-                self.textEdit_main.clear()
-                self.textEdit_main.append(f'Your current sent transaction count is {nonce}')
+            self.textEdit_main.clear()
+            self.textEdit_main.append(f'Your current sent transaction count is {nonce}')
         except Exception as er:
-            gui_errorDialog.Error('showNonce', str(er)).exec()
+            gui_error.WINDOW('showNonce', str(er)).exec()
 
-    def getNormalTransactions(self, APIkey: str) -> list:
+    def getTransactions(self, APIkey: str, isInternal: bool) -> list:
         try:
             if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
                 mainNet = True
             elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
                 mainNet = False
             else:
-                gui_errorDialog.Error('getNormalTransactions', 'Unknown network').exec()
-                return []
+                raise Exception("unknown network status")
 
-            txHistory = ethereum.getNormalHistory(self.comboBox_activeAddressVal.currentText(),
-                                                  self.lineEdit_nodeProvider.text(), APIkey, mainNet)
-            if not txHistory:
-                return []  # error
+            if not self.comboBox_activeAddressVal.currentText():
+                raise Exception(f"address = '{self.comboBox_activeAddressVal.currentText()}' !")
+            checkURL(self.lineEdit_nodeProvider.text())
+            if not self.lineEdit_nodeProvider.text():
+                raise Exception(f"provider = '{self.lineEdit_nodeProvider.text()}' !")
+            if isInternal:
+                txHistory = ethereum.getTransactionHistory(self.comboBox_activeAddressVal.currentText(),
+                                                           self.lineEdit_nodeProvider.text(), APIkey, mainNet,
+                                                           isInternal)
             else:
-                txHistory = loads(txHistory.decode('utf-8'))
-                self.textEdit_main.clear()
-                if not txHistory['status'] == '1' or not txHistory['message'] == 'OK':
-                    gui_errorDialog.Error('getNormalTransactions',
-                                          f'Bad response\n.'
-                                          f' {txHistory}').exec()
-                    return []
-                else:
-                    txHistory = txHistory['result']
-                    return txHistory
+                txHistory = ethereum.getTransactionHistory(self.comboBox_activeAddressVal.currentText(),
+                                                           self.lineEdit_nodeProvider.text(), APIkey, mainNet,
+                                                           isInternal)
+            txHistory = loads(txHistory.decode('utf-8'))
+            if not txHistory['status'] == '1' or not txHistory['message'] == 'OK':
+                raise Exception(f"bad response\n.{txHistory}")
+            else:
+                return txHistory['result']
         except Exception as er:
-            gui_errorDialog.Error('getNormalTransactions', str(er)).exec()
-            return []
-
-    def getInternalTransactions(self, APIkey: str) -> list:
-        try:
-            if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
-                mainNet = True
-            elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
-                mainNet = False
-            else:
-                gui_errorDialog.Error('getInternalTransactions', 'Unknown network').exec()
-                return []
-            txHistory = ethereum.getInternalHistory(self.comboBox_activeAddressVal.currentText(),
-                                                    self.lineEdit_nodeProvider.text(), APIkey, mainNet)
-            if not txHistory:
-                pass  # error
-            else:
-                txHistory = loads(txHistory.decode('utf-8'))
-                self.textEdit_main.clear()
-                if not txHistory['status'] == '1' or not txHistory['message'] == 'OK':
-                    gui_errorDialog.Error('getInternalTransactions',
-                                          f'Bad response\n.'
-                                          f' {txHistory}').exec()
-                    return []
-                else:
-                    txHistory = txHistory['result']
-                    return txHistory
-        except Exception as er:
-            gui_errorDialog.Error('getInternalTransactions', str(er)).exec()
-            return []
+            raise Exception('getTransactions -> ', str(er))
 
     def showSimpleHistory(self):
         try:
-            TXHistoryWindow = qui_getUserInput.Ui('Show simple history',
-                                                  'Enter your APIkey:\n'
-                                                  '(Notice about mainNet and testNet)')
+            TXHistoryWindow = gui_userInput.WINDOW('Show simple history', 'Enter your APIkey:\n'
+                                                                          '(Notice about mainNet and testNet)')
             TXHistoryWindow.exec()
             APIkey = TXHistoryWindow.getInput()
-            if APIkey == '':
-                qui_showMessage.Ui('Show simple history', 'Nothing received').exec()
-            else:
-                txHistoryNormal = self.getNormalTransactions(APIkey)
-                txHistoryInternal = self.getInternalTransactions(APIkey)
+            if APIkey:
+                txHistoryNormal = self.getTransactions(APIkey, False)
+                txHistoryInternal = self.getTransactions(APIkey, True)
 
                 if len(txHistoryNormal) > 0 or len(txHistoryInternal) > 0:  # there is something for show
+                    if len(txHistoryNormal) <= 0:
+                        gui_message.WINDOW("showSimpleHistory", "there is no normal transaction")
+
+                    if len(txHistoryInternal) <= 0:
+                        gui_message.WINDOW("showSimpleHistory", "there is no internal transaction")
+
                     allTransactions = txHistoryNormal + txHistoryInternal
                     #  sort ace
                     sortedTransactions = sorted(allTransactions, key=lambda d: d['blockNumber'])
                     # de sort
                     sortedTransactions = sortedTransactions[::-1]
+                    self.textEdit_main.clear()
                     self.textEdit_main.append(f'Total {len(sortedTransactions)} transaction(s) received:\n'
-                                              f'Offset is last 20000')
+                                              f'Offset is last 10000')
                     self.textEdit_main.append('-' * 10)
                     for n in sortedTransactions:
                         for e in n:
@@ -1099,91 +1039,78 @@ class Ui(QtWidgets.QMainWindow):
                         cursor.setPosition(0)
                         self.textEdit_main.setTextCursor(cursor)
                 else:
-                    pass  # error or there is no transaction
+                    raise Exception(f"account data has not been received")
         except Exception as er:
-            gui_errorDialog.Error('showSimpleHistory', str(er)).exec()
+            gui_error.WINDOW('showSimpleHistory', str(er)).exec()
 
     def showNormalTransactions(self):
         try:
-            TXHistoryWindow = qui_getUserInput.Ui('Show normal transactions',
-                                                  'Enter your APIkey:\n'
-                                                  '(Notice about mainNet and testNet)')
+            TXHistoryWindow = gui_userInput.WINDOW('Show normal transactions', 'Enter your APIkey:\n'
+                                                                               '(Notice about mainNet and testNet)')
             TXHistoryWindow.exec()
             APIkey = TXHistoryWindow.getInput()
-            if APIkey == '':
-                qui_showMessage.Ui('Show normal transactions', 'Nothing received').exec()
-            else:
-                txHistory = self.getNormalTransactions(APIkey)
-                if len(txHistory) == 0:
-                    pass  # error or no transaction
-                else:
-                    self.textEdit_main.append(f'Total {len(txHistory)} transaction(s) received:\n'
-                                              f'Offset is last 10000')
+            if APIkey:
+                txHistory = self.getTransactions(APIkey, False)
+                self.textEdit_main.clear()
+                self.textEdit_main.append(f'Total {len(txHistory)} transaction(s) received:\n'
+                                          f'Offset is last 10000')
+                self.textEdit_main.append('-' * 10)
+                for n in txHistory:
+                    for e in n:
+                        self.textEdit_main.append(f'{str(e)} = {str(n[e])}')
                     self.textEdit_main.append('-' * 10)
-                    for n in txHistory:
-                        for e in n:
-                            self.textEdit_main.append(f'{str(e)} = {str(n[e])}')
-                        self.textEdit_main.append('-' * 10)
-                        cursor = QTextCursor(self.textEdit_main.document())
-                        cursor.setPosition(0)
-                        self.textEdit_main.setTextCursor(cursor)
+                    cursor = QTextCursor(self.textEdit_main.document())
+                    cursor.setPosition(0)
+                    self.textEdit_main.setTextCursor(cursor)
         except Exception as er:
-            gui_errorDialog.Error('showNormalTransactions', str(er)).exec()
+            gui_error.WINDOW('showNormalTransactions', str(er)).exec()
 
     def showInternalTransactions(self):
         try:
-            TXHistoryWindow = qui_getUserInput.Ui('Show internal transactions',
-                                                  'Enter your APIkey:\n'
-                                                  '(Notice about mainNet and testNet)')
+            TXHistoryWindow = gui_userInput.WINDOW('Show internal transactions', 'Enter your APIkey:\n'
+                                                                                 '(Notice about mainNet and testNet)')
             TXHistoryWindow.exec()
             APIkey = TXHistoryWindow.getInput()
-            if APIkey == '':
-                qui_showMessage.Ui('Show internal transactions', 'Nothing received').exec()
-            else:
-                txHistory = self.getInternalTransactions(APIkey)
-                if len(txHistory) == 0:
-                    pass  # error or no transactions
-                else:
-                    self.textEdit_main.clear()
-                    self.textEdit_main.append(f'Total {len(txHistory)} transaction(s) received:\n'
-                                              f'Offset is last 10000')
+            if APIkey:
+                txHistory = self.getTransactions(APIkey, True)
+                self.textEdit_main.clear()
+                self.textEdit_main.append(f'Total {len(txHistory)} transaction(s) received:\n'
+                                          f'Offset is last 10000')
+                self.textEdit_main.append('-' * 10)
+                for n in txHistory:
+                    for e in n:
+                        self.textEdit_main.append(f'{str(e)} = {str(n[e])}')
                     self.textEdit_main.append('-' * 10)
-                    for n in txHistory:
-                        for e in n:
-                            self.textEdit_main.append(f'{str(e)} = {str(n[e])}')
-                        self.textEdit_main.append('-' * 10)
-                    cursor = QTextCursor(self.textEdit_main.document())
-                    cursor.setPosition(0)
-                    self.textEdit_main.setTextCursor(cursor)
+                cursor = QTextCursor(self.textEdit_main.document())
+                cursor.setPosition(0)
+                self.textEdit_main.setTextCursor(cursor)
         except Exception as er:
-            gui_errorDialog.Error('showInternalTransactions', str(er)).exec()
+            gui_error.WINDOW('showInternalTransactions', str(er)).exec()
 
     def showSenderPublicKey(self):
         try:
-            TxHashWindow = qui_getUserInput.Ui('Show sender publicKey',
-                                               'Enter transaction hash:\n'
-                                               '(You will get sender publicKey and address)')
+            TxHashWindow = gui_userInput.WINDOW('Show sender publicKey', 'Enter transaction hash:\n'
+                                                                         '(You will get sender publicKey and address)')
             TxHashWindow.exec()
             TxHash = TxHashWindow.getInput()
-            if TxHash == '':
-                (qui_showMessage.Ui('Show sender publicKey', 'Nothing received').exec())
-            else:
+            if TxHash:
+                checkHex(TxHash)
+                checkURL(self.lineEdit_nodeProvider.text())
                 result = ethereum.getPublicKeyFromTransaction(TxHash, self.lineEdit_nodeProvider.text())
-                if not result:
-                    pass  # Error
-                else:
-                    self.textEdit_main.clear()
-                    self.textEdit_main.append(f"\nSender address: {result['address']}\n"
-                                              f"Sender publicKey: {result['publicKey']}")
-                    cursor = QTextCursor(self.textEdit_main.document())
-                    cursor.setPosition(0)
-                    self.textEdit_main.setTextCursor(cursor)
+                self.textEdit_main.clear()
+                self.textEdit_main.append(f"\nSender address: {result['address']}\n"
+                                          f"Sender publicKey: {result['publicKey']}")
+                cursor = QTextCursor(self.textEdit_main.document())
+                cursor.setPosition(0)
+                self.textEdit_main.setTextCursor(cursor)
         except Exception as er:
-            gui_errorDialog.Error('showSenderPublicKey', str(er)).exec()
+            gui_error.WINDOW('showSenderPublicKey', str(er)).exec()
 
     def backupWallet(self):
         try:
-            rowData = self.db.readRowByCondition(self.comboBox_activeAddressVal.currentText())[0]
+            if not self.comboBox_activeAddressVal.currentText():
+                raise Exception(f"address = '{self.comboBox_activeAddressVal.currentText()}' !")
+            rowData = self.db.readRow(self.comboBox_activeAddressVal.currentText())[0]
             data = {'entropy': rowData[0],
                     'privateKey': rowData[1],
                     'publicKeyCoordinate': (rowData[2], rowData[3]),
@@ -1191,92 +1118,80 @@ class Ui(QtWidgets.QMainWindow):
                     'address': rowData[5],
                     'mnemonic': rowData[6],
                     'Name': rowData[7]}
-            WriteOnFile = False
-            folderSelected = ''
             root = Tk()
             root.withdraw()
             folderSelected = filedialog.askdirectory()
-            print(folderSelected)
-            if not folderSelected:
-                pass  # cancel by user
-            else:
-                passwordWindow = qui_getUserInput.Ui('backupWallet',
-                                                     'Exporting the secrets of your account to the file.\n'
-                                                     'For more security set a password on the file\n'
-                                                     'or cancel for skip password protection')
+            fileName = ''
+            dataToWrite = None
+            if folderSelected:
+                passwordWindow = gui_userInput.WINDOW('backupWallet',
+                                                      'Exporting the secrets of your account to the file.\n'
+                                                      'For more security set a password on the file\n'
+                                                      'or cancel for skip password protection')
                 passwordWindow.exec()
                 password = passwordWindow.getInput()
-                if password == '':  # no password
-                    if Path(f'{folderSelected}/{rowData[7].replace(" ", "_")}.json').is_file():
-                        reWriteWindow = qui_getUserChoice.Ui('backupWallet',
-                                                             'File is exist!',
-                                                             'Overwrite it?')
-
-                        reWriteWindow.exec()
-                        WriteOnFile = reWriteWindow.getAnswer()
-                    else:
-                        WriteOnFile = True
-                    if WriteOnFile:
-                        with open(f'{folderSelected}/{rowData[7].replace(" ", "_")}.json', 'w+') as fp:
-                            dump(data, fp)
-                    else:
-                        pass  # cancel by user
+                if password:
+                    fileName = f"{folderSelected}/{rowData[7].replace(' ', '_')}.wallet"
+                    b_password = password.encode('utf-8')
+                    b_data = dumps(data, indent=2).encode('utf-8')
+                    dataToWrite = DES.encrypt(b_password, b_data)
                 else:
-                    if Path(f'{folderSelected}/{rowData[7].replace(" ", "_")}.wallet').is_file():
-                        reWriteWindow = qui_getUserChoice.Ui('backupWallet',
-                                                             'File is exist!',
-                                                             'Overwrite it?')
+                    fileName = f"{folderSelected}/{rowData[7].replace(' ', '_')}.json"
+                    dataToWrite = data
 
-                        reWriteWindow.exec()
-                        WriteOnFile = reWriteWindow.getAnswer()
-                    else:
-                        WriteOnFile = True
-                    if WriteOnFile:
-                        b_password = password.encode('utf-8')
-                        b_data = dumps(data, indent=2).encode('utf-8')
-                        encrypted = DES.encrypt(b_password, b_data)
-                        with open(f'{folderSelected}/{rowData[7].replace(" ", "_")}.wallet', 'w+') as fp:
-                            dump(encrypted, fp)
-                    else:
-                        pass  # cancel by user
+                if Path(fileName).is_file():
+                    reWriteWindow = gui_userChoice.WINDOW('backupWallet', 'File is exist!',
+                                                          'Overwrite it?')
+
+                    reWriteWindow.exec()
+                    WriteOnFile = reWriteWindow.getAnswer()
+                else:
+                    WriteOnFile = True
+                if WriteOnFile:
+                    with open(fileName, 'w+') as fp:
+                        dump(dataToWrite, fp)
+                else:
+                    pass  # cancel by user
+            if not fileName or dataToWrite is None:
+                raise Exception(f"file name: '{fileName}'\ndata: '{dataToWrite}'")
+            if Path(fileName).is_file():
+                gui_message.WINDOW('backupWallet', f"'{fileName}'\nsuccessfully saved.").exec()
+            else:
+                raise Exception('saving file failed.')
         except Exception as er:
-            gui_errorDialog.Error('backupWallet', str(er)).exec()
+            gui_error.WINDOW('backupWallet', str(er)).exec()
 
     def restoreWallet(self):
         try:
             root = Tk()
             root.withdraw()
             filePath = filedialog.askopenfilename()
-            with open(filePath, 'r') as f:  # open the file
-                data = f.readlines()[0]
-            if filePath.endswith('.json'):  # non encrypted file
-                jsonData = loads(data)
-                if self.db.insertRow(jsonData):
-                    self.comboBox_activeAddressVal.addItem(jsonData['address'])
-                    self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
-                    self.lineEdit_accountName.setText(jsonData['Name'])
-            elif filePath.endswith('.wallet'):  # an encrypted file
-                passwordWindow = qui_getUserInput.Ui('restoreWallet',
-                                                     'This is an encrypted file.\n'
-                                                     "Enter the file password:\n")
-                passwordWindow.exec()
-                password = passwordWindow.getInput()
-                if password == '':  # no password
-                    gui_errorDialog.Error('restoreWallet', f'Nothing received\n'
-                                                           f'{filePath}').exec()
-                else:
-                    decrypted = DES.decrypt(password.encode('utf-8'), data)
-                    jsonData = loads(decrypted.decode('utf-8'))
-                    self.showWallet(jsonData, filePath)
-                    if self.db.insertRow(jsonData):
-                        self.comboBox_activeAddressVal.addItem(jsonData['address'])
-                        self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
-                        self.lineEdit_accountName.setText(jsonData['Name'])
+            if not filePath:
+                pass  # cancel by user
             else:
-                gui_errorDialog.Error('restoreWallet', f'Unknown file format\n'
-                                                       f'{filePath}').exec()
+                with open(filePath, 'r') as f:  # open the file
+                    data = f.readlines()[0]
+                if filePath.endswith('.json'):  # non encrypted file
+                    jsonData = loads(data)
+                elif filePath.endswith('.wallet'):  # an encrypted file
+                    passwordWindow = gui_userInput.WINDOW('restoreWallet', 'This is an encrypted file.\n'
+                                                                           "Enter the file password:\n")
+                    passwordWindow.exec()
+                    password = passwordWindow.getInput()
+                    if not password:  # no password received
+                        raise Exception(f"restoring encrypted account need password")
+                    else:
+                        decrypted = DES.decrypt(password.encode('utf-8'), data)
+                        jsonData = loads(decrypted.decode('utf-8'))
+                else:
+                    raise Exception(f"unknown file format")
+                self.showWallet(jsonData, filePath)
+                self.db.insertRow(jsonData)
+                self.comboBox_activeAddressVal.addItem(jsonData['address'])
+                self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
+                self.lineEdit_accountName.setText(jsonData['Name'])
         except Exception as er:
-            gui_errorDialog.Error('restoreWallet', str(er)).exec()
+            gui_error.WINDOW('restoreWallet', str(er)).exec()
 
     def showWallet(self, jsonData: dict, path: str):
         try:
@@ -1290,34 +1205,32 @@ class Ui(QtWidgets.QMainWindow):
             cursor.setPosition(0)
             self.textEdit_main.setTextCursor(cursor)
         except Exception as er:
-            gui_errorDialog.Error('showWallet', str(er)).exec()
+            gui_error.WINDOW('showWallet', str(er)).exec()
 
     def deleteAccount(self):
         try:
             accountToDelete = self.comboBox_activeAddressVal.currentText()
+            if not accountToDelete:
+                raise Exception(f"address = '{accountToDelete}' !")
             accountIndex = self.comboBox_activeAddressVal.currentIndex()
             accountName = self.lineEdit_accountName.text()
-            deleteIt = False
-            deleteWindow = qui_getUserChoice.Ui('deleteAccount',
-                                                f'Delete account \"{accountName}\"?\n'
-                                                f'account address: {accountToDelete}\n',
-                                                'You will lost that\n'
-                                                'Proceed?')
-
+            deleteWindow = gui_userChoice.WINDOW('deleteAccount',
+                                                 f'Delete account \"{accountName}\"?\n'
+                                                 f'account address: {accountToDelete}\n',
+                                                 'You will lost that\n'
+                                                 'Proceed?')
             deleteWindow.exec()
             deleteIt = deleteWindow.getAnswer()
             if not deleteIt:
-                qui_showMessage.Ui('deleteAccount', 'Nothing has been removed.').exec()
+                gui_message.WINDOW('deleteAccount', 'Nothing has been removed.').exec()
             else:
-                if self.db.deleteRow(self.comboBox_activeAddressVal.currentText()):
-                    if self.comboBox_activeAddressVal.count() == 1:
-                        self.comboBox_activeAddressVal.clear()
-                        print('=================== 1')
-                    else:
-                        self.comboBox_activeAddressVal.removeItem(accountIndex)
-                        print('=================== 2')
-                    qui_showMessage.Ui('deleteAccount', 'the account was deleted.').exec()
+                self.db.deleteRow(accountToDelete)
+                if self.comboBox_activeAddressVal.count() == 1:
+                    self.comboBox_activeAddressVal.clear()
                 else:
-                    pass  # error
+                    self.comboBox_activeAddressVal.removeItem(accountIndex)
+                self.lineEdit_accountName.clear()
+                self.textEdit_main.clear()
+                gui_message.WINDOW('deleteAccount', 'the account was deleted.').exec()
         except Exception as er:
-            gui_errorDialog.Error('deleteAccount', str(er)).exec()
+            gui_error.WINDOW('deleteAccount', str(er)).exec()

@@ -1,56 +1,37 @@
 from urllib.parse import urlparse
-
-from src.GUI import gui_errorDialog
 from src.dataTypes import TYPE
 
 
-def checkHex(caller: str, value) -> bool:
+def checkHex(value):
     try:
-        if not ('checkHex', value, TYPE.STRING):
-            gui_errorDialog.Error(f'Error in {caller}',
-                                  f'({value})\n by type {type(value)} received.\n'
-                                  f'Expected string.').exec()
-            return False
-        else:
-            int(value, 16)
-            return True
-    except ValueError:
-        gui_errorDialog.Error(f'Error in {caller}',
-                              f'{value} \n'
-                              f'is not in hex format').exec()
-        return False
+        checkType(value, TYPE.STRING)
+        if value.startswith('0x') or value.startswith('0X'):
+            value = value[2:]
+        int(value, 16)
+    except Exception as er:
+        raise Exception(f"checkHex -> {er}")
 
 
-def checkType(caller: str, value, type_: TYPE) -> bool:
-    if isinstance(value, type_.value):
-        return True
-    else:
-        gui_errorDialog.Error(f'Error in {caller}',
-                              f'({value})\n by type {type(value)} received.\n'
-                              f'Expected {type_.value}.').exec()
-        return False
-
-
-def checkLen(caller: str, value, len_: int) -> bool:
-    if len(value) == len_:
-        return True
-    else:
-        gui_errorDialog.Error(f'Error in {caller}',
-                              f'({value})\n by len {len(value)} received.\n'
-                              f'Expected {len_}.').exec()
-        return False
-
-
-def checkURL(caller: str, value: str):
+def checkType(value, type_: TYPE):
     try:
-        if not ('checkURL', value, TYPE.STRING):
-            gui_errorDialog.Error(f'Error in {caller}',
-                                  f'({value})\n by type {type(value)} received.\n'
-                                  f'Expected string.').exec()
-            return False
-        else:
+        if not isinstance(value, type_.value):
+            raise Exception(f"'{value}' is not {type_.value}")
+    except Exception as er:
+        raise Exception(f"checkType -> {er}")
 
-            result = urlparse(value)
-            return all([result.scheme, result.netloc])
-    except ValueError:
-        return False
+
+def checkLen(value, len_: int):
+    try:
+        if not len(value) == len_:
+            raise Exception(f"'{value}' by len {len(value)} received.\nExpected {len_}.")
+    except Exception as er:
+        raise Exception(f"checkLen -> {er}")
+
+
+def checkURL(value: str):
+    try:
+        checkType(value, TYPE.STRING)
+        result = urlparse(value)
+        return all([result.scheme, result.netloc])
+    except Exception as er:
+        raise Exception(f"checkURL -> {er}")

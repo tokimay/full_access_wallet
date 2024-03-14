@@ -2,118 +2,21 @@ from statistics import median
 from urllib import request
 from eth_account._utils.legacy_transactions import serializable_unsigned_transaction_from_dict
 from eth_account._utils.signing import to_standard_v, extract_chain_id
-from src.GUI import gui_errorDialog
 from web3 import Web3, HTTPProvider
-from src.dataTypes import TYPE
-from src.validators import checkType, checkURL
 
 
 def getBalance(address: str, provider: str) -> int:
     try:
-        if not checkType('getBalance', address, TYPE.STRING):
-            return -1
-        if not checkType('getBalance', provider, TYPE.STRING):
-            return -1
-        if not checkURL('getBalance', provider):
-            return -1
         w3 = Web3(HTTPProvider(provider))
         if not w3.is_connected():
-            gui_errorDialog.Error('getBalance', f'Connect to {provider} failed.').exec()
-            return -1
+            if not w3.is_connected():
+                raise Exception(f"connect to '{provider}' failed.")
         else:
             address_CKSM = Web3.to_checksum_address(address)
             balance = w3.eth.get_balance(address_CKSM)
-            balance = w3.from_wei(balance, 'ether')
-            return balance
+            return w3.from_wei(balance, 'ether')
     except Exception as er:
-        gui_errorDialog.Error('getBalance', str(er)).exec()
-        return -1
-
-
-def sendValueTransaction(privateKey: str, txElements: dict) -> str:
-    try:
-        if not checkType('sendTransaction', privateKey, TYPE.STRING):
-            return ''
-        if not checkType('sendTransaction', txElements, TYPE.DICTIONARY):
-            return ''
-        if not checkURL('sendTransaction', txElements['provider']):
-            return ''
-        txHash = ''
-        w3 = Web3(HTTPProvider(txElements['provider']))
-        if not w3.is_connected():
-            gui_errorDialog.Error('sendTransaction',
-                                  f"Connect to {txElements['provider']} failed.").exec()
-            return ''
-
-        transaction = ({
-            'to': Web3.to_checksum_address(txElements['receiver']),
-            'value': w3.to_wei(txElements['vale'], 'ether'),
-            'gas': 2000000,
-            'maxFeePerGas': 2000000000,
-            'maxPriorityFeePerGas': 1000000000,
-            'nonce': w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender'])),
-            'chainId': txElements['chainId'],
-            # 'hardfork': 'petersburg'
-        })
-        gas = w3.eth.estimate_gas(transaction)
-        transaction.update({'gas': gas})
-        signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
-        # print(signed.rawTransaction)
-        # print(signed.hash)
-        # print(signed.r)
-        # print(signed.s)
-        # print(signed.v)
-        txHash = w3.eth.send_raw_transaction(signed.rawTransaction)
-        return txHash.hex()
-    except Exception as er:
-        gui_errorDialog.Error('sendTransaction', str(er)).exec()
-        return ''
-
-
-def sendMessageTransaction(privateKey: str, txElements: dict) -> str:
-    try:
-        if not checkType(' sendMessage', privateKey, TYPE.STRING):
-            return ''
-        if not checkType(' sendMessage', txElements, TYPE.DICTIONARY):
-            return ''
-        if not checkURL(' sendMessage', txElements['provider']):
-            return ''
-        if not checkType(' sendMessage', txElements['data'], TYPE.STRING):
-            return ''
-        txHash = ''
-        w3 = Web3(HTTPProvider(txElements['provider']))
-        if not w3.is_connected():
-            gui_errorDialog.Error('sendTransaction',
-                                  f"Connect to {txElements['provider']} failed.").exec()
-            return ''
-        print("txElements['data']")
-        print(txElements['data'])
-        print(type(txElements['data']))
-        print('==========================')
-        transaction = ({
-            'to': Web3.to_checksum_address(txElements['receiver']),
-            'value': w3.to_wei(txElements['vale'], 'ether'),
-            'gas': 2000000,
-            'maxFeePerGas': 2000000000,
-            'maxPriorityFeePerGas': 1000000000,
-            'nonce': w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender'])),
-            'chainId': txElements['chainId'],
-            # 'hardfork': 'petersburg',
-            'data': txElements['data']
-        })
-        gas = w3.eth.estimate_gas(transaction)
-        transaction.update({'gas': gas})
-        signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
-        # print(signed.rawTransaction)
-        # print(signed.hash)
-        # print(signed.r)
-        # print(signed.s)
-        # print(signed.v)
-        txHash = w3.eth.send_raw_transaction(signed.rawTransaction)
-        return txHash.hex()
-    except Exception as er:
-        gui_errorDialog.Error('sendTransaction', str(er)).exec()
-        return ''
+        raise Exception(f"getBalance -> {er}")
 
 
 def estimateGas(txElements: dict) -> dict:
@@ -131,9 +34,7 @@ def estimateGas(txElements: dict) -> dict:
 
         w3 = Web3(HTTPProvider(txElements['provider']))
         if not w3.is_connected():
-            gui_errorDialog.Error('estimateGas',
-                                  f"Connect to {txElements['provider']} failed.").exec()
-            return {}
+            raise Exception(f"connect to '{txElements['provider']}' failed.")
 
         feeHistory = w3.eth.fee_history(10, 'latest', [10, 20, 30])
 
@@ -178,159 +79,144 @@ def estimateGas(txElements: dict) -> dict:
 
         return {'MAXPriorityFee': MAXPriorityFee, 'MAX_Fee': MAX_Fee, 'GasPrice': GasPrice}
     except Exception as er:
-        gui_errorDialog.Error('estimateGas', str(er)).exec()
-        return {}
+        raise Exception(f"estimateGas -> {er}")
+
+
+def sendValueTransaction(privateKey: str, txElements: dict) -> str:
+    try:
+        w3 = Web3(HTTPProvider(txElements['provider']))
+        if not w3.is_connected():
+            raise Exception(f"connect to '{txElements['provider']}' failed.")
+
+        transaction = ({
+            'to': Web3.to_checksum_address(txElements['receiver']),
+            'value': w3.to_wei(txElements['vale'], 'ether'),
+            'gas': 2000000,
+            'maxFeePerGas': 2000000000,
+            'maxPriorityFeePerGas': 1000000000,
+            'nonce': w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender'])),
+            'chainId': txElements['chainId'],
+            # 'hardfork': 'petersburg'
+        })
+        gas = w3.eth.estimate_gas(transaction)
+        transaction.update({'gas': gas})
+        signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
+        print('rawTransaction:', signed.rawTransaction)
+        print('signed hash:', signed.hash)
+        print('r:', signed.r)
+        print('s:', signed.s)
+        print('v:', signed.v)
+        txHash = w3.eth.send_raw_transaction(signed.rawTransaction)
+        return txHash.hex()
+    except Exception as er:
+        raise Exception(f"sendValueTransaction -> {er}")
 
 
 def getTransaction(txHash: str, provider: str) -> str:
     try:
-        if not checkType('getTransaction', txHash, TYPE.STRING):
-            return ''
-        if not checkType('getTransaction', provider, TYPE.STRING):
-            return ''
-        if not checkURL('getTransaction', provider):
-            return ''
         w3 = Web3(HTTPProvider(provider))
         if not w3.is_connected():
-            gui_errorDialog.Error('getTransaction', f"Connect to {provider} failed.").exec()
-            return ''
+            raise Exception(f"connect to '{provider}' failed.")
 
         tx = w3.eth.get_transaction(txHash)
         return Web3.to_json(tx)
     except Exception as er:
-        gui_errorDialog.Error('getTransaction', str(er)).exec()
-        return ''
+        raise Exception(f"getTransaction -> {er}")
+
+
+def sendMessageTransaction(privateKey: str, txElements: dict) -> str:
+    try:
+        w3 = Web3(HTTPProvider(txElements['provider']))
+        if not w3.is_connected():
+            raise Exception(f"connect to '{txElements['provider']}' failed.")
+
+        transaction = ({
+            'to': Web3.to_checksum_address(txElements['receiver']),
+            'value': w3.to_wei(txElements['vale'], 'ether'),
+            'gas': 2000000,
+            'maxFeePerGas': 2000000000,
+            'maxPriorityFeePerGas': 1000000000,
+            'nonce': w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender'])),
+            'chainId': txElements['chainId'],
+            # 'hardfork': 'petersburg',
+            'data': txElements['data']
+        })
+        gas = w3.eth.estimate_gas(transaction)
+        transaction.update({'gas': gas})
+        signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
+        print('rawTransaction:', signed.rawTransaction)
+        print('signed hash:', signed.hash)
+        print('r:', signed.r)
+        print('s:', signed.s)
+        print('v:', signed.v)
+        txHash = w3.eth.send_raw_transaction(signed.rawTransaction)
+        return txHash.hex()
+    except Exception as er:
+        raise Exception(f"sendMessageTransaction -> {er}")
 
 
 def getAccountNonce(address: str, provider: str) -> int:
     try:
-        if not checkType('getAccountNonce', address, TYPE.STRING):
-            return -1
-        if not checkType('getAccountNonce', provider, TYPE.STRING):
-            return -1
-        if not checkURL('getAccountNonce', provider):
-            return -1
         w3 = Web3(HTTPProvider(provider))
         if not w3.is_connected():
-            gui_errorDialog.Error('getAccountNonce', f"Connect to {provider} failed.").exec()
-            return -1
-        else:
-            count = w3.eth.get_transaction_count(Web3.to_checksum_address(address))
-            return count
+            raise Exception(f"connect to '{provider}' failed.")
+        return w3.eth.get_transaction_count(Web3.to_checksum_address(address))
     except Exception as er:
-        gui_errorDialog.Error('getAccountNonce', str(er)).exec()
-        return -1
+        raise Exception(f"getAccountNonce -> {er}")
 
 
-def getNormalHistory(address: str, provider: str, API: str, mainNet: bool) -> bytes:
+def getTransactionHistory(address: str, provider: str, API: str, mainNet: bool, isInternal: bool) -> bytes:
     try:
-        if not checkType('getNormalHistory', address, TYPE.STRING):
-            return b''
-        if not checkType('getNormalHistory', provider, TYPE.STRING):
-            return b''
-        if not checkURL('getNormalHistory', provider):
-            return b''
-        if not checkType('getNormalHistory', API, TYPE.STRING):
-            return b''
-        if not checkType('getInternalHistory', mainNet, TYPE.BOOLEAN):
-            return b''
         w3 = Web3(HTTPProvider(provider))
         if not w3.is_connected():
-            gui_errorDialog.Error('getNormalHistory', f"Connect to {provider} failed.").exec()
-            return b''
+            raise Exception(f"connect to '{provider}' failed.")
+        last = w3.eth.block_number  # get last block number
+        if mainNet:
+            url = 'https://api.etherscan.io/api'
         else:
-            last = w3.eth.block_number  # get last block number
-            if mainNet:
-                url = 'https://api.etherscan.io/api'
-            else:
-                url = 'https://api-sepolia.etherscan.io/api'
-            target = (f'{url}'
-                      '?module=account'
-                      '&action=txlist'
-                      f'&address={address}'
-                      '&startblock=0'
-                      f'&endblock={last}'
-                      '&page=1'
-                      '&offset=10000'
-                      '&sort=desc'
-                      f'&apikey={API}')
-            contents = request.urlopen(target).read()
-            return contents
-    except Exception as er:
-        gui_errorDialog.Error('getNormalHistory', str(er)).exec()
-        return b''
-
-
-def getInternalHistory(address: str, provider: str, API: str, mainNet: bool) -> bytes:
-    try:
-        if not checkType('getInternalHistory', address, TYPE.STRING):
-            return b''
-        if not checkType('getInternalHistory', provider, TYPE.STRING):
-            return b''
-        if not checkURL('getInternalHistory', provider):
-            return b''
-        if not checkType('getInternalHistory', API, TYPE.STRING):
-            return b''
-        if not checkType('getInternalHistory', mainNet, TYPE.BOOLEAN):
-            return b''
-        w3 = Web3(HTTPProvider(provider))
-        if not w3.is_connected():
-            gui_errorDialog.Error('getNormalHistory', f"Connect to {provider} failed.").exec()
-            return b''
+            url = 'https://api-sepolia.etherscan.io/api'
+        if isInternal:
+            action = 'txlistinternal'
         else:
-            last = w3.eth.block_number  # get last block number
-            if mainNet:
-                url = 'https://api.etherscan.io/api'
-            else:
-                url = 'https://api-sepolia.etherscan.io/api'
-            target = (f'{url}'
-                      '?module=account'
-                      '&action=txlistinternal'
-                      f'&address={address}'
-                      '&startblock=0'
-                      f'&endblock={last}'
-                      '&page=1'
-                      '&offset=10000'
-                      '&sort=desc'
-                      f'&apikey={API}')
-            contents = request.urlopen(target).read()
-            return contents
+            action = 'txlist'
+        target = (f'{url}'
+                  '?module=account'
+                  f'&action={action}'
+                  f'&address={address}'
+                  '&startblock=0'
+                  f'&endblock={last}'
+                  '&page=1'
+                  '&offset=10000'
+                  '&sort=desc'
+                  f'&apikey={API}')
+        return request.urlopen(target).read()
     except Exception as er:
-        gui_errorDialog.Error('getInternalHistory', str(er)).exec()
-        return b''
+        raise Exception(f"getNormalHistory -> {er}")
 
 
 def getPublicKeyFromTransaction(TXHash: str, provider: str) -> dict:
     try:
-        if not checkType('getPublicKeyFromTransaction', TXHash, TYPE.STRING):
-            return {}
-        if not checkType('getPublicKeyFromTransaction', provider, TYPE.STRING):
-            return {}
-        if not checkURL('getPublicKeyFromTransaction', provider):
-            return {}
         w3 = Web3(HTTPProvider(provider))
         if not w3.is_connected():
-            gui_errorDialog.Error('getPublicKeyFromTransaction', f"Connect to {provider} failed.").exec()
-            return {}
-        else:
-            tx = w3.eth.get_transaction(TXHash)
-            r = tx.r.hex()
-            s = tx.s.hex()
-            v = (to_standard_v(extract_chain_id(tx.v)[1]))
+            raise Exception(f"connect to '{provider}' failed.")
 
-            print('r: ', r)
-            print('s: ', s)
-            print('v: ', v)
+        tx = w3.eth.get_transaction(TXHash)
+        r = tx.r.hex()
+        s = tx.s.hex()
+        v = (to_standard_v(extract_chain_id(tx.v)[1]))
 
-            sg = w3.eth.account._keys.Signature(vrs=(v, int(r, 16), int(s, 16)))
+        print('r: ', r)
+        print('s: ', s)
+        print('v: ', v)
 
-            tt = {k: tx[k] for k in
-                  ["to", "nonce", "value", "gas", "chainId", "maxFeePerGas", "maxPriorityFeePerGas", "type", ]}
-            tt["data"] = tx["input"]
-            ut = serializable_unsigned_transaction_from_dict(tt)
-            recover_public_address = sg.recover_public_key_from_msg_hash(ut.hash())
-            recover_address = sg.recover_public_key_from_msg_hash(ut.hash()).to_checksum_address()
-            return {'publicKey': recover_public_address.to_hex(), 'address': recover_address}
+        sg = w3.eth.account._keys.Signature(vrs=(v, int(r, 16), int(s, 16)))
+
+        tt = {k: tx[k] for k in
+              ["to", "nonce", "value", "gas", "chainId", "maxFeePerGas", "maxPriorityFeePerGas", "type", ]}
+        tt["data"] = tx["input"]
+        ut = serializable_unsigned_transaction_from_dict(tt)
+        recover_public_address = sg.recover_public_key_from_msg_hash(ut.hash())
+        recover_address = sg.recover_public_key_from_msg_hash(ut.hash()).to_checksum_address()
+        return {'publicKey': recover_public_address.to_hex(), 'address': recover_address}
     except Exception as er:
-        gui_errorDialog.Error('getPublicKeyFromTransaction', str(er)).exec()
-        return {}
+        raise Exception(f"getPublicKeyFromTransaction -> {er}")

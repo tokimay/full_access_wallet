@@ -2,8 +2,8 @@ from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtWidgets import QDialog
 
 
-class Ui(QDialog):
-    def __init__(self, title: str = '', messageHeader: str = '', messageBody: str = ''):
+class WINDOW(QDialog):
+    def __init__(self, title: str, messageHeader: str = '', messageBody: str = ''):
         super().__init__()
         self.userAnswer = False
         self.title = title

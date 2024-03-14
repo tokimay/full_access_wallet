@@ -1,10 +1,8 @@
 from json import loads
-
-import requests
-
-from src.GUI import gui_mouseTracker, gui_errorDialog
-from src.ellipticCurve import secp256k1
+from requests import get
 from sha3 import keccak_256
+from src.GUI import gui_mouseTracker
+from src.ellipticCurve import secp256k1
 from src.cryptography import ENTROPY
 from src.dataTypes import TYPE
 from src.validators import checkType, checkHex, checkLen
@@ -12,6 +10,14 @@ from src.validators import checkType, checkHex, checkLen
 """
 ETHEREUM_DEFAULT_PATH = "m/44'/60'/0'/0/0"
 """
+
+LEN_ENTROPY = 256
+LEN_CEK_SM_ENTROPY = 256 + 8
+LEN_SHA256_ENTROPY = 256
+LEN_PRIVATE_KEY = 64
+LEN_PUBLIC_KEY = 128
+LEN_BIP39 = 2048
+LEN_MNEMONIC = 24
 
 
 class New:
@@ -21,203 +27,138 @@ class New:
     @staticmethod
     def newEntropy() -> str:
         try:
-            mouseTracker = gui_mouseTracker.UI()
+            mouseTracker = gui_mouseTracker.WINDOW()
             mouseTracker.exec()
             return mouseTracker.getEntropy()
         except Exception as er:
-            gui_errorDialog.Error('newEntropy', str(er)).exec()
-            return ''
+            raise Exception(f"newEntropy -> {er}")
 
     @staticmethod
     def entropyToPrivateKey(entropy: str) -> str:
         try:
-            if not checkType('entropyToPrivateKey', entropy, TYPE.STRING):
-                return ''
+            checkType(entropy, TYPE.STRING)
             if entropy.startswith('0b'):
                 entropy = entropy[2:]
-            if not checkLen('entropyToPrivateKey', entropy, 256):
-                return ''
-            else:
-                return ENTROPY.ToPbkdf2HmacSha256(entropy)  # need complete by hashing
+            checkLen(entropy, LEN_ENTROPY)
+            return ENTROPY.ToPbkdf2HmacSha256(entropy)  # need complete by hashing
         except Exception as er:
-            gui_errorDialog.Error('entropyToPrivateKey', str(er)).exec()
-            return ''
+            raise Exception(f"entropyToPrivateKey -> {er}")
 
     @staticmethod
     def privateKeyToPublicKeyCoordinate(privateKey: str) -> tuple:
         try:
-            if not checkType('privateKeyToPublicKeyCoordinate', privateKey, TYPE.STRING):
-                return ()
-            if not checkHex('privateKeyToPublicKeyCoordinate', privateKey):
-                return ()
+            checkType(privateKey, TYPE.STRING)
+            checkHex(privateKey)
             if privateKey.startswith('0x') or privateKey.startswith('0X'):
                 privateKey = privateKey[2:]
-            if not checkLen('entropyToPrivateKey', privateKey, 64):
-                return ()
-            else:
-                curve = secp256k1()
-                publicKeyCoordinate = curve.getPublicKeyCoordinate(int(privateKey, 16))
-                if len(publicKeyCoordinate) <= 0:
-                    gui_errorDialog.Error('privateKeyToPublicKeyCoordinate',
-                                          'Getting coordinate from elliptic curve failed.').exec()
-                    return ()
-                else:
-                    return publicKeyCoordinate
+            checkLen(privateKey, LEN_PRIVATE_KEY)
+            curve = secp256k1()
+            publicKeyCoordinate = curve.getPublicKeyCoordinate(int(privateKey, 16))
+            if not curve:
+                raise Exception(f"calculated coordinates are not on the curve.")
+            return publicKeyCoordinate
         except Exception as er:
-            gui_errorDialog.Error('privateKeyToPublicKeyCoordinate', str(er)).exec()
-            return ()
+            raise Exception(f"privateKeyToPublicKeyCoordinate -> {er}")
 
     @staticmethod
     def publicKeyCoordinateToPublicKey(coordinate: tuple) -> str:
         try:
-            if not checkType('publicKeyCoordinateToPublicKey', coordinate, TYPE.TUPLE):
-                return ''
-            if len(coordinate) == 0:
-                gui_errorDialog.Error('publicKeyCoordinateToPublicKey',
-                                      'Coordinate with length 0 is not calculable.').exec()
-                return ''
-            else:
-                coordinate_x_y = (coordinate[0].to_bytes(32, byteorder='big') +
-                                  coordinate[1].to_bytes(32, byteorder='big'))
-                return '0x' + coordinate_x_y.hex()
+            checkType(coordinate, TYPE.TUPLE)
+            checkLen(coordinate, 2)
+            coordinate_x_y = (coordinate[0].to_bytes(32, byteorder='big') +
+                              coordinate[1].to_bytes(32, byteorder='big'))
+            return '0x' + coordinate_x_y.hex()
         except Exception as er:
-            gui_errorDialog.Error('publicKeyCoordinateToPublicKey', str(er)).exec()
-            return ''
+            raise Exception(f"publicKeyCoordinateToPublicKey -> {er}")
 
     @staticmethod
     def publicKeyToAddress(publicKey: str) -> str:
         try:
-            if not checkType('publicKeyToAddress', publicKey, TYPE.STRING):
-                return ''
-            if not checkHex('publicKeyToAddress', publicKey):
-                return ''
+            checkType(publicKey, TYPE.STRING)
+            checkHex(publicKey)
             if publicKey.startswith('0x') or publicKey.startswith('0X'):
                 publicKey = publicKey[2:]
-            if not checkLen('publicKeyToAddress', publicKey, 128):
-                return ''
-            else:
-                return '0x' + keccak_256(bytes.fromhex(publicKey)).digest()[-20:].hex()
+            checkLen(publicKey, LEN_PUBLIC_KEY)
+            return '0x' + keccak_256(bytes.fromhex(publicKey)).digest()[-20:].hex()
         except Exception as er:
-            gui_errorDialog.Error('publicKeyToAddress', str(er)).exec()
-            return ''
+            raise Exception(f"publicKeyToAddress -> {er}")
 
     @staticmethod
     def entropyToMnemonic(entropy: str) -> str:
         try:
-            if not checkType('entropyToMnemonic', entropy, TYPE.STRING):
-                return ''
+            checkType(entropy, TYPE.STRING)
             if entropy.startswith('0b'):
                 entropy = entropy[2:]
-            if not checkLen('entropyToMnemonic', entropy, 256):
-                return ''
-            else:
-                mnemonic = []
-                response = requests.get(
-                    'https://github.com/tokimay/Full_Access_Wallet/blob/main/resources/bip39EnglishWordList.txt')
-                file = loads(response.text)
-                bip39 = file["payload"]['blob']['rawLines']
-                if not checkType('entropyToMnemonic', bip39, TYPE.LIST):
-                    return ''
-                if not checkLen('entropyToMnemonic', bip39, 2048):
-                    return ''
-                sha256Entropy = ENTROPY.ToSha256(entropy)
-                if sha256Entropy.startswith('0b'):
-                    sha256Entropy = entropy[2:]
-                if not checkLen('entropyToMnemonic', sha256Entropy, 256):
-                    return ''
-                else:
-                    checkSumEntropy = entropy + str(sha256Entropy[:8])
-                    if not checkLen('entropyToMnemonic', checkSumEntropy, 264):
-                        return ''
-                    else:
-                        chunk = 11
-                        while chunk <= 264:
-                            mnemonic.append(bip39[int(checkSumEntropy[(chunk - 11):chunk], 2)])
-                            chunk = chunk + 11
-                        if not len(mnemonic) == 24:
-                            gui_errorDialog.Error('entropyToMnemonic',
-                                                  f'Generating mnemonic failed.\n'
-                                                  f'Incompatible length received.\n'
-                                                  f'{len(mnemonic)}').exec()
-                            return ''
-                        else:
-                            return ' '.join(mnemonic)
+            checkLen(entropy, LEN_ENTROPY)
+
+            mnemonic = []
+            response = get(
+                'https://github.com/tokimay/Full_Access_Wallet/blob/main/resources/bip39EnglishWordList.txt')
+            file = loads(response.text)
+            bip39 = file["payload"]['blob']['rawLines']
+
+            checkType(bip39, TYPE.LIST)
+            checkLen(bip39, LEN_BIP39)
+
+            sha256Entropy = ENTROPY.ToSha256(entropy)
+            if sha256Entropy.startswith('0b'):
+                sha256Entropy = entropy[2:]
+            checkLen(sha256Entropy, LEN_SHA256_ENTROPY)
+
+            checkSumEntropy = entropy + str(sha256Entropy[:8])
+            checkLen(checkSumEntropy, LEN_CEK_SM_ENTROPY)
+
+            chunk = 11
+            while chunk <= LEN_CEK_SM_ENTROPY:
+                mnemonic.append(bip39[int(checkSumEntropy[(chunk - 11):chunk], 2)])
+                chunk = chunk + 11
+            if not len(mnemonic) == LEN_MNEMONIC:
+                raise Exception(f"Generating mnemonic failed. Incompatible length received.\n{len(mnemonic)}")
+            return ' '.join(mnemonic)
         except Exception as er:
-            gui_errorDialog.Error('entropyToMnemonic', str(er)).exec()
-            return ''
+            raise Exception(f"entropyToMnemonic -> {er}")
 
     @staticmethod
     def mnemonicToEntropy(mnemonic: str) -> str:
         try:
             entropy = ''
-            response = requests.get(
+            response = get(
                 'https://github.com/tokimay/Full_Access_Wallet/blob/main/resources/bip39EnglishWordList.txt')
             file = loads(response.text)
             bip39 = file["payload"]['blob']['rawLines']
-            if not checkType('entropyToMnemonic', bip39, TYPE.LIST):
-                return ''
-            if not checkLen('entropyToMnemonic', bip39, 2048):
-                return ''
+            checkType(bip39, TYPE.LIST)
+            checkLen(bip39, LEN_BIP39)
             mnemonicList = mnemonic.split()
-            if not checkLen('mnemonicToEntropy', mnemonicList, 24):
-                return ''
-            else:
-                for word in mnemonicList:
-                    if not (word in bip39):
-                        gui_errorDialog.Error('mnemonicToEntropy',
-                                              f'Invalid Mnemonic.\n'
-                                              f'{word} is not in BIP39 word list').exec()
-                        return ''
-                    else:
-                        index = bin(bip39.index(word))[2:].zfill(11)
-                        entropy = entropy + index
-                if not checkLen('mnemonicToEntropy', entropy, 264):
-                    return ''
+            checkLen(mnemonicList, LEN_MNEMONIC)
+            for word in mnemonicList:
+                if not (word in bip39):
+                    raise Exception(f"Invalid Mnemonic.\n'{word}' is not in BIP39 word list")
                 else:
-                    checkSum = entropy[-8:]
-                    entropy = entropy[:-8]  # remove checksum
-                    sha256Entropy = ENTROPY.ToSha256(entropy)
-                    if sha256Entropy.startswith('0b'):
-                        sha256Entropy = entropy[2:]
-                    if not checkLen('mnemonicToEntropy', sha256Entropy, 256):
-                        return ''
-                    if not checkSum == str(sha256Entropy[:8]):
-                        gui_errorDialog.Error('mnemonicToEntropy', 'Invalid mnemonic.').exec()
-                        return ''
-                    else:
-                        return entropy
+                    index = bin(bip39.index(word))[2:].zfill(11)
+                    entropy = entropy + index
+            checkLen(entropy, LEN_CEK_SM_ENTROPY)
+            checkSum = entropy[-8:]
+            entropy = entropy[:-8]  # remove checksum
+            sha256Entropy = ENTROPY.ToSha256(entropy)
+            if sha256Entropy.startswith('0b'):
+                sha256Entropy = entropy[2:]
+            checkLen(sha256Entropy, LEN_SHA256_ENTROPY)
+            if not checkSum == str(sha256Entropy[:8]):
+                raise Exception(f"Invalid mnemonic.")
+            else:
+                return entropy
         except Exception as er:
-            gui_errorDialog.Error('mnemonicToEntropy', str(er)).exec()
-            return ''
+            raise Exception(f"mnemonicToEntropy -> {er}")
 
     @staticmethod
     def random() -> dict:
         try:
             entropy = New.newEntropy()
-            print('=', 1)
-            if entropy == '':
-                return {}
-            print('=', 2)
             mnemonic = New.entropyToMnemonic(entropy)
-            if mnemonic == '':
-                return {}
-            print('=', 3)
             privateKey = New.entropyToPrivateKey(entropy)
-            if privateKey == '':
-                return {}
-            print('=', 4)
             publicKeyCoordinate = New.privateKeyToPublicKeyCoordinate(privateKey)
-            if publicKeyCoordinate == ():
-                return {}
-            print('=', 5)
             publicKey = New.publicKeyCoordinateToPublicKey(publicKeyCoordinate)
-            if publicKey == '':
-                return {}
-            print('=', 6)
             address = New.publicKeyToAddress(publicKey)
-            if address == '':
-                return {}
-            print('=', 7)
             return {'entropy': entropy,
                     'privateKey': privateKey,
                     'publicKeyCoordinate': publicKeyCoordinate,
@@ -225,27 +166,16 @@ class New:
                     'address': address,
                     'mnemonic': mnemonic}
         except Exception as er:
-            gui_errorDialog.Error('random', str(er)).exec()
-            return {}
+            raise Exception(f"random -> {er}")
 
     @staticmethod
     def fromEntropy(entropy: str) -> dict:
         try:
             mnemonic = New.entropyToMnemonic(entropy)
-            if mnemonic == '':
-                return {}
             privateKey = New.entropyToPrivateKey(entropy)
-            if privateKey == '':
-                return {}
             publicKeyCoordinate = New.privateKeyToPublicKeyCoordinate(privateKey)
-            if publicKeyCoordinate == ():
-                return {}
             publicKey = New.publicKeyCoordinateToPublicKey(publicKeyCoordinate)
-            if publicKey == '':
-                return {}
             address = New.publicKeyToAddress(publicKey)
-            if address == '':
-                return {}
             return {'entropy': entropy,
                     'privateKey': privateKey,
                     'publicKeyCoordinate': publicKeyCoordinate,
@@ -253,8 +183,7 @@ class New:
                     'address': address,
                     'mnemonic': mnemonic}
         except Exception as er:
-            gui_errorDialog.Error('fromEntropy', str(er)).exec()
-            return {}
+            raise Exception(f"fromEntropy -> {er}")
 
     @staticmethod
     def fromPrivateKey(privateKey: str) -> dict:
@@ -262,14 +191,8 @@ class New:
             entropy = privateKey
             mnemonic = privateKey
             publicKeyCoordinate = New.privateKeyToPublicKeyCoordinate(privateKey)
-            if publicKeyCoordinate == ():
-                return {}
             publicKey = New.publicKeyCoordinateToPublicKey(publicKeyCoordinate)
-            if publicKey == '':
-                return {}
             address = New.publicKeyToAddress(publicKey)
-            if address == '':
-                return {}
             return {'entropy': entropy,
                     'privateKey': privateKey,
                     'publicKeyCoordinate': publicKeyCoordinate,
@@ -277,28 +200,16 @@ class New:
                     'address': address,
                     'mnemonic': mnemonic}
         except Exception as er:
-            gui_errorDialog.Error('fromPrivateKey', str(er)).exec()
-            return {}
+            raise Exception(f"fromPrivateKey -> {er}")
 
     @staticmethod
     def fromMnemonic(mnemonic: str) -> dict:
         try:
             entropy = New.mnemonicToEntropy(mnemonic)
-            print(entropy)
-            if entropy == '':
-                return {}
             privateKey = New.entropyToPrivateKey(entropy)
-            if privateKey == '':
-                return {}
             publicKeyCoordinate = New.privateKeyToPublicKeyCoordinate(privateKey)
-            if publicKeyCoordinate == ():
-                return {}
             publicKey = New.publicKeyCoordinateToPublicKey(publicKeyCoordinate)
-            if publicKey == '':
-                return {}
             address = New.publicKeyToAddress(publicKey)
-            if address == '':
-                return {}
             return {'entropy': entropy,
                     'privateKey': privateKey,
                     'publicKeyCoordinate': publicKeyCoordinate,
@@ -306,5 +217,4 @@ class New:
                     'address': address,
                     'mnemonic': mnemonic}
         except Exception as er:
-            gui_errorDialog.Error('fromMnemonic', str(er)).exec()
-            return {}
+            raise Exception(f"fromMnemonic -> {er}")

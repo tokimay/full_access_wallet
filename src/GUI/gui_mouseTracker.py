@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QDialog
 
 
-class UI(QDialog):
+class WINDOW(QDialog):
     def __init__(self):
         super().__init__()
         self.initUI()

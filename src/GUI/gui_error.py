@@ -2,11 +2,11 @@ from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtWidgets import QDialog
 
 
-class Error(QDialog):
-    def __init__(self, function: str, message: str):
+class WINDOW(QDialog):
+    def __init__(self, title: str, message: str):
         super().__init__()
         self.message = message
-        self.function = function
+        self.function = title
         self.gridLayoutWidget = QtWidgets.QWidget(parent=self)
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.plainTextEdit_error = QtWidgets.QPlainTextEdit(parent=self.gridLayoutWidget)
@@ -32,9 +32,3 @@ class Error(QDialog):
         self.label_1.setText("Some error has been occurred")
         self.label_2.setText("Error details:")
         self.plainTextEdit_error.setPlainText(self.message)
-
-
-
-
-
-

@@ -2,7 +2,7 @@ from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtWidgets import QDialog
 
 
-class Ui(QDialog):
+class WINDOW(QDialog):
     def __init__(self, title: str, messageHeader: str, messageBody: str):
         super().__init__()
         self.userAnswer = False
@@ -66,7 +66,3 @@ class Ui(QDialog):
 
     def getAnswer(self):
         return self.userAnswer
-
-
-
-

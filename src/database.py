@@ -1,4 +1,3 @@
-from src.GUI import gui_errorDialog
 from sqlite3 import connect
 
 
@@ -20,42 +19,9 @@ class Sqlite:
             else:
                 return True
         except Exception as er:
-            gui_errorDialog.Error('isTableExist', str(er)).exec()
-            return False
+            raise Exception(f"isTableExist -> {er}")
 
-    def isAccountExist(self) -> bool:
-        try:
-            connection = connect(self.databaseName)
-            cursor = connection.cursor()
-            cursor.execute("""SELECT * FROM accounts;""")
-            ls = cursor.fetchall()
-            connection.commit()
-            connection.close()
-            if len(ls) > 0:
-                return True
-            else:
-                return False
-        except Exception as er:
-            gui_errorDialog.Error('isAccountExist', str(er)).exec()
-            return False
-
-    def isRowExist(self, name: str, value: str) -> bool:
-        try:
-            connection = connect(self.databaseName)
-            cursor = connection.cursor()
-            cursor.execute(f"SELECT * FROM accounts WHERE {name} = ?", (value,))
-            data = cursor.fetchall()
-            connection.commit()
-            connection.close()
-            if len(data) == 0:
-                return False
-            else:
-                return True
-        except Exception as er:
-            gui_errorDialog.Error('isRowExist', str(er)).exec()
-            return False
-
-    def createTable(self) -> bool:
+    def createTable(self):
         try:
             connection = connect(self.databaseName)
             cursor = connection.cursor()
@@ -73,39 +39,10 @@ class Sqlite:
             print('cursor last row id:', cursor.lastrowid)
             connection.commit()
             connection.close()
-            return True
+            if not self.isTableExist():
+                raise Exception(f"failed to create table in database.")
         except Exception as er:
-            gui_errorDialog.Error('createTable', str(er)).exec()
-            return False
-
-    def insertRow(self, acc: dict) -> bool:
-        try:
-            existAccount = self.isRowExist('ADR', acc['address'])
-            if existAccount:
-                gui_errorDialog.Error('insertRow', 'This account is already exist.\n').exec()
-                return False
-            else:
-                connection = connect(self.databaseName)
-                cursor = connection.cursor()
-                cursor.execute(
-                    "INSERT INTO accounts(ENT, PRV, PUK_COR_X, PUK_COR_Y, PUK, ADR, NEM, NAM) "
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                    (
-                        acc['entropy'],
-                        acc['privateKey'],
-                        str(acc['publicKeyCoordinate'][0]),
-                        str(acc['publicKeyCoordinate'][1]),
-                        acc['publicKey'],
-                        acc['address'],
-                        acc['mnemonic'],
-                        'No name'
-                    ))
-                connection.commit()
-                connection.close()
-                return True
-        except Exception as er:
-            gui_errorDialog.Error('insertRow', str(er)).exec()
-            return False
+            raise Exception(f"createTable -> {er}")
 
     def readAllRows(self) -> list:
         try:
@@ -115,23 +52,11 @@ class Sqlite:
             ls = cursor.fetchall()
             connection.commit()
             connection.close()
+            if len(ls) <= 0:
+                raise Exception(f"can not read database.\n")
             return ls
         except Exception as er:
-            gui_errorDialog.Error('readAllRows', str(er)).exec()
-            return []
-
-    def readRowByCondition(self, condition: str) -> list:
-        try:
-            connection = connect(self.databaseName)
-            cursor = connection.cursor()
-            cursor.execute(f"""SELECT * FROM accounts WHERE ADR = ?""", (condition,))
-            ls = cursor.fetchall()
-            connection.commit()
-            connection.close()
-            return ls
-        except Exception as er:
-            gui_errorDialog.Error('readRowByCondition', str(er)).exec()
-            return []
+            raise Exception(f"readAllRows -> {er}")
 
     def readColumnAllRows(self, columnName) -> list:
         try:
@@ -141,12 +66,13 @@ class Sqlite:
             ls = cursor.fetchall()
             connection.commit()
             connection.close()
+            if len(ls) <= 0:
+                raise Exception(f"can not find '{columnName}' data in database.\n")
             return ls
         except Exception as er:
-            gui_errorDialog.Error('readColumnAllRows', str(er)).exec()
-            return []
+            raise Exception(f"readColumnAllRows -> {er}")
 
-    def readColumnByCondition(self, columnName, condition) -> list:
+    def readColumn(self, columnName, condition):
         try:
             connection = connect(self.databaseName)
             cursor = connection.cursor()
@@ -154,32 +80,102 @@ class Sqlite:
             ls = cursor.fetchall()
             connection.commit()
             connection.close()
+            if len(ls) <= 0:
+                raise Exception(f"can not find data in database.\nwhere '{columnName} = {condition}.")
             return ls
         except Exception as er:
-            gui_errorDialog.Error('readColumnByCondition', str(er)).exec()
-            return []
+            raise Exception(f"readColumn -> {er}")
 
-    def updateRowValue(self, columnName: str, newValue: str, condition: str) -> bool:
+    def isExist(self, columnName: str, columnValue: str) -> bool:
         try:
             connection = connect(self.databaseName)
             cursor = connection.cursor()
-            cursor.execute(f"""UPDATE accounts SET {columnName} = '{newValue}' WHERE ADR = ?""", (condition,))
+            cursor.execute(f"SELECT * FROM accounts WHERE {columnName} = ?", (columnValue,))
+            data = cursor.fetchall()
             connection.commit()
             connection.close()
-            return True
+            if len(data) > 0:
+                return True
+            else:
+                return False
         except Exception as er:
-            print('here')
-            gui_errorDialog.Error('updateRowValue', str(er)).exec()
-            return False
+            raise Exception(f"isExist -> {er}")
 
-    def deleteRow(self, condition: str) -> bool:
+    def insertRow(self, acc: dict):
+        try:
+            if self.isExist('ADR', acc['address']):
+                raise Exception(f"'{acc['address']}'\nis already exist in database.")
+            connection = connect(self.databaseName)
+            cursor = connection.cursor()
+            cursor.execute(
+                "INSERT INTO accounts(ENT, PRV, PUK_COR_X, PUK_COR_Y, PUK, ADR, NEM, NAM) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                (
+                    acc['entropy'],
+                    acc['privateKey'],
+                    str(acc['publicKeyCoordinate'][0]),
+                    str(acc['publicKeyCoordinate'][1]),
+                    acc['publicKey'],
+                    acc['address'],
+                    acc['mnemonic'],
+                    'No name'
+                ))
+            connection.commit()
+            connection.close()
+            if cursor.rowcount <= 0:
+                raise Exception(f"inserting '{acc['address']}' data to database failed.")
+        except Exception as er:
+            raise Exception(f"insertRow -> {er}")
+
+    def isAccountExist(self) -> bool:
         try:
             connection = connect(self.databaseName)
             cursor = connection.cursor()
-            cursor.execute(f"""DELETE from accounts WHERE ADR = ?""", (condition,))
+            cursor.execute("""SELECT * FROM accounts;""")
+            ls = cursor.fetchall()
             connection.commit()
             connection.close()
-            return True
+            if len(ls) > 0:
+                return True
+            else:
+                return False
         except Exception as er:
-            gui_errorDialog.Error('readAllRows', str(er)).exec()
-            return False
+            raise Exception(f"isAccountExist -> {er}")
+
+    def updateRowValue(self, columnName: str, newValue: str, address: str):
+        try:
+            connection = connect(self.databaseName)
+            cursor = connection.cursor()
+            cursor.execute(f"""UPDATE accounts SET {columnName} = '{newValue}' WHERE ADR = ?""", (address,))
+            connection.commit()
+            connection.close()
+            if cursor.rowcount <= 0:
+                self.readRow(address)
+        except Exception as er:
+            raise Exception(f"updateRowValue -> {er}")
+
+    def readRow(self, address: str) -> list:
+        try:
+            connection = connect(self.databaseName)
+            cursor = connection.cursor()
+            cursor.execute(f"""SELECT * FROM accounts WHERE ADR = ?""", (address,))
+            ls = cursor.fetchall()
+            connection.commit()
+            connection.close()
+            if len(ls) <= 0:
+                raise Exception(f"can not find '{address}' data in database.")
+            return ls
+        except Exception as er:
+            raise Exception(f"readRow -> {er}")
+
+    def deleteRow(self, address: str):
+        try:
+            connection = connect(self.databaseName)
+            cursor = connection.cursor()
+            cursor.execute(f"""DELETE from accounts WHERE ADR = ?""", (address,))
+            connection.commit()
+            connection.close()
+            if cursor.rowcount <= 0:
+                self.readRow(address)
+        except Exception as er:
+            raise Exception(f"deleteRow -> {er}")

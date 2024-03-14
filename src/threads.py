@@ -11,4 +11,3 @@ class Balance(QThread):
         while True:
             sleep(5)
             self.window.getBalance()
-

@@ -19,4 +19,3 @@ class TYPE(Enum):
     TUPLE = tuple
     FLOAT = float
     BOOLEAN = bool
-
