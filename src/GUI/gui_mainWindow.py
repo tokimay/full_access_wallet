@@ -18,6 +18,8 @@ from src.validators import checkHex, checkURL
 HEIGHT = 24
 MENU_HEIGHT = 16
 ICON_SIZE = 16
+SEPOLIA_PROVIDER = "https://rpc-sepolia.rockx.com/"
+ETHEREUM_PROVIDER = "https://nodes.mewapi.io/rpc/eth"
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -56,6 +58,7 @@ class Ui(QtWidgets.QMainWindow):
         # ----------------------------------------------------------------------------------
         self.action_publicKeyFromTxHash = QAction(self)
         self.action_transactionMessage = QAction(self)
+        self.action_pendingTransactions = QAction(self)
         # ----------------------------------------------------------------------------------
         self.central_widget = QWidget(self)
         self.gridLayout_widget = QWidget(self.central_widget)
@@ -149,6 +152,7 @@ class Ui(QtWidgets.QMainWindow):
 
         self.action_publicKeyFromTxHash.setObjectName("actionPublicKey_from_TXHash")
         self.action_transactionMessage.setObjectName('actionTransactionMessage')
+        self.action_pendingTransactions.setObjectName('action_pendingTransactions ')
         # ----------------------------------------------------------------------------------
         self.menubar_file.setObjectName("menubar_file")
         self.menubar_file.setGeometry(QRect(0, 0, 800, 30))
@@ -225,11 +229,13 @@ class Ui(QtWidgets.QMainWindow):
         self.action_publicKeyFromTxHash.setText("PublicKey from TXHash")
         self.menu_tools.addAction(self.action_transactionMessage)
         self.action_transactionMessage.setText('Show transaction message')
+        self.menu_tools.addAction(self.action_pendingTransactions)
+        self.action_pendingTransactions.setText('pending transactions')
         # ----------------------------------------------------------------------------------
         # row 1
         self.label_nodeProvider.setObjectName("label_nodeProvider")
         self.label_nodeProvider.setText("Node provider:")
-        self.lineEdit_nodeProvider.setText("https://nodes.mewapi.io/rpc/eth")
+        self.lineEdit_nodeProvider.setText(ETHEREUM_PROVIDER)
         self.lineEdit_nodeProvider.setObjectName("lineEdit_nodeProvider")
         self.pushButton_nodeProvider.setObjectName("pushButton_nodeProvider")
         self.pushButton_nodeProvider.setText("Providers")
@@ -379,7 +385,7 @@ class Ui(QtWidgets.QMainWindow):
         self.comboBox_GasFeePriority.setMinimumHeight(MENU_HEIGHT)
 
         self.comboBox_activeAddressVal.clear()
-        self.lineEdit_nodeProvider.setText('https://rpc.sepolia.org')
+        self.lineEdit_nodeProvider.setText(SEPOLIA_PROVIDER)
         self.radioButton_mainNet.setChecked(False)
         self.radioButton_testNet.setChecked(True)
         self.lineEdit_accountName.setEnabled(False)
@@ -490,7 +496,15 @@ class Ui(QtWidgets.QMainWindow):
 
         self.textEdit_main.setStyleSheet("background-color: black; color: cyan")
 
-        self.statusbar.setStyleSheet('color: white')
+        self.resetStatueBarStyleSheet()
+
+    def resetStatueBarStyleSheet(self):
+        self.statusbar.clearMessage()
+        statusbarStyle = (
+            "background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+            "stop:0 rgb(30, 76, 108) , stop:1 rgb(47, 54, 60)); color: white;"
+        )
+        self.statusbar.setStyleSheet(statusbarStyle)
 
     def setClickEvents(self):
         self.pushButton_copyAddress.clicked.connect(self.copyAddress)
@@ -522,6 +536,7 @@ class Ui(QtWidgets.QMainWindow):
         # Network-Tools-----------------------------------------------------------------------------------------
         self.action_publicKeyFromTxHash.triggered.connect(self.showSenderPublicKey)
         self.action_transactionMessage.triggered.connect(self.showCustomTransactionMessage)
+        self.action_pendingTransactions.triggered.connect(self.showPendingTransactions)
         # -------------------------------------------------------------------------------------------------------
         self.radioButton_mainNet.toggled.connect(self.changeNetwork)
         self.radioButton_testNet.toggled.connect(self.changeNetwork)
@@ -572,13 +587,15 @@ class Ui(QtWidgets.QMainWindow):
         self.action_publicKeyFromTxHash.setStatusTip('recover sender public key from transaction hash')
         self.action_transactionMessage.setShortcut('Alt+m')
         self.action_transactionMessage.setStatusTip('view the embedded message in a transaction')
+        # self.action_pendingTransactions.setShortcut('Alt+p')
+        self.action_pendingTransactions.setStatusTip('view non-verified transactions')
 
     def changeNetwork(self):
         try:
             if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
-                self.lineEdit_nodeProvider.setText('https://nodes.mewapi.io/rpc/eth')
+                self.lineEdit_nodeProvider.setText(ETHEREUM_PROVIDER)
             elif not self.radioButton_mainNet.isChecked() and self.radioButton_testNet.isChecked():
-                self.lineEdit_nodeProvider.setText('https://rpc.sepolia.org')
+                self.lineEdit_nodeProvider.setText(SEPOLIA_PROVIDER)
             else:
                 raise Exception("unknown network status")
         except Exception as er:
@@ -810,12 +827,11 @@ class Ui(QtWidgets.QMainWindow):
                     self.label_amountVal.setText(
                         '<span style = "color: ' + color + '; font-weight: bold;" > ' + str(balance) +
                         '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
+                    self.resetStatueBarStyleSheet()
                     print('balance = ', balance)
         except Exception as er:
-            self.statusbar.setStyleSheet('color: red')
-            self.statusbar.showMessage(f"balance synchronization failed. {er}")
-        finally:
-            self.statusbar.setStyleSheet('color: white')
+            self.statusbar.setStyleSheet("background-color: red; color: white")
+            self.statusbar.showMessage(f"balance is not synchronized. {er}")
 
     def transactionElements(self, data: str = ''):
         try:
@@ -851,6 +867,10 @@ class Ui(QtWidgets.QMainWindow):
         except Exception as er:
             gui_error.WINDOW('transactionElements', str(er)).exec()
 
+    def showPendingTransactions(self):
+        pendingBlock = ethereum.getPendingTransactions(self.lineEdit_nodeProvider.text())
+        print()
+
     def send(self, duplicate: bool = False):
         try:
             if self.lineEdit_message.text():
@@ -863,10 +883,14 @@ class Ui(QtWidgets.QMainWindow):
                 raise Exception(f"send parameters!")
             print(self.transactionResult)
             if self.transactionResult['message'] == 'succeed':
-                gui_message.WINDOW('Your job is done', 'Transaction succeed:',
-                                   f'Hash: {self.transactionResult}').exec()
-                self.showTransaction(self.transactionResult)
-                self.textEdit_main.append(f"transactionResult\n{self.transactionResult}\n")
+                gui_message.WINDOW("Your job is done', 'Transaction succeed:",
+                                   f"Hash: {self.transactionResult['hash']}").exec()
+                self.showTransaction(self.transactionResult['hash'])
+                cursor = QTextCursor(self.textEdit_main.document())
+                cursor.setPosition(0)
+                self.textEdit_main.setTextCursor(cursor)
+                self.textEdit_main.insertPlainText(f"transaction Hash:\n{self.transactionResult['hash']}\n"
+                                                   f"----------\n")
                 self.lineEdit_sendValue.clear()
                 self.lineEdit_message.clear()
                 self.lineEdit_sendAddress.clear()
@@ -875,9 +899,11 @@ class Ui(QtWidgets.QMainWindow):
             if self.transactionResult['message'] == 'replacement transaction underpriced':
                 nonceWindow = gui_userChoice.WINDOW('send',
                                                     f"{self.transactionResult['pending']} transaction(s) "
-                                                    f"also waiting for confirmation.",
-                                                    f"you can change transaction nonce and force it to  submit.\n"
-                                                    f"do it?")
+                                                    f"also waiting for confirmation.\n"
+                                                    f"you can change transaction nonce and force it to submit.",
+                                                    f"(if you see this message repeatedly, "
+                                                    f"cancel this dialog and wait for pending transaction fate.)\n"
+                                                    f"want to do it or cancel it?")
                 nonceWindow.exec()
                 userAnswer = nonceWindow.getAnswer()
                 if not userAnswer:
@@ -963,6 +989,8 @@ class Ui(QtWidgets.QMainWindow):
                 transactionResult = ethereum.sendMessageTransaction(privateKey=(self.db.readColumn(
                     dataTypes.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0], txElements=transactions)
                 self.transactionResult = transactionResult
+                if self.transactionResult['message'] != 'succeed':
+                    raise Exception(f"{self.transactionResult['message']}")
         except Exception as er:
             raise Exception(f"sentMessage -> {er}")
 

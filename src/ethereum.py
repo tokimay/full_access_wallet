@@ -37,7 +37,7 @@ def estimateGas(txElements: dict) -> dict:
         if not w3.is_connected():
             raise Exception(f"connect to '{txElements['provider']}' failed.")
 
-        feeHistory = w3.eth.fee_history(50, 'latest', [10, 20, 30])
+        feeHistory = w3.eth.fee_history(10, 'latest', [10, 20, 30])
 
         for feeList in feeHistory["reward"]:
             # 10 percentile values - low fees
@@ -89,9 +89,15 @@ def sendValueTransaction(privateKey: str, txElements: dict, duplicate: bool = Fa
         w3 = Web3(HTTPProvider(txElements['provider']))
         if not w3.is_connected():
             raise Exception(f"connect to '{txElements['provider']}' failed.")
-        gas = int((w3.to_wei(txElements['GasPrice'], 'ether'))/10000000000)
-        maxFeePerGas = int((w3.to_wei(txElements['maxFeePerGas'], 'ether'))/10000000000)
-        maxPriorityFeePerGas = int((w3.to_wei(txElements['maxFeePerGas'], 'ether'))/10000000000)
+        gas = int((w3.to_wei(txElements['GasPrice'], 'ether')) / 10000000000)
+        if gas < 21000:
+            gas = 21000
+        maxFeePerGas = int((w3.to_wei(txElements['maxFeePerGas'], 'ether')) / 10000000000)
+        # if maxFeePerGas < 2000000000:
+        #    maxFeePerGas = 2000000000
+        maxPriorityFeePerGas = int((w3.to_wei(txElements['maxFeePerGas'], 'ether')) / 10000000000)
+        # if maxPriorityFeePerGas < 1000000000:
+        #    maxPriorityFeePerGas = 1000000000
         nonceConfirmed = w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender']))
         noncePending = w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender']),
                                                     'pending')
@@ -114,12 +120,12 @@ def sendValueTransaction(privateKey: str, txElements: dict, duplicate: bool = Fa
             'chainId': txElements['chainId'],
             # 'hardfork': 'petersburg'
         })
-        #gas = w3.eth.estimate_gas(transaction)
-        #print('gas ', gas)
-        #transaction.update({'gas': gas})
+        # gas = w3.eth.estimate_gas(transaction)
+        # print('gas ', gas)
+        # transaction.update({'gas': gas})
         signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
         print('rawTransaction:', signed.rawTransaction)
-        print('signed hash:', signed.hash)
+        print('signed hash:', signed.hash.hex())
         print('r:', signed.r)
         print('s:', signed.s)
         print('v:', signed.v)
@@ -137,6 +143,68 @@ def sendValueTransaction(privateKey: str, txElements: dict, duplicate: bool = Fa
         return result
 
 
+def sendMessageTransaction(privateKey: str, txElements: dict, duplicate: bool = False) -> dict:
+    result = {'message': '', 'hash': '', 'pending': 0}
+    noncePending = 0
+    nonceConfirmed = 0
+    try:
+        w3 = Web3(HTTPProvider(txElements['provider']))
+        if not w3.is_connected():
+            raise Exception(f"connect to '{txElements['provider']}' failed.")
+        gas = int((w3.to_wei(txElements['GasPrice'], 'ether')) / 10000000000)
+        if gas < 21000:
+            gas = 21000
+        maxFeePerGas = int((w3.to_wei(txElements['maxFeePerGas'], 'ether')) / 10000000000)
+        # if maxFeePerGas < 2000000000:
+        #    maxFeePerGas = 2000000000
+        maxPriorityFeePerGas = int((w3.to_wei(txElements['maxFeePerGas'], 'ether')) / 10000000000)
+        # if maxPriorityFeePerGas < 1000000000:
+        #    maxPriorityFeePerGas = 1000000000
+        nonceConfirmed = w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender']))
+        noncePending = w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender']),
+                                                    'pending')
+        if duplicate:
+            nonce = noncePending
+        else:
+            nonce = nonceConfirmed
+        print('gas ', gas, 'Gwei')
+        print('maxFeePerGas ', maxFeePerGas, 'Gwei')
+        print('maxPriorityFeePerGas ', maxPriorityFeePerGas, 'Gwei')
+        print('nonce ', nonce)
+        transaction = ({
+            'to': Web3.to_checksum_address(txElements['receiver']),
+            'value': w3.to_wei(txElements['vale'], 'ether'),
+            'gas': gas,  # 200000,
+            'maxFeePerGas': maxFeePerGas,  # 2000000000,
+            'maxPriorityFeePerGas': maxPriorityFeePerGas,  # 1000000000,
+            'nonce': w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender'])),
+            'chainId': txElements['chainId'],
+            # 'hardfork': 'petersburg',
+            'data': txElements['data']
+        })
+        # gas = w3.eth.estimate_gas(transaction)
+        # print('gas ', gas)
+        # transaction.update({'gas': gas})
+        signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
+        print('rawTransaction:', signed.rawTransaction)
+        print('signed hash:', signed.hash)
+        print('r:', signed.r)
+        print('s:', signed.s)
+        print('v:', signed.v)
+        txHash = w3.eth.send_raw_transaction(signed.rawTransaction)
+        result['message'] = 'succeed'
+        result['pending'] = noncePending - nonceConfirmed
+        result['hash'] = txHash.hex()
+    except Exception as er:
+        er = str(er).replace("\'", "\"")
+        er = loads(er)
+        result['message'] = er['message']
+        result['pending'] = noncePending - nonceConfirmed
+        raise Exception(f"sendMessageTransaction -> {er}")
+    finally:
+        return result
+
+
 def getTransaction(txHash: str, provider: str) -> str:
     try:
         w3 = Web3(HTTPProvider(provider))
@@ -147,37 +215,6 @@ def getTransaction(txHash: str, provider: str) -> str:
         return Web3.to_json(tx)
     except Exception as er:
         raise Exception(f"getTransaction -> {er}")
-
-
-def sendMessageTransaction(privateKey: str, txElements: dict) -> str:
-    try:
-        w3 = Web3(HTTPProvider(txElements['provider']))
-        if not w3.is_connected():
-            raise Exception(f"connect to '{txElements['provider']}' failed.")
-        transaction = ({
-            'to': Web3.to_checksum_address(txElements['receiver']),
-            'value': w3.to_wei(txElements['vale'], 'ether'),
-            'gas': 2000000,
-            'maxFeePerGas': 2000000000,
-            'maxPriorityFeePerGas': 1000000000,
-            'nonce': w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender'])),
-            'chainId': txElements['chainId'],
-            # 'hardfork': 'petersburg',
-            'data': txElements['data']
-        })
-        #gas = w3.eth.estimate_gas(transaction)
-        #print('gas ', gas)
-        #transaction.update({'gas': gas})
-        signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
-        print('rawTransaction:', signed.rawTransaction)
-        print('signed hash:', signed.hash)
-        print('r:', signed.r)
-        print('s:', signed.s)
-        print('v:', signed.v)
-        txHash = w3.eth.send_raw_transaction(signed.rawTransaction)
-        return txHash.hex()
-    except Exception as er:
-        raise Exception(f"sendMessageTransaction -> {er}")
 
 
 def getAccountNonce(address: str, provider: str) -> int:
@@ -245,3 +282,11 @@ def getPublicKeyFromTransaction(TXHash: str, provider: str) -> dict:
         return {'publicKey': recover_public_address.to_hex(), 'address': recover_address}
     except Exception as er:
         raise Exception(f"getPublicKeyFromTransaction -> {er}")
+
+
+def getPendingTransactions(provider: str):
+    w3 = Web3(HTTPProvider(provider))
+    if not w3.is_connected():
+        raise Exception(f"connect to '{provider}' failed.")
+
+    return w3.eth.get_block("pending")
