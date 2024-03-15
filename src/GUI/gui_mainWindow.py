@@ -874,7 +874,7 @@ class Ui(QtWidgets.QMainWindow):
     def send(self, duplicate: bool = False):
         try:
             if self.lineEdit_message.text():
-                self.sentMessage()
+                self.sentMessage(duplicate)
             elif not self.lineEdit_message.text() and self.lineEdit_sendValue.text():
                 self.sentETH(duplicate)
             elif not self.lineEdit_message.text() and not self.lineEdit_sendValue.text():
@@ -890,7 +890,7 @@ class Ui(QtWidgets.QMainWindow):
                 cursor.setPosition(0)
                 self.textEdit_main.setTextCursor(cursor)
                 self.textEdit_main.insertPlainText(f"transaction Hash:\n{self.transactionResult['hash']}\n"
-                                                   f"----------\n")
+                                                   f"--------------------\n")
                 self.lineEdit_sendValue.clear()
                 self.lineEdit_message.clear()
                 self.lineEdit_sendAddress.clear()
@@ -902,7 +902,7 @@ class Ui(QtWidgets.QMainWindow):
                                                     f"also waiting for confirmation.\n"
                                                     f"you can change transaction nonce and force it to submit.",
                                                     f"(if you see this message repeatedly, "
-                                                    f"cancel this dialog and wait for pending transaction fate.)\n"
+                                                    f"cancel this dialog and wait for pending transaction fate)\n"
                                                     f"want to do it or cancel it?")
                 nonceWindow.exec()
                 userAnswer = nonceWindow.getAnswer()
@@ -933,11 +933,11 @@ class Ui(QtWidgets.QMainWindow):
 
     def sentETH(self, duplicate: bool = False):
         try:
-            if not self.lineEdit_sendValue.text():
-                raise Exception(f"value = '{self.lineEdit_sendValue.text()}' !")
-
             if not self.lineEdit_sendAddress.text():
                 raise Exception(f"address = '{self.lineEdit_sendAddress.text()}' !")
+
+            if not self.lineEdit_sendValue.text():
+                raise Exception(f"value = '{self.lineEdit_sendValue.text()}' !")
 
             transactions = self.transactionElements()
             gas = ethereum.estimateGas(transactions)
@@ -965,15 +965,18 @@ class Ui(QtWidgets.QMainWindow):
         except Exception as er:
             raise Exception(f"sentETH -> {er}")
 
-    def sentMessage(self):
-        transactionResult = {'message': '', 'hash': ''}
+    def sentMessage(self, duplicate: bool = False):
         try:
+            if not self.lineEdit_sendAddress.text():
+                raise Exception(f"address = '{self.lineEdit_sendAddress.text()}' !")
+
+            if not self.lineEdit_message.text():
+                raise Exception(f"message = '{self.lineEdit_sendValue.text()}' !")
             message = self.lineEdit_message.text()
-            if not message:
-                raise Exception(f"message = {message} !")
+
             transactions = self.transactionElements(data=message.encode("utf-8").hex())
             gas = ethereum.estimateGas(transactions)
-            senETH = gui_userChoice.WINDOW("Sending your message to others",
+            senMSG = gui_userChoice.WINDOW("Sending your message to others",
                                            f"Send message: '{message}'\n"
                                            f"and value: '{transactions['vale']}' ETH\n"
                                            f"to {transactions['receiver']}\n"
@@ -982,12 +985,16 @@ class Ui(QtWidgets.QMainWindow):
                                            f"Median = {gas['GasPrice']['medium']} ETH\n"
                                            f"Highest = {gas['GasPrice']['high']} ETH\n",
                                            'Are you sure?')
-            senETH.exec()
-            if not senETH.getAnswer():  # cancel by user
-                gui_message.WINDOW('sentMessage', 'Nothing has been sent').exec()
+            senMSG.exec()
+            if not senMSG.getAnswer():  # cancel by user
+                gui_message.WINDOW('I\'m entranced with joy', 'You are in safe',
+                                   'Nothing has been sent').exec()
             else:
+                transactions = self.setPriority(transactions, gas)
                 transactionResult = ethereum.sendMessageTransaction(privateKey=(self.db.readColumn(
-                    dataTypes.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0], txElements=transactions)
+                    dataTypes.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0],
+                                                                    txElements=transactions,
+                                                                    duplicate=duplicate)
                 self.transactionResult = transactionResult
                 if self.transactionResult['message'] != 'succeed':
                     raise Exception(f"{self.transactionResult['message']}")

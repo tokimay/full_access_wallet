@@ -93,8 +93,6 @@ def sendValueTransaction(privateKey: str, txElements: dict, duplicate: bool = Fa
         if gas < 21000:
             gas = 21000
         maxFeePerGas = int((w3.to_wei(txElements['maxFeePerGas'], 'ether')) / 10000000000)
-        # if maxFeePerGas < 2000000000:
-        #    maxFeePerGas = 2000000000
         maxPriorityFeePerGas = int((w3.to_wei(txElements['maxFeePerGas'], 'ether')) / 10000000000)
         # if maxPriorityFeePerGas < 1000000000:
         #    maxPriorityFeePerGas = 1000000000
@@ -120,9 +118,17 @@ def sendValueTransaction(privateKey: str, txElements: dict, duplicate: bool = Fa
             'chainId': txElements['chainId'],
             # 'hardfork': 'petersburg'
         })
-        # gas = w3.eth.estimate_gas(transaction)
-        # print('gas ', gas)
-        # transaction.update({'gas': gas})
+        estimatedGas = w3.eth.estimate_gas(transaction)
+        if gas < estimatedGas:
+            gas = estimatedGas
+            transaction.update({'gas': gas})
+            print('new gas ', gas, 'Gwei')
+        lastBlockBaseFeePerGas = __getPendingBlock(txElements['provider'])['baseFeePerGas']
+        if maxFeePerGas < lastBlockBaseFeePerGas:
+            maxFeePerGas = lastBlockBaseFeePerGas
+            transaction.update({'maxFeePerGas': maxFeePerGas})
+            print('new maxFeePerGas ', maxFeePerGas, 'Gwei')
+
         signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
         print('rawTransaction:', signed.rawTransaction)
         print('signed hash:', signed.hash.hex())
@@ -152,11 +158,7 @@ def sendMessageTransaction(privateKey: str, txElements: dict, duplicate: bool = 
         if not w3.is_connected():
             raise Exception(f"connect to '{txElements['provider']}' failed.")
         gas = int((w3.to_wei(txElements['GasPrice'], 'ether')) / 10000000000)
-        if gas < 21000:
-            gas = 21000
         maxFeePerGas = int((w3.to_wei(txElements['maxFeePerGas'], 'ether')) / 10000000000)
-        # if maxFeePerGas < 2000000000:
-        #    maxFeePerGas = 2000000000
         maxPriorityFeePerGas = int((w3.to_wei(txElements['maxFeePerGas'], 'ether')) / 10000000000)
         # if maxPriorityFeePerGas < 1000000000:
         #    maxPriorityFeePerGas = 1000000000
@@ -182,9 +184,17 @@ def sendMessageTransaction(privateKey: str, txElements: dict, duplicate: bool = 
             # 'hardfork': 'petersburg',
             'data': txElements['data']
         })
-        # gas = w3.eth.estimate_gas(transaction)
-        # print('gas ', gas)
-        # transaction.update({'gas': gas})
+        estimatedGas = w3.eth.estimate_gas(transaction)
+        if gas < estimatedGas:
+            gas = estimatedGas
+            transaction.update({'gas': gas})
+            print('new gas ', gas, 'Gwei')
+        lastBlockBaseFeePerGas = __getPendingBlock(txElements['provider'])['baseFeePerGas']
+        if maxFeePerGas < lastBlockBaseFeePerGas:
+            maxFeePerGas = lastBlockBaseFeePerGas
+            transaction.update({'maxFeePerGas': maxFeePerGas})
+            print('new maxFeePerGas ', maxFeePerGas, 'Gwei')
+
         signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
         print('rawTransaction:', signed.rawTransaction)
         print('signed hash:', signed.hash)
@@ -284,9 +294,27 @@ def getPublicKeyFromTransaction(TXHash: str, provider: str) -> dict:
         raise Exception(f"getPublicKeyFromTransaction -> {er}")
 
 
-def getPendingTransactions(provider: str):
-    w3 = Web3(HTTPProvider(provider))
-    if not w3.is_connected():
-        raise Exception(f"connect to '{provider}' failed.")
+def getPendingTransactions(provider: str) -> list:
+    return __getPendingBlock(provider)['transactions']
 
-    return w3.eth.get_block("pending")
+def __getLastBlock(provider: str) -> dict:
+    try:
+        w3 = Web3(HTTPProvider(provider))
+        if not w3.is_connected():
+            raise Exception(f"connect to '{provider}' failed.")
+        lastBlock = w3.eth.get_block("latest")
+        lastBlock = Web3.to_json(lastBlock)
+        return loads(lastBlock)
+    except Exception as er:
+        raise Exception(f"getLastBlock -> {er}")
+
+def __getPendingBlock(provider: str) -> dict:
+    try:
+        w3 = Web3(HTTPProvider(provider))
+        if not w3.is_connected():
+            raise Exception(f"connect to '{provider}' failed.")
+        pendingBlock = w3.eth.get_block("pending")
+        pendingBlock = Web3.to_json(pendingBlock)
+        return loads(pendingBlock)
+    except Exception as er:
+        raise Exception(f"getLastBlock -> {er}")
