@@ -1,3 +1,4 @@
+from json import loads, dumps
 from statistics import median
 from urllib import request
 from eth_account._utils.legacy_transactions import serializable_unsigned_transaction_from_dict
@@ -80,20 +81,35 @@ def estimateGas(txElements: dict) -> dict:
         raise Exception(f"estimateGas -> {er}")
 
 
-def sendValueTransaction(privateKey: str, txElements: dict) -> str:
+def sendValueTransaction(privateKey: str, txElements: dict, duplicate: bool = False) -> dict:
+    result = {'message': '', 'hash': '', 'pending': 0}
+    noncePending = 0
+    nonceConfirmed = 0
     try:
         w3 = Web3(HTTPProvider(txElements['provider']))
         if not w3.is_connected():
             raise Exception(f"connect to '{txElements['provider']}' failed.")
-        #print('gas ', w3.to_wei(txElements['GasPrice'], 'ether'), 'wei')
-        #print('maxFeePerGas ', w3.to_wei(txElements['maxFeePerGas'], 'ether'), 'wei')
-        #print('maxPriorityFeePerGas ', w3.to_wei(txElements['maxFeePerGas'], 'ether'), 'wei')
+        gas = int((w3.to_wei(txElements['GasPrice'], 'ether'))/10000000000)
+        maxFeePerGas = int((w3.to_wei(txElements['maxFeePerGas'], 'ether'))/10000000000)
+        maxPriorityFeePerGas = int((w3.to_wei(txElements['maxFeePerGas'], 'ether'))/10000000000)
+        nonceConfirmed = w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender']))
+        noncePending = w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender']),
+                                                    'pending')
+        if duplicate:
+            nonce = noncePending
+        else:
+            nonce = nonceConfirmed
+        print('gas ', gas, 'Gwei')
+        print('maxFeePerGas ', maxFeePerGas, 'Gwei')
+        print('maxPriorityFeePerGas ', maxPriorityFeePerGas, 'Gwei')
+        print('nonce ', nonce)
+
         transaction = ({
             'to': Web3.to_checksum_address(txElements['receiver']),
             'value': w3.to_wei(txElements['vale'], 'ether'),
-            'gas': 200000,  # w3.to_wei(txElements['GasPrice'], 'ether'),
-            'maxFeePerGas': 2000000000,  # w3.to_wei(txElements['maxFeePerGas'], 'ether'),
-            'maxPriorityFeePerGas': 1000000000,  # w3.to_wei(txElements['MAXPriorityFee'], 'ether'),
+            'gas': gas,  # 200000,
+            'maxFeePerGas': maxFeePerGas,  # 2000000000,
+            'maxPriorityFeePerGas': maxPriorityFeePerGas,  # 1000000000,
             'nonce': w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender'])),
             'chainId': txElements['chainId'],
             # 'hardfork': 'petersburg'
@@ -108,9 +124,17 @@ def sendValueTransaction(privateKey: str, txElements: dict) -> str:
         print('s:', signed.s)
         print('v:', signed.v)
         txHash = w3.eth.send_raw_transaction(signed.rawTransaction)
-        return txHash.hex()
+        result['message'] = 'succeed'
+        result['pending'] = noncePending - nonceConfirmed
+        result['hash'] = txHash.hex()
     except Exception as er:
+        er = str(er).replace("\'", "\"")
+        er = loads(er)
+        result['message'] = er['message']
+        result['pending'] = noncePending - nonceConfirmed
         raise Exception(f"sendValueTransaction -> {er}")
+    finally:
+        return result
 
 
 def getTransaction(txHash: str, provider: str) -> str:

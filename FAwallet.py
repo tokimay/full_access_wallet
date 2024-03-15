@@ -1,7 +1,7 @@
 from sys import argv
 from PyQt6.QtWidgets import QApplication
 from src import database, dataTypes
-from src.GUI import gui_mainWindow, gui_userChoice, gui_error, gui_message
+from src.GUI import gui_mainWindow, gui_userChoice, gui_message
 from src.threads import Balance
 
 dbName = 'Data'

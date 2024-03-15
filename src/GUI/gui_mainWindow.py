@@ -100,12 +100,15 @@ class Ui(QtWidgets.QMainWindow):
         self.label_customizationArea = QLabel(self.gridLayout_widget)
         self.radioButton_mainNet = QRadioButton(self.gridLayout_widget)
         self.radioButton_testNet = QRadioButton(self.gridLayout_widget)
+        self.label_GasFeePriority = QLabel(self.gridLayout_widget)
+        self.comboBox_GasFeePriority = QComboBox(self.gridLayout_widget)
 
         self.line_vertical = QFrame(self.gridLayout_widget)
         # ----------------------------------------------------------------------------------
         self.statusbar = QStatusBar(self)
 
         self.db = database.Sqlite(dbName)
+        self.transactionResult = {'message': '', 'hash': '', 'pending': 0}
         self.initUI()
         self.initIcons()
         self.initStyleSheet()
@@ -280,6 +283,13 @@ class Ui(QtWidgets.QMainWindow):
         self.radioButton_mainNet.setText("MainNet")
         self.radioButton_testNet.setObjectName("radioButton_testNet")
         self.radioButton_testNet.setText("TestNet(Sepolia)")
+        self.label_GasFeePriority.setObjectName("label_GasFeePriority")
+        self.label_GasFeePriority.setText("Transaction priority")
+        self.comboBox_GasFeePriority.setObjectName("comboBox_GasFeePriority")
+        self.comboBox_GasFeePriority.addItem('high')
+        self.comboBox_GasFeePriority.addItem('medium')
+        self.comboBox_GasFeePriority.addItem('low')
+        self.comboBox_GasFeePriority.setCurrentIndex(1)
 
         self.line_vertical.setObjectName("line_vertical")
         self.line_vertical.setFrameShape(QFrame.Shape.VLine)
@@ -315,14 +325,14 @@ class Ui(QtWidgets.QMainWindow):
         self.gridlayout.addWidget(self.label_amountVal, 4, 1, 1, 3)
         self.gridlayout.addWidget(self.pushButton_etherScan, 4, 4, 1, 1)
         # col 5 empty
-        # col 6 empty
+        self.gridlayout.addWidget(self.label_GasFeePriority, 4, 6, 1, 1)
 
         # row 5
         self.gridlayout.addWidget(self.label_sendAddress, 5, 0, 1, 1)
         self.gridlayout.addWidget(self.lineEdit_sendAddress, 5, 1, 1, 3)
         self.gridlayout.addWidget(self.pushButton_send, 5, 4, 1, 1)
         # col 5 empty
-        # col 6 empty
+        self.gridlayout.addWidget(self.comboBox_GasFeePriority, 5, 6, 1, 1)
 
         # row 6
         self.gridlayout.addWidget(self.label_message, 6, 0, 1, 1)
@@ -364,6 +374,9 @@ class Ui(QtWidgets.QMainWindow):
 
         self.menu_wallet.setMinimumHeight(MENU_HEIGHT)
         self.menu_network.setMinimumHeight(MENU_HEIGHT)
+
+        self.label_GasFeePriority.setMinimumHeight(MENU_HEIGHT)
+        self.comboBox_GasFeePriority.setMinimumHeight(MENU_HEIGHT)
 
         self.comboBox_activeAddressVal.clear()
         self.lineEdit_nodeProvider.setText('https://rpc.sepolia.org')
@@ -445,6 +458,7 @@ class Ui(QtWidgets.QMainWindow):
         self.label_customizationArea.setStyleSheet(labelStyle)
         self.label_nodeProvider.setStyleSheet(labelStyle)
         self.label_amountVal.setStyleSheet(labelStyle)
+        self.label_GasFeePriority.setStyleSheet(labelStyle)
         self.label_amountVal.setText(
             '<span style = "color: red; font-weight: bold;" > 0'
             '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
@@ -467,11 +481,13 @@ class Ui(QtWidgets.QMainWindow):
         )
         self.radioButton_testNet.setStyleSheet(radioButtonStyle)
         self.radioButton_mainNet.setStyleSheet(radioButtonStyle)
-
-        self.comboBox_activeAddressVal.setStyleSheet(
+        comboBoxStyle = (
             "background-color: rgb(30, 76, 108); color: black; "
             "selection-background-color: rgb(47, 54, 60); selection-color: white; "
         )
+        self.comboBox_activeAddressVal.setStyleSheet(comboBoxStyle)
+        self.comboBox_GasFeePriority.setStyleSheet(comboBoxStyle)
+
         self.textEdit_main.setStyleSheet("background-color: black; color: cyan")
 
         self.statusbar.setStyleSheet('color: white')
@@ -835,30 +851,61 @@ class Ui(QtWidgets.QMainWindow):
         except Exception as er:
             gui_error.WINDOW('transactionElements', str(er)).exec()
 
-    def send(self):
+    def send(self, duplicate: bool = False):
         try:
             if self.lineEdit_message.text():
-                print('sent message = ', self.lineEdit_message.text())
-                print('sent eth = ', self.lineEdit_sendValue.text())
                 self.sentMessage()
             elif not self.lineEdit_message.text() and self.lineEdit_sendValue.text():
-                print('sent eth = ', self.lineEdit_sendValue.text())
-                print('sent message = ', self.lineEdit_message.text())
-                self.sentETH()
+                self.sentETH(duplicate)
             elif not self.lineEdit_message.text() and not self.lineEdit_sendValue.text():
-                print('sent eth = ', self.lineEdit_sendValue.text())
-                print('sent message = ', self.lineEdit_message.text())
-                print('send error')
                 raise Exception(f"sending options are empty")
             else:
                 raise Exception(f"send parameters!")
-            self.lineEdit_sendValue.clear()
-            self.lineEdit_message.clear()
-            self.lineEdit_sendAddress.clear()
+            print(self.transactionResult)
+            if self.transactionResult['message'] == 'succeed':
+                gui_message.WINDOW('Your job is done', 'Transaction succeed:',
+                                   f'Hash: {self.transactionResult}').exec()
+                self.showTransaction(self.transactionResult)
+                self.textEdit_main.append(f"transactionResult\n{self.transactionResult}\n")
+                self.lineEdit_sendValue.clear()
+                self.lineEdit_message.clear()
+                self.lineEdit_sendAddress.clear()
         except Exception as er:
             gui_error.WINDOW('send', str(er)).exec()
+            if self.transactionResult['message'] == 'replacement transaction underpriced':
+                nonceWindow = gui_userChoice.WINDOW('send',
+                                                    f"{self.transactionResult['pending']} transaction(s) "
+                                                    f"also waiting for confirmation.",
+                                                    f"you can change transaction nonce and force it to  submit.\n"
+                                                    f"do it?")
+                nonceWindow.exec()
+                userAnswer = nonceWindow.getAnswer()
+                if not userAnswer:
+                    pass
+                else:
+                    self.send(True)
 
-    def sentETH(self):
+    def setPriority(self, transactions, gas) -> dict:
+        try:
+            if self.comboBox_GasFeePriority.currentIndex() == 0:
+                transactions['maxFeePerGas'] = gas['MAX_Fee']['high']
+                transactions['MAXPriorityFee'] = gas['MAXPriorityFee']['high']
+                transactions['GasPrice'] = gas['GasPrice']['high']
+            elif self.comboBox_GasFeePriority.currentIndex() == 1:
+                transactions['maxFeePerGas'] = gas['MAX_Fee']['medium']
+                transactions['MAXPriorityFee'] = gas['MAXPriorityFee']['medium']
+                transactions['GasPrice'] = gas['GasPrice']['medium']
+            elif self.comboBox_GasFeePriority.currentIndex() == 2:
+                transactions['maxFeePerGas'] = gas['MAX_Fee']['low']
+                transactions['MAXPriorityFee'] = gas['MAXPriorityFee']['low']
+                transactions['GasPrice'] = gas['GasPrice']['low']
+            else:
+                raise Exception(f"unknown priority")
+            return transactions
+        except Exception as er:
+            raise Exception(f"setPriority -> {er}")
+
+    def sentETH(self, duplicate: bool = False):
         try:
             if not self.lineEdit_sendValue.text():
                 raise Exception(f"value = '{self.lineEdit_sendValue.text()}' !")
@@ -881,18 +928,19 @@ class Ui(QtWidgets.QMainWindow):
                 gui_message.WINDOW('I\'m entranced with joy', 'You are in safe',
                                    'Nothing has been sent').exec()
             else:
-                transactions['maxFeePerGas'] = gas['MAX_Fee']['high']
-                transactions['MAXPriorityFee'] = gas['MAXPriorityFee']['high']
-                transactions['GasPrice'] = gas['GasPrice']['high']
-                transactionHash = ethereum.sendValueTransaction(privateKey=(self.db.readColumn(
-                    dataTypes.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0], txElements=transactions)
-                gui_message.WINDOW('Your job is done', 'Transaction succeed:',
-                                   f'Hash: {transactionHash}').exec()
-                self.showTransaction(transactionHash)
+                transactions = self.setPriority(transactions, gas)
+                transactionResult = ethereum.sendValueTransaction(privateKey=(self.db.readColumn(
+                    dataTypes.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0],
+                                                                  txElements=transactions,
+                                                                  duplicate=duplicate)
+                self.transactionResult = transactionResult
+                if self.transactionResult['message'] != 'succeed':
+                    raise Exception(f"{self.transactionResult['message']}")
         except Exception as er:
             raise Exception(f"sentETH -> {er}")
 
     def sentMessage(self):
+        transactionResult = {'message': '', 'hash': ''}
         try:
             message = self.lineEdit_message.text()
             if not message:
@@ -912,11 +960,9 @@ class Ui(QtWidgets.QMainWindow):
             if not senETH.getAnswer():  # cancel by user
                 gui_message.WINDOW('sentMessage', 'Nothing has been sent').exec()
             else:
-                transactionHash = ethereum.sendMessageTransaction(privateKey=(self.db.readColumn(
+                transactionResult = ethereum.sendMessageTransaction(privateKey=(self.db.readColumn(
                     dataTypes.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0], txElements=transactions)
-                gui_message.WINDOW('Your job is done', 'Transaction succeed:',
-                                   f'Hash: {transactionHash}').exec()
-                self.showTransaction(transactionHash)
+                self.transactionResult = transactionResult
         except Exception as er:
             raise Exception(f"sentMessage -> {er}")
 
