@@ -511,7 +511,8 @@ class Ui(QtWidgets.QMainWindow):
         self.radioButton_testNet.toggled.connect(self.changeNetwork)
         # -------------------------------------------------------------------------------------------------------
         self.lineEdit_sendValue.textChanged.connect(self.lineEditSendValueChange)
-        # self.comboBox_activeAddressVal.currentTextChanged.connect(self.comboBoxChange)
+        self.comboBox_activeAddressVal.currentTextChanged.connect(self.comboBoxChange)
+        # self.comboBox_activeAddressVal.currentIndexChanged.connect(self.comboBoxChange)
 
     def setMenuActionsTips(self):
         # Wallets-New wallet-------------------------------------------------------------------------------------
@@ -566,6 +567,19 @@ class Ui(QtWidgets.QMainWindow):
                 raise Exception("unknown network status")
         except Exception as er:
             gui_error.WINDOW('changeNetwork', str(er)).exec()
+
+    def comboBoxChange(self):
+        try:
+            if self.comboBox_activeAddressVal.count() == 0:
+                self.lineEdit_accountName.clear()
+                self.label_amountVal.setText(
+                    '<span style = "color: red; font-weight: bold;" > 0 '
+                    '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
+            else:
+                name = self.db.readColumn('NAM', self.comboBox_activeAddressVal.currentText())[0][0]
+                self.lineEdit_accountName.setText(name)
+        except Exception as er:
+            gui_error.WINDOW("comboBoxChange", str(er)).exec()
 
     def editAccountName(self):
         try:
@@ -625,6 +639,7 @@ class Ui(QtWidgets.QMainWindow):
                 pass  # cancel by user or it is new account
             else:
                 acc = account.New.random()  # create new account
+                acc['name'] = 'No name'
                 self.db.insertRow(acc)
                 self.comboBox_activeAddressVal.addItem(acc['address'])
                 self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
@@ -642,6 +657,7 @@ class Ui(QtWidgets.QMainWindow):
                                    'you can try again from Wallet -> New account -> Recover from entropy').exec()
             else:
                 acc = account.New.fromEntropy(entropy)
+                acc['name'] = 'No name'
                 self.db.insertRow(acc)
                 self.comboBox_activeAddressVal.addItem(acc['address'])
                 self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
@@ -659,6 +675,7 @@ class Ui(QtWidgets.QMainWindow):
                                    'you can try again from Wallet -> New account -> Recover from private key').exec()
             else:
                 acc = account.New.fromPrivateKey(privateKey)
+                acc['name'] = 'No name'
                 self.db.insertRow(acc)
                 self.comboBox_activeAddressVal.addItem(acc['address'])
                 self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
@@ -675,6 +692,7 @@ class Ui(QtWidgets.QMainWindow):
                                    'you can try again from Wallet -> New account -> Recover from mnemonic').exec()
             else:
                 acc = account.New.fromMnemonic(mnemonic)
+                acc['name'] = 'No name'
                 self.db.insertRow(acc)
                 self.comboBox_activeAddressVal.addItem(acc['address'])
                 self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
@@ -803,6 +821,7 @@ class Ui(QtWidgets.QMainWindow):
                 else:
                     to = self.lineEdit_sendAddress.text()
                 checkURL(self.lineEdit_nodeProvider.text())
+                print('chainId = ', chainId)
                 return {
                     'sender': self.comboBox_activeAddressVal.currentText(),
                     'receiver': to,
@@ -818,14 +837,24 @@ class Ui(QtWidgets.QMainWindow):
 
     def send(self):
         try:
-            if not self.lineEdit_sendValue.text() and self.lineEdit_message:
+            if self.lineEdit_message.text():
+                print('sent message = ', self.lineEdit_message.text())
+                print('sent eth = ', self.lineEdit_sendValue.text())
                 self.sentMessage()
-            elif self.lineEdit_sendValue.text() and not self.lineEdit_message:
+            elif not self.lineEdit_message.text() and self.lineEdit_sendValue.text():
+                print('sent eth = ', self.lineEdit_sendValue.text())
+                print('sent message = ', self.lineEdit_message.text())
                 self.sentETH()
-            elif self.lineEdit_sendValue.text() and self.lineEdit_message:
-                self.sentMessage()
-            else:
+            elif not self.lineEdit_message.text() and not self.lineEdit_sendValue.text():
+                print('sent eth = ', self.lineEdit_sendValue.text())
+                print('sent message = ', self.lineEdit_message.text())
+                print('send error')
                 raise Exception(f"sending options are empty")
+            else:
+                raise Exception(f"send parameters!")
+            self.lineEdit_sendValue.clear()
+            self.lineEdit_message.clear()
+            self.lineEdit_sendAddress.clear()
         except Exception as er:
             gui_error.WINDOW('send', str(er)).exec()
 
@@ -852,6 +881,9 @@ class Ui(QtWidgets.QMainWindow):
                 gui_message.WINDOW('I\'m entranced with joy', 'You are in safe',
                                    'Nothing has been sent').exec()
             else:
+                transactions['maxFeePerGas'] = gas['MAX_Fee']['high']
+                transactions['MAXPriorityFee'] = gas['MAXPriorityFee']['high']
+                transactions['GasPrice'] = gas['GasPrice']['high']
                 transactionHash = ethereum.sendValueTransaction(privateKey=(self.db.readColumn(
                     dataTypes.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0], txElements=transactions)
                 gui_message.WINDOW('Your job is done', 'Transaction succeed:',
@@ -862,12 +894,13 @@ class Ui(QtWidgets.QMainWindow):
 
     def sentMessage(self):
         try:
-            if not self.lineEdit_message.text():
-                raise Exception(f"message = {self.lineEdit_message.text()} !")
-            transactions = self.transactionElements(data=self.lineEdit_message.text().encode("utf-8").hex())
+            message = self.lineEdit_message.text()
+            if not message:
+                raise Exception(f"message = {message} !")
+            transactions = self.transactionElements(data=message.encode("utf-8").hex())
             gas = ethereum.estimateGas(transactions)
             senETH = gui_userChoice.WINDOW("Sending your message to others",
-                                           f"Send message: '{transactions['data']}'\n"
+                                           f"Send message: '{message}'\n"
                                            f"and value: '{transactions['vale']}' ETH\n"
                                            f"to {transactions['receiver']}\n"
                                            f"\nestimated gas fee is:\n"
@@ -1117,7 +1150,7 @@ class Ui(QtWidgets.QMainWindow):
                     'publicKey': rowData[4],
                     'address': rowData[5],
                     'mnemonic': rowData[6],
-                    'Name': rowData[7]}
+                    'name': rowData[7]}
             root = Tk()
             root.withdraw()
             folderSelected = filedialog.askdirectory()
@@ -1150,14 +1183,14 @@ class Ui(QtWidgets.QMainWindow):
                 if WriteOnFile:
                     with open(fileName, 'w+') as fp:
                         dump(dataToWrite, fp)
+                    if Path(fileName).is_file():
+                        gui_message.WINDOW('backupWallet', f"'{fileName}'\nsuccessfully saved.").exec()
+                    else:
+                        raise Exception('saving file failed.')
                 else:
                     pass  # cancel by user
             if not fileName or dataToWrite is None:
-                raise Exception(f"file name: '{fileName}'\ndata: '{dataToWrite}'")
-            if Path(fileName).is_file():
-                gui_message.WINDOW('backupWallet', f"'{fileName}'\nsuccessfully saved.").exec()
-            else:
-                raise Exception('saving file failed.')
+                raise Exception(f"error...\nfile name: '{fileName}'\ndata: '{dataToWrite}'")
         except Exception as er:
             gui_error.WINDOW('backupWallet', str(er)).exec()
 
@@ -1189,7 +1222,6 @@ class Ui(QtWidgets.QMainWindow):
                 self.db.insertRow(jsonData)
                 self.comboBox_activeAddressVal.addItem(jsonData['address'])
                 self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
-                self.lineEdit_accountName.setText(jsonData['Name'])
         except Exception as er:
             gui_error.WINDOW('restoreWallet', str(er)).exec()
 
@@ -1229,7 +1261,6 @@ class Ui(QtWidgets.QMainWindow):
                     self.comboBox_activeAddressVal.clear()
                 else:
                     self.comboBox_activeAddressVal.removeItem(accountIndex)
-                self.lineEdit_accountName.clear()
                 self.textEdit_main.clear()
                 gui_message.WINDOW('deleteAccount', 'the account was deleted.').exec()
         except Exception as er:

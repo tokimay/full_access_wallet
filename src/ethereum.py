@@ -36,7 +36,7 @@ def estimateGas(txElements: dict) -> dict:
         if not w3.is_connected():
             raise Exception(f"connect to '{txElements['provider']}' failed.")
 
-        feeHistory = w3.eth.fee_history(10, 'latest', [10, 20, 30])
+        feeHistory = w3.eth.fee_history(50, 'latest', [10, 20, 30])
 
         for feeList in feeHistory["reward"]:
             # 10 percentile values - low fees
@@ -67,16 +67,14 @@ def estimateGas(txElements: dict) -> dict:
             if FeeMedian > MinimumFee[key]:
                 FeeMedian = MinimumFee[key]
 
-            MaxPriorityFeePerGasGwei = round(w3.from_wei(FeeMedian, "gwei"), 4)
+            MaxPriorityFeePerGasGwei = round(w3.from_wei(FeeMedian, "gwei"), 6)
             MAXPriorityFee[key] = MaxPriorityFeePerGasGwei
 
-            MaxFeePerGasGwei = round(w3.from_wei((BaseFee + FeeMedian), "gwei"), 4)
+            MaxFeePerGasGwei = round(w3.from_wei((BaseFee + FeeMedian), "gwei"), 6)
             MAX_Fee[key] = MaxFeePerGasGwei
 
             totalGasFeeGwei = round(w3.from_wei((MaxFeePerGasGwei * estimateGasUsed), "gwei"), 6)
             GasPrice[key] = totalGasFeeGwei
-        print({'MAXPriorityFee': MAXPriorityFee, 'MAX_Fee': MAX_Fee, 'GasPrice': GasPrice})
-
         return {'MAXPriorityFee': MAXPriorityFee, 'MAX_Fee': MAX_Fee, 'GasPrice': GasPrice}
     except Exception as er:
         raise Exception(f"estimateGas -> {er}")
@@ -87,19 +85,22 @@ def sendValueTransaction(privateKey: str, txElements: dict) -> str:
         w3 = Web3(HTTPProvider(txElements['provider']))
         if not w3.is_connected():
             raise Exception(f"connect to '{txElements['provider']}' failed.")
-
+        #print('gas ', w3.to_wei(txElements['GasPrice'], 'ether'), 'wei')
+        #print('maxFeePerGas ', w3.to_wei(txElements['maxFeePerGas'], 'ether'), 'wei')
+        #print('maxPriorityFeePerGas ', w3.to_wei(txElements['maxFeePerGas'], 'ether'), 'wei')
         transaction = ({
             'to': Web3.to_checksum_address(txElements['receiver']),
             'value': w3.to_wei(txElements['vale'], 'ether'),
-            'gas': 2000000,
-            'maxFeePerGas': 2000000000,
-            'maxPriorityFeePerGas': 1000000000,
+            'gas': 200000,  # w3.to_wei(txElements['GasPrice'], 'ether'),
+            'maxFeePerGas': 2000000000,  # w3.to_wei(txElements['maxFeePerGas'], 'ether'),
+            'maxPriorityFeePerGas': 1000000000,  # w3.to_wei(txElements['MAXPriorityFee'], 'ether'),
             'nonce': w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender'])),
             'chainId': txElements['chainId'],
             # 'hardfork': 'petersburg'
         })
-        gas = w3.eth.estimate_gas(transaction)
-        transaction.update({'gas': gas})
+        #gas = w3.eth.estimate_gas(transaction)
+        #print('gas ', gas)
+        #transaction.update({'gas': gas})
         signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
         print('rawTransaction:', signed.rawTransaction)
         print('signed hash:', signed.hash)
@@ -129,7 +130,6 @@ def sendMessageTransaction(privateKey: str, txElements: dict) -> str:
         w3 = Web3(HTTPProvider(txElements['provider']))
         if not w3.is_connected():
             raise Exception(f"connect to '{txElements['provider']}' failed.")
-
         transaction = ({
             'to': Web3.to_checksum_address(txElements['receiver']),
             'value': w3.to_wei(txElements['vale'], 'ether'),
@@ -141,8 +141,9 @@ def sendMessageTransaction(privateKey: str, txElements: dict) -> str:
             # 'hardfork': 'petersburg',
             'data': txElements['data']
         })
-        gas = w3.eth.estimate_gas(transaction)
-        transaction.update({'gas': gas})
+        #gas = w3.eth.estimate_gas(transaction)
+        #print('gas ', gas)
+        #transaction.update({'gas': gas})
         signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
         print('rawTransaction:', signed.rawTransaction)
         print('signed hash:', signed.hash)

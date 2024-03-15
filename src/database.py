@@ -72,7 +72,7 @@ class Sqlite:
         except Exception as er:
             raise Exception(f"readColumnAllRows -> {er}")
 
-    def readColumn(self, columnName, condition):
+    def readColumn(self, columnName, condition) -> list:
         try:
             connection = connect(self.databaseName)
             cursor = connection.cursor()
@@ -118,7 +118,7 @@ class Sqlite:
                     acc['publicKey'],
                     acc['address'],
                     acc['mnemonic'],
-                    'No name'
+                    acc['name']
                 ))
             connection.commit()
             connection.close()
