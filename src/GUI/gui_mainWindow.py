@@ -1,6 +1,7 @@
 from webbrowser import open as web_browser_open
+
 from pyperclip import copy
-from PyQt6.QtWidgets import QFrame
+from PyQt6.QtWidgets import QFrame, QTabWidget
 from json import loads, dump, dumps
 from PyQt6 import QtWidgets, QtGui
 from PyQt6.QtCore import QSize, QRect
@@ -9,17 +10,21 @@ from pathlib import Path
 from tkinter import filedialog, Tk
 from src.cryptography import DES
 from src.GUI import gui_userChoice, gui_userInput, gui_error, gui_message
+from src.validators import checkHex, checkURL
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QLabel, QPushButton, QComboBox, QLineEdit,
                              QRadioButton, QTextEdit, QMenuBar, QMenu, QStatusBar)
 from src import (database, dataTypes, ethereum,
                  account, system)
-from src.validators import checkHex, checkURL
 
-HEIGHT = 24
+ITEM_HEIGHT = 25
 MENU_HEIGHT = 16
 ICON_SIZE = 16
 SEPOLIA_PROVIDER = "https://rpc-sepolia.rockx.com/"
 ETHEREUM_PROVIDER = "https://nodes.mewapi.io/rpc/eth"
+MAIN_WIDTH = 800
+MAIN_HEIGHT = 600
+SIDE_TAB_WIDTH = 25
+SIDE_TAB_MARGIN = 2
 
 
 class Ui(QtWidgets.QMainWindow):
@@ -60,53 +65,69 @@ class Ui(QtWidgets.QMainWindow):
         self.action_transactionMessage = QAction(self)
         self.action_pendingTransactions = QAction(self)
         # ----------------------------------------------------------------------------------
-        self.central_widget = QWidget(self)
-        self.gridLayout_widget = QWidget(self.central_widget)
-        self.gridlayout = QGridLayout(self.gridLayout_widget)
+        # main tab widget
+        self.centralWidget_main = QWidget(self)
+        self.tabWidget_main = QTabWidget(self.centralWidget_main)
+        # tab account
+        self.tab_account = QWidget()
+        self.gridLayoutWidget_account = QWidget(self.tab_account)
+        self.gridlayout_account = QGridLayout(self.gridLayoutWidget_account)
+        # tab contract
+        self.tab_contract = QWidget()
+        self.gridLayoutWidget_contract = QWidget(self.tab_contract)
+        self.gridlayout_contract = QGridLayout(self.gridLayoutWidget_contract)
+        # tab NFT
+        self.tab_nft = QWidget()
+        self.gridLayoutWidget_nft = QWidget(self.tab_nft)
+        self.gridlayout_nft = QGridLayout(self.gridLayoutWidget_nft)
+        # tab webView
+        self.tab_webView = QWidget()
+        self.gridLayoutWidget_webView = QWidget(self.tab_webView)
+        self.gridlayout_webView = QGridLayout(self.gridLayoutWidget_webView)
         # ----------------------------------------------------------------------------------
         # row 1
-        self.label_nodeProvider = QLabel(self.gridLayout_widget)
-        self.lineEdit_nodeProvider = QLineEdit(self.gridLayout_widget)
-        self.pushButton_nodeProvider = QPushButton(self.gridLayout_widget)
+        self.label_nodeProvider = QLabel(self.gridLayoutWidget_account)
+        self.lineEdit_nodeProvider = QLineEdit(self.gridLayoutWidget_account)
+        self.pushButton_nodeProvider = QPushButton(self.gridLayoutWidget_account)
 
         # row 2
-        self.label_accountName = QLabel(self.gridLayout_widget)
-        self.lineEdit_accountName = QLineEdit(self.gridLayout_widget)
-        self.pushButton_accountName = QPushButton(self.gridLayout_widget)
-        self.pushButton_deleteAccount = QPushButton(self.gridLayout_widget)
+        self.label_accountName = QLabel(self.gridLayoutWidget_account)
+        self.lineEdit_accountName = QLineEdit(self.gridLayoutWidget_account)
+        self.pushButton_accountName = QPushButton(self.gridLayoutWidget_account)
+        self.pushButton_deleteAccount = QPushButton(self.gridLayoutWidget_account)
 
         # row 3
-        self.label_activeAddress = QLabel(self.gridLayout_widget)
-        self.comboBox_activeAddressVal = QComboBox(self.gridLayout_widget)
-        self.pushButton_copyAddress = QPushButton(self.gridLayout_widget)
+        self.label_activeAddress = QLabel(self.gridLayoutWidget_account)
+        self.comboBox_activeAddressVal = QComboBox(self.gridLayoutWidget_account)
+        self.pushButton_copyAddress = QPushButton(self.gridLayoutWidget_account)
 
         # row 4
-        self.label_amount = QLabel(self.gridLayout_widget)
-        self.label_amountVal = QLabel(self.gridLayout_widget)
-        self.pushButton_etherScan = QPushButton(self.gridLayout_widget)
+        self.label_amount = QLabel(self.gridLayoutWidget_account)
+        self.label_amountVal = QLabel(self.gridLayoutWidget_account)
+        self.pushButton_etherScan = QPushButton(self.gridLayoutWidget_account)
 
         # row 5
-        self.label_sendAddress = QLabel(self.gridLayout_widget)
-        self.lineEdit_sendAddress = QLineEdit(self.gridLayout_widget)
-        self.pushButton_send = QPushButton(self.gridLayout_widget)
+        self.label_sendAddress = QLabel(self.gridLayoutWidget_account)
+        self.lineEdit_sendAddress = QLineEdit(self.gridLayoutWidget_account)
+        self.pushButton_send = QPushButton(self.gridLayoutWidget_account)
 
         # row 6
-        self.label_sendValue = QLabel(self.gridLayout_widget)
-        self.lineEdit_sendValue = QLineEdit(self.gridLayout_widget)
-        self.label_message = QLabel(self.gridLayout_widget)
-        self.lineEdit_message = QLineEdit(self.gridLayout_widget)
+        self.label_sendValue = QLabel(self.gridLayoutWidget_account)
+        self.lineEdit_sendValue = QLineEdit(self.gridLayoutWidget_account)
+        self.label_message = QLabel(self.gridLayoutWidget_account)
+        self.lineEdit_message = QLineEdit(self.gridLayoutWidget_account)
 
         # row 7
-        self.textEdit_main = QTextEdit(self.gridLayout_widget)
+        self.textEdit_main = QTextEdit(self.gridLayoutWidget_account)
 
         # customization
-        self.label_customizationArea = QLabel(self.gridLayout_widget)
-        self.radioButton_mainNet = QRadioButton(self.gridLayout_widget)
-        self.radioButton_testNet = QRadioButton(self.gridLayout_widget)
-        self.label_GasFeePriority = QLabel(self.gridLayout_widget)
-        self.comboBox_GasFeePriority = QComboBox(self.gridLayout_widget)
+        self.label_customizationArea = QLabel(self.gridLayoutWidget_account)
+        self.radioButton_mainNet = QRadioButton(self.gridLayoutWidget_account)
+        self.radioButton_testNet = QRadioButton(self.gridLayoutWidget_account)
+        self.label_GasFeePriority = QLabel(self.gridLayoutWidget_account)
+        self.comboBox_GasFeePriority = QComboBox(self.gridLayoutWidget_account)
 
-        self.line_vertical = QFrame(self.gridLayout_widget)
+        self.line_vertical = QFrame(self.gridLayoutWidget_account)
         # ----------------------------------------------------------------------------------
         self.statusbar = QStatusBar(self)
 
@@ -119,19 +140,16 @@ class Ui(QtWidgets.QMainWindow):
         self.setMenuActionsTips()
 
     def initUI(self):
+        self.setCentralWidget(self.centralWidget_main)
+        self.resize(MAIN_WIDTH, MAIN_HEIGHT)
+        self.setFixedSize(MAIN_WIDTH, MAIN_HEIGHT)
         self.setObjectName("MainWindow")
         self.setWindowTitle("FAwallet")
-        self.resize(800, 600)
-        self.setFixedSize(800, 600)
+        self.centralWidget_main.setObjectName("centralWidget_main")
+        self.tabWidget_main.setObjectName("tabWidget_main")
+        self.tabWidget_main.setGeometry(QRect(0, 0, MAIN_WIDTH - SIDE_TAB_WIDTH, MAIN_HEIGHT))
+        # self.tabWidget_main.setContentsMargins(0, 0, 0, 0)  # left, top, right, bottom
         self.setMenuBar(self.menubar_file)
-
-        self.setCentralWidget(self.central_widget)
-        self.central_widget.setObjectName("centralWidget")
-        self.gridLayout_widget.setObjectName("gridLayoutWidget")
-        self.gridLayout_widget.setGeometry(QRect(10, 10, 780, 580))
-        self.gridlayout.setObjectName("gridlayout")
-        self.gridlayout.setGeometry(QRect(10, 10, 780, 580))
-        self.gridlayout.setContentsMargins(0, 0, 0, 0)
         # ----------------------------------------------------------------------------------
         self.action_entropy.setObjectName("actionEntropy")
         self.action_privateKey.setObjectName("actionPrivateKey")
@@ -155,10 +173,11 @@ class Ui(QtWidgets.QMainWindow):
         self.action_pendingTransactions.setObjectName('action_pendingTransactions ')
         # ----------------------------------------------------------------------------------
         self.menubar_file.setObjectName("menubar_file")
-        self.menubar_file.setGeometry(QRect(0, 0, 800, 30))
+        self.menubar_file.setGeometry(QRect(0, 0, MAIN_WIDTH - SIDE_TAB_WIDTH, 25))
         # ----------------------------------------------------------------------------------
         # wallet menu
         self.menubar_file.addAction(self.menu_wallet.menuAction())
+        # self.menubar_file.setContentsMargins(0, 0, 0, 0)   # left, top, right, bottom
         self.menu_wallet.setObjectName("menu_Wallet")
         self.menu_wallet.setTitle("&Wallet")
 
@@ -232,6 +251,44 @@ class Ui(QtWidgets.QMainWindow):
         self.menu_tools.addAction(self.action_pendingTransactions)
         self.action_pendingTransactions.setText('pending transactions')
         # ----------------------------------------------------------------------------------
+        self.tabWidget_main.setTabPosition(QTabWidget.TabPosition.West)
+
+        #  tab account
+        self.tabWidget_main.addTab(self.tab_account, "Account")
+        self.tab_account.setObjectName("tab_account")
+        self.gridLayoutWidget_account.setObjectName("gridLayoutWidget_account")
+        self.gridLayoutWidget_account.setGeometry(QRect(0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        self.gridlayout_account.setObjectName("gridlayout_account")
+        self.gridlayout_account.setGeometry(QRect(0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        # self.gridlayout_account.setContentsMargins(0, 0, 0, 0)  # left, top, right, bottom
+
+        # tab contract
+        self.tabWidget_main.addTab(self.tab_contract, "contract")
+        self.tab_contract.setObjectName("tab_contract")
+        self.gridLayoutWidget_contract.setObjectName("gridLayoutWidget_contract")
+        self.gridLayoutWidget_contract.setGeometry(QRect(0, 0, (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        self.gridlayout_contract.setObjectName("gridlayout_contract")
+        self.gridlayout_contract.setGeometry(QRect(0, 0, (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        # self.gridlayout_contract.setContentsMargins(0, 0, 0, 0)  # left, top, right, bottom
+
+        # tab nft
+        self.tabWidget_main.addTab(self.tab_nft, "NFT")
+        self.tab_nft.setObjectName("tab_nft")
+        self.gridLayoutWidget_nft.setObjectName("gridLayoutWidget_nft")
+        self.gridLayoutWidget_nft.setGeometry(QRect(0, 0, (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        self.gridlayout_nft.setObjectName("gridlayout_nft")
+        self.gridlayout_nft.setGeometry(QRect(0, 0, (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        # self.gridlayout_nft.setContentsMargins(0, 0, 0, 0)  # left, top, right, bottom
+
+        # tab webView
+        self.tabWidget_main.addTab(self.tab_webView, "WebView")
+        self.tab_webView.setObjectName("tab_webView")
+        self.gridLayoutWidget_webView.setObjectName("gridLayoutWidget_webView")
+        self.gridLayoutWidget_webView.setGeometry(QRect(0, 0, (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        self.gridlayout_webView.setObjectName("gridlayout_webView")
+        self.gridlayout_webView.setGeometry(QRect(0, 0, (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        # self.gridlayout_webView.setContentsMargins(0, 0, 0, 0)  # left, top, right, bottom
+        # ----------------------------------------------------------------------------------
         # row 1
         self.label_nodeProvider.setObjectName("label_nodeProvider")
         self.label_nodeProvider.setText("Node provider:")
@@ -247,7 +304,7 @@ class Ui(QtWidgets.QMainWindow):
         self.pushButton_accountName.setObjectName("pushButton_accountName")
         self.pushButton_accountName.setText("Edit")
         self.pushButton_deleteAccount.setObjectName("pushButton_deleteAccount")
-        self.pushButton_deleteAccount.setText('Delete current account')
+        self.pushButton_deleteAccount.setText('Delete account')
 
         # row 3
         self.label_activeAddress.setObjectName("label_activeAddress")
@@ -305,78 +362,77 @@ class Ui(QtWidgets.QMainWindow):
         self.statusbar.setObjectName("statusbar")
         # ----------------------------------------------------------------------------------
         # row 1
-        self.gridlayout.addWidget(self.label_nodeProvider, 1, 0, 1, 1)
-        self.gridlayout.addWidget(self.lineEdit_nodeProvider, 1, 1, 1, 3)
-        self.gridlayout.addWidget(self.pushButton_nodeProvider, 1, 4, 1, 1)
-        self.gridlayout.addWidget(self.line_vertical, 1, 5, 6, 1)
-        self.gridlayout.addWidget(self.label_customizationArea, 1, 6, 1, 1)
+        self.gridlayout_account.addWidget(self.label_nodeProvider, 1, 0, 1, 1)
+        self.gridlayout_account.addWidget(self.lineEdit_nodeProvider, 1, 1, 1, 3)
+        self.gridlayout_account.addWidget(self.pushButton_nodeProvider, 1, 4, 1, 1)
+        self.gridlayout_account.addWidget(self.line_vertical, 1, 5, 6, 1)
+        self.gridlayout_account.addWidget(self.label_customizationArea, 1, 6, 1, 1)
 
         # row 2
-        self.gridlayout.addWidget(self.label_accountName, 2, 0, 1, 1)
-        self.gridlayout.addWidget(self.lineEdit_accountName, 2, 1, 1, 2)
-        self.gridlayout.addWidget(self.pushButton_deleteAccount, 2, 3, 1, 1)
-        self.gridlayout.addWidget(self.pushButton_accountName, 2, 4, 1, 1)
+        self.gridlayout_account.addWidget(self.label_accountName, 2, 0, 1, 1)
+        self.gridlayout_account.addWidget(self.lineEdit_accountName, 2, 1, 1, 2)
+        self.gridlayout_account.addWidget(self.pushButton_accountName, 2, 3, 1, 1)
+        self.gridlayout_account.addWidget(self.pushButton_deleteAccount, 2, 4, 1, 1)
         # col 5 empty
-        self.gridlayout.addWidget(self.radioButton_mainNet, 2, 6, 1, 1)
+        self.gridlayout_account.addWidget(self.radioButton_mainNet, 2, 6, 1, 1)
 
         # row 3
-        self.gridlayout.addWidget(self.label_activeAddress, 3, 0, 1, 1)
-        self.gridlayout.addWidget(self.comboBox_activeAddressVal, 3, 1, 1, 3)
-        self.gridlayout.addWidget(self.pushButton_copyAddress, 3, 4, 1, 1)
+        self.gridlayout_account.addWidget(self.label_activeAddress, 3, 0, 1, 1)
+        self.gridlayout_account.addWidget(self.comboBox_activeAddressVal, 3, 1, 1, 3)
+        self.gridlayout_account.addWidget(self.pushButton_copyAddress, 3, 4, 1, 1)
         # col 5 empty
-        self.gridlayout.addWidget(self.radioButton_testNet, 3, 6, 1, 1)
+        self.gridlayout_account.addWidget(self.radioButton_testNet, 3, 6, 1, 1)
 
         # row 4
-        self.gridlayout.addWidget(self.label_amount, 4, 0, 1, 1)
-        self.gridlayout.addWidget(self.label_amountVal, 4, 1, 1, 3)
-        self.gridlayout.addWidget(self.pushButton_etherScan, 4, 4, 1, 1)
+        self.gridlayout_account.addWidget(self.label_amount, 4, 0, 1, 1)
+        self.gridlayout_account.addWidget(self.label_amountVal, 4, 1, 1, 3)
+        self.gridlayout_account.addWidget(self.pushButton_etherScan, 4, 4, 1, 1)
         # col 5 empty
-        self.gridlayout.addWidget(self.label_GasFeePriority, 4, 6, 1, 1)
+        self.gridlayout_account.addWidget(self.label_GasFeePriority, 4, 6, 1, 1)
 
         # row 5
-        self.gridlayout.addWidget(self.label_sendAddress, 5, 0, 1, 1)
-        self.gridlayout.addWidget(self.lineEdit_sendAddress, 5, 1, 1, 3)
-        self.gridlayout.addWidget(self.pushButton_send, 5, 4, 1, 1)
+        self.gridlayout_account.addWidget(self.label_sendAddress, 5, 0, 1, 1)
+        self.gridlayout_account.addWidget(self.lineEdit_sendAddress, 5, 1, 1, 3)
+        self.gridlayout_account.addWidget(self.pushButton_send, 5, 4, 1, 1)
         # col 5 empty
-        self.gridlayout.addWidget(self.comboBox_GasFeePriority, 5, 6, 1, 1)
+        self.gridlayout_account.addWidget(self.comboBox_GasFeePriority, 5, 6, 1, 1)
 
         # row 6
-        self.gridlayout.addWidget(self.label_message, 6, 0, 1, 1)
-        self.gridlayout.addWidget(self.lineEdit_message, 6, 1, 1, 1)
-        self.gridlayout.addWidget(self.label_sendValue, 6, 2, 1, 1)
-        # col 3 empty
-        self.gridlayout.addWidget(self.lineEdit_sendValue, 6, 4, 1, 1)
+        self.gridlayout_account.addWidget(self.label_sendValue, 6, 0, 1, 1)
+        self.gridlayout_account.addWidget(self.lineEdit_sendValue, 6, 1, 1, 1)
+        self.gridlayout_account.addWidget(self.label_message, 6, 2, 1, 1)
+        self.gridlayout_account.addWidget(self.lineEdit_message, 6, 3, 1, 2)
         # col 5 empty
         # col 6 empty
 
         # row 7
-        self.gridlayout.addWidget(self.textEdit_main, 7, 0, 1, 7)
+        self.gridlayout_account.addWidget(self.textEdit_main, 7, 0, 1, 7)
 
-        self.label_nodeProvider.setMinimumHeight(HEIGHT)
-        self.lineEdit_nodeProvider.setMinimumHeight(HEIGHT)
-        self.pushButton_nodeProvider.setMinimumHeight(HEIGHT)
+        self.label_nodeProvider.setMinimumHeight(ITEM_HEIGHT)
+        self.lineEdit_nodeProvider.setMinimumHeight(ITEM_HEIGHT)
+        self.pushButton_nodeProvider.setMinimumHeight(ITEM_HEIGHT)
 
-        self.label_accountName.setMinimumHeight(HEIGHT)
-        self.lineEdit_accountName.setMinimumHeight(HEIGHT)
-        self.pushButton_accountName.setMinimumHeight(HEIGHT)
-        self.pushButton_deleteAccount.setMinimumHeight(HEIGHT)
+        self.label_accountName.setMinimumHeight(ITEM_HEIGHT)
+        self.lineEdit_accountName.setMinimumHeight(ITEM_HEIGHT)
+        self.pushButton_accountName.setMinimumHeight(ITEM_HEIGHT)
+        self.pushButton_deleteAccount.setMinimumHeight(ITEM_HEIGHT)
 
-        self.label_activeAddress.setMinimumHeight(HEIGHT)
-        self.comboBox_activeAddressVal.setMinimumHeight(HEIGHT)
-        self.pushButton_copyAddress.setMinimumHeight(HEIGHT)
+        self.label_activeAddress.setMinimumHeight(ITEM_HEIGHT)
+        self.comboBox_activeAddressVal.setMinimumHeight(ITEM_HEIGHT)
+        self.pushButton_copyAddress.setMinimumHeight(ITEM_HEIGHT)
 
-        self.label_amount.setMinimumHeight(HEIGHT)
-        self.label_amountVal.setMinimumHeight(HEIGHT)
-        self.pushButton_etherScan.setMinimumHeight(HEIGHT)
+        self.label_amount.setMinimumHeight(ITEM_HEIGHT)
+        self.label_amountVal.setMinimumHeight(ITEM_HEIGHT)
+        self.pushButton_etherScan.setMinimumHeight(ITEM_HEIGHT)
 
-        self.label_sendAddress.setMinimumHeight(HEIGHT)
-        self.lineEdit_sendAddress.setMinimumHeight(HEIGHT)
+        self.label_sendAddress.setMinimumHeight(ITEM_HEIGHT)
+        self.lineEdit_sendAddress.setMinimumHeight(ITEM_HEIGHT)
 
-        self.label_sendValue.setMinimumHeight(HEIGHT)
-        self.lineEdit_sendValue.setMinimumHeight(HEIGHT)
-        self.label_message.setMinimumHeight(HEIGHT)
-        self.lineEdit_message.setMinimumHeight(HEIGHT)
-        self.pushButton_send.setMinimumHeight(HEIGHT)
+        self.label_sendValue.setMinimumHeight(ITEM_HEIGHT)
+        self.lineEdit_sendValue.setMinimumHeight(ITEM_HEIGHT)
+        self.label_message.setMinimumHeight(ITEM_HEIGHT)
+        self.lineEdit_message.setMinimumHeight(ITEM_HEIGHT)
+        self.pushButton_send.setMinimumHeight(ITEM_HEIGHT)
 
         self.menu_wallet.setMinimumHeight(MENU_HEIGHT)
         self.menu_network.setMinimumHeight(MENU_HEIGHT)
@@ -416,29 +472,106 @@ class Ui(QtWidgets.QMainWindow):
         mainStyle = (
             "background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
             "stop:0 rgb(30, 76, 108) , stop:1 rgb(47, 54, 60));"
+            # "font-size:14px; "
+            "margin: 0px  0px 0px 0px;"
+            "padding: 0px 0px 0px 0px;"  # top, bottom, x ,x"
         )
         self.setStyleSheet(mainStyle)
         menuBarStyle = (
             "QMenuBar {background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
             "stop:0 rgb(47, 54, 60) , stop:1 rgb(30, 76, 108));"
             "spacing: 3 px;}"
-            "QMenuBar::item {background: rgb(47, 54, 60);"
-            "padding: 2px 25px 2px 20px; border: 1px solid rgb(108, 204, 244);; border-radius: 10px;}"
-            "QMenuBar::item:selected {border: 2px solid rgb(108, 204, 244); background: rgb(30, 76, 108);}"
+            "QMenuBar::item {"
+            "background: rgb(47, 54, 60);"
+            # "padding: 3px 10px 3px 10px; "
+            "border: 1px solid rgb(108, 204, 244);"
+            "border-radius: 10px;"
+            # "border-top-right-radius: 10px;"
+            # "border-bottom-right-radius: 10px;"
+            "padding: 3px 3px 3px 3px;"  # top, right, bottom, left
+            "margin: 5px 0px 0px 3px;"  # top, right, bottom, left
+            # "height: 142px;"
+            # "width: 150px;"
+            "}"
+            "QMenuBar::item:selected {border: 2px solid rgb(108, 204, 244);"
+            "background: rgb(30, 76, 108);}"
             "QMenuBar::item:pressed{background: rgb(108, 204, 244); color: black}"
         )
         self.menubar_file.setStyleSheet(menuBarStyle)
         menuStyle = (
             "QMenu {background-color: rgb(47, 54, 60); margin: 2px;}"
-            "QMenu::item { padding: 2px 25px 2px 20px; border: 1px solid transparent; border-radius: 10px;}"
+            "QMenu::item { padding: 2px 25px 2px 20px;  "
+            "border-top-left-radius: 10px;}"
             "QMenu::item:selected {border: 2px solid rgb(108, 204, 244); background: rgb(30, 76, 108);}"
             "QMenu::item:pressed {background: rgb(108, 204, 244); color: black}"
         )
         self.menu_wallet.setStyleSheet(menuStyle)
         self.menu_network.setStyleSheet(menuStyle)
+        tabWidgetStyle = (
+            "QTabWidget::pane { border: transparent;}"
+            "QTabWidget::tab-bar {top: 217px;}"
+            "QTabBar::tab:!selected {background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+            "stop:0 rgb(30, 76, 108) , stop:1 rgb(47, 54, 60));"
+            "border: 1px solid  rgb(108, 204, 244);"
+            "border-top-left-radius: 10px;"
+            "border-bottom-right-radius: 10px;"
+            f"height: 79px; width: {SIDE_TAB_WIDTH}px;"
+            "padding: 0px 0px 0px 0px;"  # top, right, bottom, left
+            "margin: 0px 0px 3px 3px;}"  # top, right, bottom, left
+            "QTabBar::tab:!selected:hover {background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+            "stop:0 rgb(47, 54, 60) , stop:1 rgb(30, 76, 108));"
+            #"border-top-right-radius: 10px;"
+            #"border-bottom-left-radius: 10px;"
+            #"border-top-left-radius: 0px;"
+            #"border-bottom-right-radius: 0px;"
+            "font-weight: bold;}"
+            "QTabBar::tab:selected {background-color: rgb(47, 54, 60);"
+            "border: 1px solid  rgb(108, 204, 244);"
+            "border-top-left-radius: 10px;"
+            "border-bottom-right-radius: 10px;"
+            f"height: 79px; width: {SIDE_TAB_WIDTH}px;"
+            "padding: 0px 0px 0px 0px;"  # top, right, bottom, left
+            "margin: 0px 0px 3px 3px;}"  # top, right, bottom, left
+            "color: black"
+        )
+        #
+        #
+        # "QTabBar::tab {
+        # "border-bottom-color:  # C2C7CB; "
+        # "border-top-right-radius: 4px; min-width: 8ex; padding: 2px;}"
+        # "QTabBar::tab:selected, QTabBar::tab:hover {background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
+        # "stop: 0  # fafafa, stop: 0.4 #f4f4f4, stop: 0.5  # e7e7e7, stop: 1.0 #fafafa);}"
+        # "QTabBar::tab:selected {border-color:  # 9B9B9B;border-bottom-color:  # C2C7CB; }"
+        # "QTabBar::tab:!selected { margin-top: 2px; } "
+        # "QTabBar::tab:selected { margin-left: -4px; margin-right: -4px;}"
+        # "QTabBar::tab:first:selected {margin-left: 0; }"
+        # "QTabBar::tab:last:selected {margin-right: 0; }"
+        # "QTabBar::tab:only-one {margin: 0; }"
+        self.tabWidget_main.setStyleSheet(tabWidgetStyle)
+        tabStyle = (
+            "background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+            "stop:0 rgb(30, 76, 108) , stop:1 rgb(47, 54, 60));"
+            "border: 1px solid  rgb(108, 204, 244);"
+            "border-top-left-radius: 10px;"
+            "border-bottom-right-radius: 10px;"
+            f"height: 87px; width: {SIDE_TAB_WIDTH}px;"
+            "margin: 0px, 0px, 30px, 0px;"  # top, bottom, 
+        )
+        # self.tab_account.setStyleSheet(tabStyle)
+        # self.tab_contract.setStyleSheet(tabStyle)
+        # self.tab_nft.setStyleSheet(tabStyle)
+        # self.tab_webView.setStyleSheet(tabStyle)
         buttonStyle = (
             "QPushButton {border: 2px solid rgb(108, 204, 244);"
             "border-radius: 12px;"
+            "padding: 0px 3px 0px 3px;"  # top, right, bottom, left
+            "margin: 0px 0px 0px 0px;"  # top, right, bottom, left
+            # "text-decoration: none;"
+            "text-align: center;"
+            # "width: 130px;"
+            # "border-top-left-radius: 10px;"
+            # "border-bottom-right-radius: 10px;"
+            f"height: {ITEM_HEIGHT}px;"
             "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
             "stop:0 rgb(30, 76, 108) , stop:1 rgb(47, 54, 60));"
             "min-width: 80px;}"
@@ -453,6 +586,7 @@ class Ui(QtWidgets.QMainWindow):
         self.pushButton_deleteAccount.setStyleSheet(buttonStyle)
         labelStyle = (
             "color: white;"
+            f"height: {ITEM_HEIGHT}px;"
             "background-color: transparent;"
         )
         self.label_sendAddress.setStyleSheet(labelStyle)
@@ -469,6 +603,7 @@ class Ui(QtWidgets.QMainWindow):
             '<span style = "color: red; font-weight: bold;" > 0'
             '</ span> <span style = "color: rgb(140, 170, 250); font-weight: bold;" > ETH </ span>')
         lineEditStyle = (
+            f"height: {ITEM_HEIGHT}px;"
             "background-color: rgb(250, 240, 200); color: black"
         )
         self.lineEdit_nodeProvider.setStyleSheet(lineEditStyle)
@@ -490,6 +625,8 @@ class Ui(QtWidgets.QMainWindow):
         comboBoxStyle = (
             "background-color: rgb(30, 76, 108); color: black; "
             "selection-background-color: rgb(47, 54, 60); selection-color: white; "
+            "padding: 3px 3px 3px 3px;"  # top, right, bottom, left
+            "margin: 0px 0px 0px 0px;"  # top, right, bottom, left
         )
         self.comboBox_activeAddressVal.setStyleSheet(comboBoxStyle)
         self.comboBox_GasFeePriority.setStyleSheet(comboBoxStyle)
@@ -583,9 +720,9 @@ class Ui(QtWidgets.QMainWindow):
         # self.action_allInternal.setShortcut('Alt+i+t')
         self.action_allInternal.setStatusTip('simple history of your internal transactions. up to last 10000 block')
         # Network-Tools-----------------------------------------------------------------------------------------
-        self.action_publicKeyFromTxHash.setShortcut('Alt+m')
+        # self.action_publicKeyFromTxHash.setShortcut('Alt+m')
         self.action_publicKeyFromTxHash.setStatusTip('recover sender public key from transaction hash')
-        self.action_transactionMessage.setShortcut('Alt+m')
+        # self.action_transactionMessage.setShortcut('Alt+m')
         self.action_transactionMessage.setStatusTip('view the embedded message in a transaction')
         # self.action_pendingTransactions.setShortcut('Alt+p')
         self.action_pendingTransactions.setStatusTip('view non-verified transactions')
