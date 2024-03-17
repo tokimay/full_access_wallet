@@ -1,7 +1,7 @@
 from binascii import a2b_hex
 from hashlib import sha256, pbkdf2_hmac
 from base64 import b64encode, b64decode
-from Crypto.Cipher import AES
+from Crypto.Cipher import AES as AESalgo
 from Crypto.Hash import SHA256
 from Crypto import Random
 from src.GUI import gui_userInput
@@ -54,8 +54,7 @@ class ENTROPY:
         except Exception as er:
             raise Exception(f"ToPbkdf2HmacSha256 -> {er}")
 
-
-class DES:
+class AES:
     def __init__(self):
         pass
 
@@ -63,9 +62,9 @@ class DES:
     def encrypt(key, source, encode=True):
         try:
             key = SHA256.new(key).digest()
-            IV = Random.new().read(AES.block_size)  # generate IV
-            encryptor = AES.new(key, AES.MODE_CBC, IV)
-            padding = AES.block_size - len(source) % AES.block_size
+            IV = Random.new().read(AESalgo.block_size)  # generate IV
+            encryptor = AESalgo.new(key, AESalgo.MODE_CBC, IV)
+            padding = AESalgo.block_size - len(source) % AESalgo.block_size
             source += bytes([padding]) * padding
             data = IV + encryptor.encrypt(source)
             return b64encode(data).decode("utf-8") if encode else data  # latin-1
@@ -78,9 +77,9 @@ class DES:
             if decode:
                 source = b64decode(source.encode("utf-8"))  # latin-1
             key = SHA256.new(key).digest()
-            IV = source[:AES.block_size]  # extract the IV from the beginning
-            decryptor = AES.new(key, AES.MODE_CBC, IV)
-            data = decryptor.decrypt(source[AES.block_size:])
+            IV = source[:AESalgo.block_size]  # extract the IV from the beginning
+            decryptor = AESalgo.new(key, AESalgo.MODE_CBC, IV)
+            data = decryptor.decrypt(source[AESalgo.block_size:])
             padding = data[-1]  # pick the padding value from the end
             if data[-padding:] != bytes([padding]) * padding:
                 raise ValueError("Invalid padding...")

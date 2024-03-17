@@ -4,7 +4,7 @@ this is an educational and non-commercial project written in python. <br>
 
 Install requirement: <br />
 ````shell
-$ pip install -r requirements.txt 
+$ pip install -r requirements.txt
 ````
 Run:  <br />
 ````shell

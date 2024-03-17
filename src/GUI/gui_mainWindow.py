@@ -1,4 +1,3 @@
-from PyQt6.QtWebEngineWidgets import QWebEngineView
 from pyperclip import copy
 from PyQt6.QtWidgets import QFrame, QTabWidget
 from json import loads, dump, dumps
@@ -7,13 +6,17 @@ from PyQt6.QtCore import QSize, QRect, QUrl
 from PyQt6.QtGui import QAction, QTextCursor
 from pathlib import Path
 from tkinter import filedialog, Tk
-from src.cryptography import DES
+from src.cryptography import AES
 from src.GUI import gui_userChoice, gui_userInput, gui_error, gui_message
 from src.validators import checkHex, checkURL
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QLabel, QPushButton, QComboBox, QLineEdit,
                              QRadioButton, QTextEdit, QMenuBar, QMenu, QStatusBar)
 from src import (database, dataTypes, ethereum,
                  account, system)
+
+
+from PyQt6.QtWebEngineWidgets import QWebEngineView
+
 
 ITEM_HEIGHT = 25
 MENU_HEIGHT = 16
@@ -1388,7 +1391,7 @@ class Ui(QtWidgets.QMainWindow):
                     fileName = f"{folderSelected}/{rowData[7].replace(' ', '_')}.wallet"
                     b_password = password.encode('utf-8')
                     b_data = dumps(data, indent=2).encode('utf-8')
-                    dataToWrite = DES.encrypt(b_password, b_data)
+                    dataToWrite = AES.encrypt(b_password, b_data)
                 else:
                     fileName = f"{folderSelected}/{rowData[7].replace(' ', '_')}.json"
                     dataToWrite = data
@@ -1435,7 +1438,7 @@ class Ui(QtWidgets.QMainWindow):
                     if not password:  # no password received
                         raise Exception(f"restoring encrypted account need password")
                     else:
-                        decrypted = DES.decrypt(password.encode('utf-8'), data)
+                        decrypted = AES.decrypt(password.encode('utf-8'), data)
                         jsonData = loads(decrypted.decode('utf-8'))
                 else:
                     raise Exception(f"unknown file format")
