@@ -2,7 +2,6 @@ from PyQt6.QtWebEngineWidgets import QWebEngineView
 from pyperclip import copy
 from PyQt6.QtWidgets import QFrame, QTabWidget
 from json import loads, dump, dumps
-from PyQt6.QtCore import Qt
 from PyQt6 import QtWidgets, QtGui
 from PyQt6.QtCore import QSize, QRect, QUrl
 from PyQt6.QtGui import QAction, QTextCursor
@@ -260,41 +259,51 @@ class Ui(QtWidgets.QMainWindow):
         self.tabWidget_main.addTab(self.tab_accounts, "Accounts")
         self.tab_accounts.setObjectName("tab_accounts")
         self.gridLayoutWidget_accounts.setObjectName("gridLayoutWidget_accounts")
-        self.gridLayoutWidget_accounts.setGeometry(QRect(0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        self.gridLayoutWidget_accounts.setGeometry(QRect(
+            0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
         self.gridlayout_accounts.setObjectName("gridlayout_accounts")
-        self.gridlayout_accounts.setGeometry(QRect(0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        self.gridlayout_accounts.setGeometry(QRect(
+            0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
 
         #  tab tokens
         self.tabWidget_main.addTab(self.tab_tokens, "Tokens")
         self.tab_tokens.setObjectName("tab_tokens")
         self.gridLayoutWidget_tokens.setObjectName("gridLayoutWidget_tokens")
-        self.gridLayoutWidget_tokens.setGeometry(QRect(0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        self.gridLayoutWidget_tokens.setGeometry(QRect(
+            0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
         self.gridlayout_tokens.setObjectName("gridlayout_tokens")
-        self.gridlayout_tokens.setGeometry(QRect(0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        self.gridlayout_tokens.setGeometry(QRect(
+            0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
 
         # tab contract
         self.tabWidget_main.addTab(self.tab_contract, "Contract")
         self.tab_contract.setObjectName("tab_contract")
         self.gridLayoutWidget_contract.setObjectName("gridLayoutWidget_contract")
-        self.gridLayoutWidget_contract.setGeometry(QRect(0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        self.gridLayoutWidget_contract.setGeometry(QRect(
+            0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
         self.gridlayout_contract.setObjectName("gridlayout_contract")
-        self.gridlayout_contract.setGeometry(QRect(0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        self.gridlayout_contract.setGeometry(QRect(
+            0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
 
         # tab nft
         self.tabWidget_main.addTab(self.tab_nft, "NFT")
         self.tab_nft.setObjectName("tab_nft")
         self.gridLayoutWidget_nft.setObjectName("gridLayoutWidget_nft")
-        self.gridLayoutWidget_nft.setGeometry(QRect(0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        self.gridLayoutWidget_nft.setGeometry(QRect(
+            0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
         self.gridlayout_nft.setObjectName("gridlayout_nft")
-        self.gridlayout_nft.setGeometry(QRect(0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        self.gridlayout_nft.setGeometry(QRect(
+            0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
 
         # tab webView
         self.tabWidget_main.addTab(self.tab_webView, "WebView")
         self.tab_webView.setObjectName("tab_webView")
         self.gridLayoutWidget_webView.setObjectName("gridLayoutWidget_webView")
-        self.gridLayoutWidget_webView.setGeometry(QRect(0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        self.gridLayoutWidget_webView.setGeometry(QRect(
+            0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
         self.gridlayout_webView.setObjectName("gridlayout_webView")
-        self.gridlayout_webView.setGeometry(QRect(0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT))
+        self.gridlayout_webView.setGeometry(QRect(
+            0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
 
         # accounts -------------------------------------------------------------------------
         # row 1

@@ -21,8 +21,8 @@ def getIconPath(iconName: str) -> str:
     try:
         basePath = Path(__file__).parent.parent
         # for source run
-        return join(basePath, 'resources/icons/', iconName)
+        # return join(basePath, 'resources/icons/', iconName)
         # for release
-        # return join(basePath, iconName)
+        return join(basePath, iconName)
     except Exception as er:
         raise Exception('getIconPath ->', str(er))
