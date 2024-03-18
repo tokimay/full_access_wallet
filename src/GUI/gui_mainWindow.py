@@ -811,6 +811,7 @@ class Ui(QtWidgets.QMainWindow):
                 img.loadFromData(reply.readAll())
                 self.comboBox_tokens.insertItem(index - 1, item)
                 self.comboBox_tokens.setItemIcon(index - 1, img)
+                self.comboBox_tokens.setCurrentIndex(index - 1)
                 # lbl.setPixmap(QPixmap(img))
 
             self.comboBox_tokens.addItem(item)
