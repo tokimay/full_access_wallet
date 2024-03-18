@@ -54,6 +54,14 @@ class WINDOW(QDialog):
     def setClickEvents(self):
         self.pushButton_ok.clicked.connect(self.ok)
         self.pushButton_cancel.clicked.connect(self.cancel)
+        self.textEdit_input.installEventFilter(self)
+
+    def eventFilter(self, obj, event):
+        if event.type() == QtCore.QEvent.Type.KeyPress and obj is self.textEdit_input:
+            if (event.key() == QtCore.Qt.Key.Key_Return or event.key() == QtCore.Qt.Key.Key_Enter
+            ) and self.textEdit_input.hasFocus():
+                self.ok()
+        return super().eventFilter(obj, event)
 
     def ok(self):
         self.input = self.textEdit_input.toPlainText()
