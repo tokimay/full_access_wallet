@@ -1,12 +1,10 @@
 from sys import exit
-
-from PyQt6.QtNetwork import QNetworkAccessManager, QNetworkRequest
 from pyperclip import copy
 from PyQt6.QtWidgets import QFrame, QTabWidget
 from json import loads, dump, dumps
 from PyQt6 import QtWidgets, QtGui
 from PyQt6.QtCore import QSize, QRect, QUrl
-from PyQt6.QtGui import QAction, QTextCursor, QImage
+from PyQt6.QtGui import QAction, QTextCursor, QPixmap, QIcon
 from pathlib import Path
 from tkinter import filedialog, Tk
 from src.cryptography import AES
@@ -18,6 +16,8 @@ from src import (database, dataTypes, ethereum,
                  account, system)
 
 from PyQt6.QtWebEngineWidgets import QWebEngineView
+import requests
+
 
 ITEM_HEIGHT = 25
 MENU_HEIGHT = 16
@@ -148,8 +148,8 @@ class Ui(QtWidgets.QMainWindow):
                 {
                     "symbol": "ETH",
                     "data": {"type": "ERC20", "name": "Ethereum", "decimals": 0,
-                             "logoURI": "https://github.com/tokimay/Full_Access_Wallet/tree/main/resources/tokensLogo/"
-                                        "ETH.png",
+                             "logoURI": "https://raw.githubusercontent.com/tokimay/"
+                                        "Full_Access_Wallet/main/resources/tokensLogo/ETH.png",
                              "address": ""}
                 }
             ]}
@@ -600,7 +600,7 @@ class Ui(QtWidgets.QMainWindow):
             self.label_GasFeePriority.setStyleSheet(labelStyle)
 
             symbol = 'None'
-            for token in self.tokes:
+            for token in self.tokes['list']:
                 if token['data']['name'] == self.comboBox_tokens.currentText():
                     symbol = token['symbol']
 
@@ -774,7 +774,7 @@ class Ui(QtWidgets.QMainWindow):
             if self.comboBox_activeAddressVal.count() == 0:
                 self.lineEdit_accountName.clear()
                 symbol = 'None'
-                for token in self.tokes:
+                for token in self.tokes['list']:
                     if token['data']['name'] == self.comboBox_tokens.currentText():
                         symbol = token['symbol']
                 self.label_amountVal.setText(
@@ -805,26 +805,18 @@ class Ui(QtWidgets.QMainWindow):
     def addNewItemToComboBoxToken(self, item: str):
         try:
             index = self.comboBox_tokens.currentIndex()
-
-            def finishRequest(reply):
-                img = QImage()
-                img.loadFromData(reply.readAll())
-                self.comboBox_tokens.insertItem(index - 1, item)
-                self.comboBox_tokens.setItemIcon(index - 1, img)
-                self.comboBox_tokens.setCurrentIndex(index - 1)
-                # lbl.setPixmap(QPixmap(img))
-
-            self.comboBox_tokens.addItem(item)
-            logo = QNetworkAccessManager()
-            logo.finished.connect(finishRequest)
             url = ''
-            for token in self.tokes:
+            for token in self.tokes['list']:
                 if token['symbol'] == item:
                     url = token['data']['logoURI']
-            print(url)
-            logo.get(QNetworkRequest(QUrl(url)))
-
-            self.comboBox_tokens.setCurrentIndex(self.comboBox_tokens.count() - 1)
+            request = requests.get(url).content
+            pixmap = QPixmap()
+            pixmap.loadFromData(request)
+            self.comboBox_tokens.insertItem(index, item)
+            self.pushButton_send.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
+            self.comboBox_tokens.setItemIcon(index, QIcon(QIcon(pixmap)))
+            self.comboBox_tokens.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
+            self.comboBox_tokens.setCurrentIndex(index)
         except Exception as er:
             gui_error.WINDOW('addNewItemToComboBoxToken', str(er)).exec()
 
@@ -1043,9 +1035,12 @@ class Ui(QtWidgets.QMainWindow):
                     if balance > 0:
                         color = 'green'
                     symbol = 'None'
-                    for token in self.tokes:
-                        if token['data']['name'] == self.comboBox_tokens.currentText():
+                    for token in self.tokes['list']:
+                        print(token['data']['name'])
+                        if token['symbol'] == self.comboBox_tokens.currentText():
                             symbol = token['symbol']
+                            print(symbol)
+
                     self.label_amountVal.setText(
                         f"<span style = 'color: {color}; font-weight: bold;' >  {str(balance)}"
                         f"</ span> <span style = 'color: rgb(140, 170, 250); font-weight: bold;' >"
