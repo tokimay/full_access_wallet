@@ -144,7 +144,7 @@ class Ui(QtWidgets.QMainWindow):
 
             self.db = database.Sqlite(dbName)
             self.transactionResult = {'message': '', 'hash': '', 'pending': 0}
-            self.tokes = [
+            self.tokes = {"list": [
                 {
                     "symbol": "ETH",
                     "data": {"type": "ERC20", "name": "Ethereum", "decimals": 0,
@@ -152,7 +152,7 @@ class Ui(QtWidgets.QMainWindow):
                                         "ETH.png",
                              "address": ""}
                 }
-            ]
+            ]}
             self.initUI()
             self.initIcons()
             self.initStyleSheet()
