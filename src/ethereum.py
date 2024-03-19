@@ -5,9 +5,13 @@ from eth_account._utils.legacy_transactions import serializable_unsigned_transac
 from eth_account._utils.signing import to_standard_v, extract_chain_id
 from web3 import Web3, HTTPProvider
 
+from src import network
+from src.validators import checkURL
+
 
 def getBalance(address: str, provider: str) -> int:
     try:
+        checkURL(provider)
         w3 = Web3(HTTPProvider(provider))
         if not w3.is_connected():
             if not w3.is_connected():
@@ -86,6 +90,7 @@ def sendValueTransaction(privateKey: str, txElements: dict, duplicate: bool = Fa
     noncePending = 0
     nonceConfirmed = 0
     try:
+        checkURL(txElements['provider'])
         w3 = Web3(HTTPProvider(txElements['provider']))
         if not w3.is_connected():
             raise Exception(f"connect to '{txElements['provider']}' failed.")
@@ -154,6 +159,7 @@ def sendMessageTransaction(privateKey: str, txElements: dict, duplicate: bool = 
     noncePending = 0
     nonceConfirmed = 0
     try:
+        checkURL(txElements['provider'])
         w3 = Web3(HTTPProvider(txElements['provider']))
         if not w3.is_connected():
             raise Exception(f"connect to '{txElements['provider']}' failed.")
@@ -217,6 +223,7 @@ def sendMessageTransaction(privateKey: str, txElements: dict, duplicate: bool = 
 
 def getTransaction(txHash: str, provider: str) -> str:
     try:
+        checkURL(provider)
         w3 = Web3(HTTPProvider(provider))
         if not w3.is_connected():
             raise Exception(f"connect to '{provider}' failed.")
@@ -229,6 +236,7 @@ def getTransaction(txHash: str, provider: str) -> str:
 
 def getAccountNonce(address: str, provider: str) -> int:
     try:
+        checkURL(provider)
         w3 = Web3(HTTPProvider(provider))
         if not w3.is_connected():
             raise Exception(f"connect to '{provider}' failed.")
@@ -239,6 +247,7 @@ def getAccountNonce(address: str, provider: str) -> int:
 
 def getTransactionHistory(address: str, provider: str, API: str, mainNet: bool, isInternal: bool) -> bytes:
     try:
+        checkURL(provider)
         w3 = Web3(HTTPProvider(provider))
         if not w3.is_connected():
             raise Exception(f"connect to '{provider}' failed.")
@@ -268,6 +277,7 @@ def getTransactionHistory(address: str, provider: str, API: str, mainNet: bool, 
 
 def getPublicKeyFromTransaction(TXHash: str, provider: str) -> dict:
     try:
+        checkURL(provider)
         w3 = Web3(HTTPProvider(provider))
         if not w3.is_connected():
             raise Exception(f"connect to '{provider}' failed.")
@@ -295,10 +305,13 @@ def getPublicKeyFromTransaction(TXHash: str, provider: str) -> dict:
 
 
 def getPendingTransactions(provider: str) -> list:
+    checkURL(provider)
     return __getPendingBlock(provider)['transactions']
+
 
 def __getLastBlock(provider: str) -> dict:
     try:
+        checkURL(provider)
         w3 = Web3(HTTPProvider(provider))
         if not w3.is_connected():
             raise Exception(f"connect to '{provider}' failed.")
@@ -308,8 +321,10 @@ def __getLastBlock(provider: str) -> dict:
     except Exception as er:
         raise Exception(f"getLastBlock -> {er}")
 
+
 def __getPendingBlock(provider: str) -> dict:
     try:
+        checkURL(provider)
         w3 = Web3(HTTPProvider(provider))
         if not w3.is_connected():
             raise Exception(f"connect to '{provider}' failed.")
@@ -318,3 +333,33 @@ def __getPendingBlock(provider: str) -> dict:
         return loads(pendingBlock)
     except Exception as er:
         raise Exception(f"getLastBlock -> {er}")
+
+
+def getABI(contractAddress: str) -> str:
+    try:
+        response = network.getRequest(f"https://api.etherscan.io/api?module=contract&action=getabi&address="
+                                      f"{contractAddress}")
+        response_json = response.json()
+        abi_json = loads(response_json['result'])
+        return dumps(abi_json, indent=4, sort_keys=True)
+    except Exception as er:
+        raise Exception(f"getABI -> {er}")
+
+
+def getTokenInfo(provider: str, contractAddress: str) -> dict:
+    try:
+        checkURL(provider)
+        w3 = Web3(HTTPProvider(provider))
+        if not w3.is_connected():
+            raise Exception(f"connect to '{provider}' failed.")
+        abi = getABI(contractAddress)
+        contract = w3.eth.contract(contractAddress, abi=abi)
+        return {
+            'address': contractAddress,
+            'api': abi,
+            'name': contract.functions.name().call(),
+            'symbol': contract.functions.symbol().call(),
+            'decimals': contract.functions.decimals().call()
+        }
+    except Exception as er:
+        raise Exception(f"getTokenInfo -> {er}")

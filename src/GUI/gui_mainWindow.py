@@ -13,17 +13,15 @@ from src.validators import checkHex, checkURL
 from PyQt6.QtWidgets import (QWidget, QGridLayout, QLabel, QPushButton, QComboBox, QLineEdit,
                              QRadioButton, QTextEdit, QMenuBar, QMenu, QStatusBar)
 from src import (database, dataTypes, ethereum,
-                 account, system)
+                 account, system, network)
 
 from PyQt6.QtWebEngineWidgets import QWebEngineView
-import requests
-
 
 ITEM_HEIGHT = 25
 MENU_HEIGHT = 16
 ICON_SIZE = 16
 SEPOLIA_PROVIDER = "https://rpc-sepolia.rockx.com/"
-ETHEREUM_PROVIDER = "https://nodes.mewapi.io/rpc/eth"
+ETHEREUM_PROVIDER = "https://rpc.ankr.com/eth" #" "https://nodes.mewapi.io/rpc/eth"
 MAIN_WIDTH = 800
 MAIN_HEIGHT = 600
 SIDE_TAB_WIDTH = 25
@@ -49,6 +47,7 @@ class Ui(QtWidgets.QMainWindow):
             self.action_recoverFromMnemonic = QAction(self)
             self.action_recoverFromEntropy = QAction(self)
             self.action_recoverFromPrivateKey = QAction(self)
+            self.action_ViewOnlyAccount = QAction(self)
             # ----------------------------------------------------------------------------------
             self.action_entropy = QAction(self)
             self.action_privateKey = QAction(self)
@@ -158,6 +157,7 @@ class Ui(QtWidgets.QMainWindow):
             self.initStyleSheet()
             self.setClickEvents()
             self.setMenuActionsTips()
+            self.addTokensList()
         except Exception as er:
             gui_error.WINDOW('init', str(er)).exec()
             exit()
@@ -184,6 +184,7 @@ class Ui(QtWidgets.QMainWindow):
             self.action_recoverFromMnemonic.setObjectName("actionRecover_from_mnemonic")
             self.action_recoverFromEntropy.setObjectName("actionRecover_from_entropy")
             self.action_recoverFromPrivateKey.setObjectName("actionRecover_from_privateKey")
+            self.action_ViewOnlyAccount.setObjectName("action_ViewOnlyAccount")
             # ----------------------------------------------------------------------------------
             self.action_checkTx.setObjectName("action_checkTX")
             self.action_txNonce.setObjectName("actionTX_nonce")
@@ -215,6 +216,8 @@ class Ui(QtWidgets.QMainWindow):
             self.action_recoverFromEntropy.setText("Recover from entropy")
             self.menu_newAccount.addAction(self.action_recoverFromPrivateKey)
             self.action_recoverFromPrivateKey.setText("Recover from privateKey")
+            self.menu_newAccount.addAction(self.action_ViewOnlyAccount)
+            self.action_ViewOnlyAccount.setText("View only account")
 
             #  wallet menu -> Secrets menu
             self.menu_wallet.addAction(self.menu_secrets.menuAction())
@@ -355,7 +358,7 @@ class Ui(QtWidgets.QMainWindow):
             self.label_amountVal.setObjectName("label_amountVal")
             self.label_amountVal.setText("0")
             self.pushButton_etherScan.setObjectName("pushButton_etherScan")
-            self.pushButton_etherScan.setText("etherescan.io")
+            self.pushButton_etherScan.setText("Explorer")
 
             # row 5
             self.label_sendAddress.setObjectName("label_send")
@@ -495,7 +498,7 @@ class Ui(QtWidgets.QMainWindow):
                 "stop:0 rgb(30, 76, 108) , stop:1 rgb(47, 54, 60));"
                 # "font-size:14px; "
                 "margin: 0px  0px 0px 0px;"
-                "padding: 0px 0px 0px 0px;"  # top, bottom, x ,x"
+                "padding: 0px 0px 0px 0px;"  # top, bottom, x ,x;"
             )
             self.setStyleSheet(mainStyle)
             menuBarStyle = (
@@ -678,6 +681,7 @@ class Ui(QtWidgets.QMainWindow):
             self.action_recoverFromMnemonic.triggered.connect(self.createAccountFromMnemonic)
             self.action_recoverFromEntropy.triggered.connect(self.createAccountFromEntropy)
             self.action_recoverFromPrivateKey.triggered.connect(self.createAccountFromPrivateKey)
+            self.action_ViewOnlyAccount.triggered.connect(self.createViewOnlyAccount)
             # Wallets-Secrets-------------------------------------------------------------------------------------
             self.action_entropy.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.ENTROPY))
             self.action_privateKey.triggered.connect(lambda: self.showSecrets(dataTypes.SECRET.PRIVATE_KEY))
@@ -719,6 +723,8 @@ class Ui(QtWidgets.QMainWindow):
             self.action_recoverFromEntropy.setStatusTip('recover an old account from entropy')
             self.action_recoverFromPrivateKey.setShortcut('Ctrl+p')
             self.action_recoverFromPrivateKey.setStatusTip('recover an old account from the private Key')
+            self.action_ViewOnlyAccount.setShortcut('Ctrl+w')
+            self.action_ViewOnlyAccount.setStatusTip('create view only account')
             # Wallets-Secrets---------------------------------------------------------------------------------
             self.action_entropy.setShortcut('Alt+e')
             self.action_entropy.setStatusTip('see your account entropy')
@@ -769,6 +775,16 @@ class Ui(QtWidgets.QMainWindow):
         except Exception as er:
             gui_error.WINDOW('changeNetwork', str(er)).exec()
 
+    def addTokensList(self):
+        try:
+            tokenJson = network.getRequest(f"https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main"
+                                           f"/resources/tokenList.json")
+            for token in tokenJson.json()['list']:
+                self.tokes['list'].append(token)
+        except Exception as er:
+            gui_error.WINDOW("addTokensList", str(er)).exec()
+            exit()
+
     def comboBoxAddressChange(self):
         try:
             if self.comboBox_activeAddressVal.count() == 0:
@@ -798,7 +814,7 @@ class Ui(QtWidgets.QMainWindow):
                 if not contract:
                     self.comboBox_tokens.setCurrentIndex(index)  # last selected index
                 else:
-                    pass
+                    self.addTokensByContract(contract)
         except Exception as er:
             gui_error.WINDOW('addNewTokenToList', str(er)).exec()
 
@@ -809,9 +825,9 @@ class Ui(QtWidgets.QMainWindow):
             for token in self.tokes['list']:
                 if token['symbol'] == item:
                     url = token['data']['logoURI']
-            request = requests.get(url).content
+            request = network.getRequest(url)
             pixmap = QPixmap()
-            pixmap.loadFromData(request)
+            pixmap.loadFromData(request.content)
             self.comboBox_tokens.insertItem(index, item)
             self.pushButton_send.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
             self.comboBox_tokens.setItemIcon(index, QIcon(QIcon(pixmap)))
@@ -819,6 +835,23 @@ class Ui(QtWidgets.QMainWindow):
             self.comboBox_tokens.setCurrentIndex(index)
         except Exception as er:
             gui_error.WINDOW('addNewItemToComboBoxToken', str(er)).exec()
+
+    def addTokensByContract(self, contract):
+        print(1)
+        token = ethereum.getTokenInfo(self.lineEdit_nodeProvider.text(), contract)
+        print(token)
+        self.tokes['list'].append({
+            'symbol': token['symbol'],
+            'data': {
+                'type': 'ERC20',
+                'name': token['name'],
+                'decimals': int(token['decimals']),
+                'logoURI': '',
+                'address': token['address']
+            }
+        })
+        for l in self.tokes['list']:
+            print(l)
 
     def editAccountName(self):
         try:
@@ -921,6 +954,29 @@ class Ui(QtWidgets.QMainWindow):
         except Exception as er:
             gui_error.WINDOW('createAccountFromPrivateKey', str(er)).exec()
 
+    def createViewOnlyAccount(self):
+        try:
+            getAddress = gui_userInput.WINDOW('View Only Account',
+                                              'Enter target address:')
+            getAddress.exec()
+            address = getAddress.getInput()
+            if address:
+                checkHex(address)
+                acc = {'entropy': '',
+                       'privateKey': '',
+                       'publicKeyCoordinate': ('', ''),
+                       'publicKey': '',
+                       'address': address,
+                       'mnemonic': '',
+                       'name': 'No name'}
+                self.db.insertRow(acc)
+                self.comboBox_activeAddressVal.addItem(acc['address'])
+                self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
+            else:
+                pass
+        except Exception as er:
+            gui_error.WINDOW('createViewOnlyAccount', str(er)).exec()
+
     def createAccountFromMnemonic(self):
         try:
             getMnemonic = gui_userInput.WINDOW('Recover account from mnemonic', 'Enter your mnemonic:')
@@ -979,45 +1035,51 @@ class Ui(QtWidgets.QMainWindow):
 
     def showSecrets(self, secretType: dataTypes.SECRET):
         try:
-            self.textEdit_main.clear()
-            if secretType == dataTypes.SECRET.ENTROPY and (self.db.readColumn(
-                    dataTypes.SECRET.ENTROPY.value, self.comboBox_activeAddressVal.currentText()
-            ) == self.db.readColumn(dataTypes.SECRET.PRIVATE_KEY.value,
-                                    self.comboBox_activeAddressVal.currentText())):
-                gui_message.WINDOW('Show secrets',
-                                   'You have recovered an old account.',
-                                   'Entropy is not recoverable from private key').exec()
-            elif secretType == dataTypes.SECRET.MNEMONIC and (self.db.readColumn(
-                    dataTypes.SECRET.MNEMONIC.value, self.comboBox_activeAddressVal.currentText()
-            ) == self.db.readColumn(dataTypes.SECRET.PRIVATE_KEY.value,
-                                    self.comboBox_activeAddressVal.currentText())):
-                gui_message.WINDOW('Show secrets',
-                                   'You have recovered an old account.',
-                                   'Mnemonic is not recoverable from private key').exec()
-            elif secretType == dataTypes.SECRET.PUBLIC_KEY_X or secretType == dataTypes.SECRET.PUBLIC_KEY_Y:
-                result_X = self.db.readColumn(
-                    dataTypes.SECRET.PUBLIC_KEY_X.value, self.comboBox_activeAddressVal.currentText())
-                result_Y = self.db.readColumn(
-                    dataTypes.SECRET.PUBLIC_KEY_Y.value, self.comboBox_activeAddressVal.currentText())
-                if len(result_X) == 1 and len(result_Y) == 1:
-                    self.textEdit_main.append(f'Your account PUBLIC_KEY COORDINATE keep it safe:\n')
-                    self.textEdit_main.append('X : ' + result_X[0][0])
-                    self.textEdit_main.append('Y : ' + result_Y[0][0])
-                else:
-                    raise Exception(f"failed to receive coordinates from database.\nX: {result_X}\nY: {result_Y}")
+            if not self.db.readColumn(
+                    dataTypes.SECRET.PRIVATE_KEY.value,
+                    self.comboBox_activeAddressVal.currentText())[0][0]:
+                gui_message.WINDOW("Show secrets", "View only account",
+                                   "no secret can be retrieved").exec()
             else:
-                result = self.db.readColumn(secretType.value, self.comboBox_activeAddressVal.currentText())
-                if len(result) == 1:
-                    self.textEdit_main.append(f'Your account {secretType.name} keep it safe:\n')
-                    self.textEdit_main.append(f'{result[0][0]}\n')
-                    if secretType == dataTypes.SECRET.MNEMONIC or secretType == dataTypes.SECRET.ENTROPY:
-                        self.textEdit_main.append(f'{secretType.name} + Passphrase = your account\n\n'
-                                                  f'{secretType.name} without Passphrase = unknown account\n'
-                                                  f'(If no passphrase set = your account)')
-                    elif secretType == dataTypes.SECRET.PRIVATE_KEY:
-                        self.textEdit_main.append(f'{secretType.name} = your account')
+                self.textEdit_main.clear()
+                if secretType == dataTypes.SECRET.ENTROPY and (self.db.readColumn(
+                        dataTypes.SECRET.ENTROPY.value, self.comboBox_activeAddressVal.currentText()
+                ) == self.db.readColumn(dataTypes.SECRET.PRIVATE_KEY.value,
+                                        self.comboBox_activeAddressVal.currentText())):
+                    gui_message.WINDOW('Show secrets',
+                                       'You have recovered an old account.',
+                                       'Entropy is not recoverable from private key').exec()
+                elif secretType == dataTypes.SECRET.MNEMONIC and (self.db.readColumn(
+                        dataTypes.SECRET.MNEMONIC.value, self.comboBox_activeAddressVal.currentText()
+                ) == self.db.readColumn(dataTypes.SECRET.PRIVATE_KEY.value,
+                                        self.comboBox_activeAddressVal.currentText())):
+                    gui_message.WINDOW('Show secrets',
+                                       'You have recovered an old account.',
+                                       'Mnemonic is not recoverable from private key').exec()
+                elif secretType == dataTypes.SECRET.PUBLIC_KEY_X or secretType == dataTypes.SECRET.PUBLIC_KEY_Y:
+                    result_X = self.db.readColumn(
+                        dataTypes.SECRET.PUBLIC_KEY_X.value, self.comboBox_activeAddressVal.currentText())
+                    result_Y = self.db.readColumn(
+                        dataTypes.SECRET.PUBLIC_KEY_Y.value, self.comboBox_activeAddressVal.currentText())
+                    if len(result_X) == 1 and len(result_Y) == 1:
+                        self.textEdit_main.append(f'Your account PUBLIC_KEY COORDINATE keep it safe:\n')
+                        self.textEdit_main.append('X : ' + result_X[0][0])
+                        self.textEdit_main.append('Y : ' + result_Y[0][0])
+                    else:
+                        raise Exception(f"failed to receive coordinates from database.\nX: {result_X}\nY: {result_Y}")
                 else:
-                    raise Exception(f"failed to receive {secretType.name} from database.")
+                    result = self.db.readColumn(secretType.value, self.comboBox_activeAddressVal.currentText())
+                    if len(result) == 1:
+                        self.textEdit_main.append(f'Your account {secretType.name} keep it safe:\n')
+                        self.textEdit_main.append(f'{result[0][0]}\n')
+                        if secretType == dataTypes.SECRET.MNEMONIC or secretType == dataTypes.SECRET.ENTROPY:
+                            self.textEdit_main.append(f'{secretType.name} + Passphrase = your account\n\n'
+                                                      f'{secretType.name} without Passphrase = unknown account\n'
+                                                      f'(If no passphrase set = your account)')
+                        elif secretType == dataTypes.SECRET.PRIVATE_KEY:
+                            self.textEdit_main.append(f'{secretType.name} = your account')
+                    else:
+                        raise Exception(f"failed to receive {secretType.name} from database.")
         except Exception as er:
             gui_error.WINDOW('showSecrets', str(er)).exec()
 
@@ -1036,11 +1098,8 @@ class Ui(QtWidgets.QMainWindow):
                         color = 'green'
                     symbol = 'None'
                     for token in self.tokes['list']:
-                        print(token['data']['name'])
                         if token['symbol'] == self.comboBox_tokens.currentText():
                             symbol = token['symbol']
-                            print(symbol)
-
                     self.label_amountVal.setText(
                         f"<span style = 'color: {color}; font-weight: bold;' >  {str(balance)}"
                         f"</ span> <span style = 'color: rgb(140, 170, 250); font-weight: bold;' >"
@@ -1452,10 +1511,8 @@ class Ui(QtWidgets.QMainWindow):
                     'name': rowData[7]}
             root = Tk()
             root.withdraw()
-            folderSelected = filedialog.askdirectory()
-            fileName = ''
-            dataToWrite = None
-            if folderSelected:
+            selectedFolder = filedialog.askdirectory()
+            if selectedFolder:
                 passwordWindow = gui_userInput.WINDOW('backupWallet',
                                                       'Exporting the secrets of your account to the file.\n'
                                                       'For more security set a password on the file\n'
@@ -1463,12 +1520,16 @@ class Ui(QtWidgets.QMainWindow):
                 passwordWindow.exec()
                 password = passwordWindow.getInput()
                 if password:
-                    fileName = f"{folderSelected}/{rowData[7].replace(' ', '_')}.wallet"
+                    fileName = (f"{selectedFolder}/{rowData[7].replace(' ', '_')}-"
+                                f"{rowData[5][2:5]}-{rowData[5][-3:]}"
+                                f".wallet")
                     b_password = password.encode('utf-8')
                     b_data = dumps(data, indent=2).encode('utf-8')
                     dataToWrite = AES.encrypt(b_password, b_data)
                 else:
-                    fileName = f"{folderSelected}/{rowData[7].replace(' ', '_')}.json"
+                    fileName = (f"{selectedFolder}/{rowData[7].replace(' ', '_')}-"
+                                f"{rowData[5][2:5]}-{rowData[5][-3:]}"
+                                f".json")
                     dataToWrite = data
 
                 if Path(fileName).is_file():
@@ -1488,8 +1549,10 @@ class Ui(QtWidgets.QMainWindow):
                         raise Exception('saving file failed.')
                 else:
                     pass  # cancel by user
-            if not fileName or dataToWrite is None:
-                raise Exception(f"error...\nfile name: '{fileName}'\ndata: '{dataToWrite}'")
+                if not fileName or dataToWrite is None:
+                    raise Exception(f"error...\nfile name: '{fileName}'\ndata: '{dataToWrite}'")
+            else:
+                pass  # no folder selected
         except Exception as er:
             gui_error.WINDOW('backupWallet', str(er)).exec()
 
