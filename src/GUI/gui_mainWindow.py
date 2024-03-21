@@ -1,34 +1,27 @@
 from sys import exit
 from pyperclip import copy
-from PyQt6.QtWidgets import QFrame, QTabWidget
+from PyQt6.QtWidgets import QFrame, QTabWidget, QMainWindow, QWidget
 from json import loads, dump, dumps
-from PyQt6 import QtWidgets, QtGui
 from PyQt6.QtCore import QSize, QRect, QUrl
 from PyQt6.QtGui import QAction, QTextCursor, QPixmap, QIcon
 from pathlib import Path
 from tkinter import filedialog, Tk
+
+from src.data import readTokens
+from src.system import errorSignal
+from src.values import *
 from src.cryptography import AES
 from src.GUI import gui_userChoice, gui_userInput, gui_error, gui_message
-from src.validators import checkHex, checkURL
-from PyQt6.QtWidgets import (QWidget, QGridLayout, QLabel, QPushButton, QComboBox, QLineEdit,
+from src.validators import checkHex, checkURI
+from PyQt6.QtWidgets import (QGridLayout, QLabel, QPushButton, QComboBox, QLineEdit,
                              QRadioButton, QTextEdit, QMenuBar, QMenu, QStatusBar)
 from src import (database, dataTypes, ethereum,
                  account, system, network)
 
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 
-ITEM_HEIGHT = 25
-MENU_HEIGHT = 16
-ICON_SIZE = 16
-SEPOLIA_PROVIDER = "https://rpc-sepolia.rockx.com/"
-ETHEREUM_PROVIDER = "https://rpc.ankr.com/eth" #" "https://nodes.mewapi.io/rpc/eth"
-MAIN_WIDTH = 800
-MAIN_HEIGHT = 600
-SIDE_TAB_WIDTH = 25
-SIDE_TAB_MARGIN = 2
 
-
-class Ui(QtWidgets.QMainWindow):
+class Ui(QMainWindow):
     def __init__(self, dbName):
         try:
             super().__init__()
@@ -141,37 +134,30 @@ class Ui(QtWidgets.QMainWindow):
 
             self.statusbar = QStatusBar(self)
 
-            self.db = database.Sqlite(dbName)
+            self.db = database.SQLITE(dbName)
             self.transactionResult = {'message': '', 'hash': '', 'pending': 0}
-            self.tokes = {"list": [
-                {
-                    "symbol": "ETH",
-                    "data": {"type": "ERC20", "name": "Ethereum", "decimals": 0,
-                             "logoURI": "https://raw.githubusercontent.com/tokimay/"
-                                        "Full_Access_Wallet/main/resources/tokensLogo/ETH.png",
-                             "address": ""}
-                }
-            ]}
+            self.tokes = []
+            self.initTokenList()
             self.initUI()
             self.initIcons()
             self.initStyleSheet()
             self.setClickEvents()
             self.setMenuActionsTips()
-            self.addTokensList()
         except Exception as er:
-            gui_error.WINDOW('init', str(er)).exec()
-            exit()
+            errorSignal.newError.emit(f"Ui -> __init__ -> {str(er)}")
 
+    def initTokenList(self):
+        self.tokes = readTokens(self.db)
     def initUI(self):
         try:
             self.setCentralWidget(self.centralWidget_main)
-            self.resize(MAIN_WIDTH, MAIN_HEIGHT)
-            self.setFixedSize(MAIN_WIDTH, MAIN_HEIGHT)
+            self.resize(MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT)
+            self.setFixedSize(MAIN_WINDOW_WIDTH, MAIN_WINDOW_HEIGHT)
             self.setObjectName("MainWindow")
             self.setWindowTitle("FAwallet")
             self.centralWidget_main.setObjectName("centralWidget_main")
             self.tabWidget_main.setObjectName("tabWidget_main")
-            self.tabWidget_main.setGeometry(QRect(0, 0, MAIN_WIDTH - SIDE_TAB_WIDTH, MAIN_HEIGHT))
+            self.tabWidget_main.setGeometry(QRect(0, 0, MAIN_WINDOW_WIDTH - SIDE_TAB_WIDTH, MAIN_WINDOW_HEIGHT))
             self.setMenuBar(self.menubar_file)
             # menubar -------------------------------------------------------------------------
             self.action_entropy.setObjectName("actionEntropy")
@@ -197,7 +183,7 @@ class Ui(QtWidgets.QMainWindow):
             self.action_pendingTransactions.setObjectName('action_pendingTransactions ')
             # ----------------------------------------------------------------------------------
             self.menubar_file.setObjectName("menubar_file")
-            self.menubar_file.setGeometry(QRect(0, 0, MAIN_WIDTH - SIDE_TAB_WIDTH, 25))
+            self.menubar_file.setGeometry(QRect(0, 0, MAIN_WINDOW_WIDTH - SIDE_TAB_WIDTH, 25))
             # ----------------------------------------------------------------------------------
             # wallet menu
             self.menubar_file.addAction(self.menu_wallet.menuAction())
@@ -282,50 +268,50 @@ class Ui(QtWidgets.QMainWindow):
             self.tab_accounts.setObjectName("tab_accounts")
             self.gridLayoutWidget_accounts.setObjectName("gridLayoutWidget_accounts")
             self.gridLayoutWidget_accounts.setGeometry(QRect(
-                0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
+                0, 0, MAIN_WINDOW_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_WINDOW_HEIGHT - GUI_ITEM_HEIGHT - GUI_MENU_HEIGHT))
             self.gridlayout_accounts.setObjectName("gridlayout_accounts")
             self.gridlayout_accounts.setGeometry(QRect(
-                0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
+                0, 0, MAIN_WINDOW_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_WINDOW_HEIGHT - GUI_ITEM_HEIGHT - GUI_MENU_HEIGHT))
 
             #  tab tokens
             self.tabWidget_main.addTab(self.tab_tokens, "Tokens")
             self.tab_tokens.setObjectName("tab_tokens")
             self.gridLayoutWidget_tokens.setObjectName("gridLayoutWidget_tokens")
             self.gridLayoutWidget_tokens.setGeometry(QRect(
-                0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
+                0, 0, MAIN_WINDOW_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_WINDOW_HEIGHT - GUI_ITEM_HEIGHT - GUI_MENU_HEIGHT))
             self.gridlayout_tokens.setObjectName("gridlayout_tokens")
             self.gridlayout_tokens.setGeometry(QRect(
-                0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
+                0, 0, MAIN_WINDOW_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_WINDOW_HEIGHT - GUI_ITEM_HEIGHT - GUI_MENU_HEIGHT))
 
             # tab contract
             self.tabWidget_main.addTab(self.tab_contract, "Contract")
             self.tab_contract.setObjectName("tab_contract")
             self.gridLayoutWidget_contract.setObjectName("gridLayoutWidget_contract")
             self.gridLayoutWidget_contract.setGeometry(QRect(
-                0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
+                0, 0, MAIN_WINDOW_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_WINDOW_HEIGHT - GUI_ITEM_HEIGHT - GUI_MENU_HEIGHT))
             self.gridlayout_contract.setObjectName("gridlayout_contract")
             self.gridlayout_contract.setGeometry(QRect(
-                0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
+                0, 0, MAIN_WINDOW_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_WINDOW_HEIGHT - GUI_ITEM_HEIGHT - GUI_MENU_HEIGHT))
 
             # tab nft
             self.tabWidget_main.addTab(self.tab_nft, "NFT")
             self.tab_nft.setObjectName("tab_nft")
             self.gridLayoutWidget_nft.setObjectName("gridLayoutWidget_nft")
             self.gridLayoutWidget_nft.setGeometry(QRect(
-                0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
+                0, 0, MAIN_WINDOW_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_WINDOW_HEIGHT - GUI_ITEM_HEIGHT - GUI_MENU_HEIGHT))
             self.gridlayout_nft.setObjectName("gridlayout_nft")
             self.gridlayout_nft.setGeometry(QRect(
-                0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
+                0, 0, MAIN_WINDOW_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_WINDOW_HEIGHT - GUI_ITEM_HEIGHT - GUI_MENU_HEIGHT))
 
             # tab webView
             self.tabWidget_main.addTab(self.tab_webView, "WebView")
             self.tab_webView.setObjectName("tab_webView")
             self.gridLayoutWidget_webView.setObjectName("gridLayoutWidget_webView")
             self.gridLayoutWidget_webView.setGeometry(QRect(
-                0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
+                0, 0, MAIN_WINDOW_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_WINDOW_HEIGHT - GUI_ITEM_HEIGHT - GUI_MENU_HEIGHT))
             self.gridlayout_webView.setObjectName("gridlayout_webView")
             self.gridlayout_webView.setGeometry(QRect(
-                0, 0, MAIN_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_HEIGHT - ITEM_HEIGHT - MENU_HEIGHT))
+                0, 0, MAIN_WINDOW_WIDTH - (2 * SIDE_TAB_WIDTH), MAIN_WINDOW_HEIGHT - GUI_ITEM_HEIGHT - GUI_MENU_HEIGHT))
 
             # accounts -------------------------------------------------------------------------
             # row 1
@@ -470,22 +456,22 @@ class Ui(QtWidgets.QMainWindow):
             # self.setWindowIcon(QtGui.QIcon('icon.png'))
             # self.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-            self.pushButton_copyAddress.setIcon(QtGui.QIcon(system.getIconPath('copy.png')))
+            self.pushButton_copyAddress.setIcon(QIcon(system.getIconPath('copy.png')))
             self.pushButton_copyAddress.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-            self.pushButton_etherScan.setIcon(QtGui.QIcon(system.getIconPath('ethereum.png')))
+            self.pushButton_etherScan.setIcon(QIcon(system.getIconPath('ethereum.png')))
             self.pushButton_etherScan.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-            self.pushButton_nodeProvider.setIcon(QtGui.QIcon(system.getIconPath('node.png')))
+            self.pushButton_nodeProvider.setIcon(QIcon(system.getIconPath('node.png')))
             self.pushButton_nodeProvider.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-            self.pushButton_send.setIcon(QtGui.QIcon(system.getIconPath('moneyTransfer.png')))
+            self.pushButton_send.setIcon(QIcon(system.getIconPath('moneyTransfer.png')))
             self.pushButton_send.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-            self.pushButton_accountName.setIcon(QtGui.QIcon(system.getIconPath('edit.png')))
+            self.pushButton_accountName.setIcon(QIcon(system.getIconPath('edit.png')))
             self.pushButton_accountName.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
 
-            self.pushButton_deleteAccount.setIcon(QtGui.QIcon(system.getIconPath('delete.png')))
+            self.pushButton_deleteAccount.setIcon(QIcon(system.getIconPath('delete.png')))
             self.pushButton_deleteAccount.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
         except Exception as er:
             gui_error.WINDOW('initIcons', str(er)).exec()
@@ -573,7 +559,7 @@ class Ui(QtWidgets.QMainWindow):
                 "width: 8em;"
                 # "border-top-left-radius: 10px;"
                 # "border-bottom-right-radius: 10px;"
-                f"height: {ITEM_HEIGHT}px;"
+                f"height: {GUI_ITEM_HEIGHT}px;"
                 "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,"
                 "stop:0 rgb(30, 76, 108) , stop:1 rgb(47, 54, 60));"
                 "min-width: 80px;}"
@@ -588,7 +574,7 @@ class Ui(QtWidgets.QMainWindow):
             self.pushButton_deleteAccount.setStyleSheet(buttonStyle)
             labelStyle = (
                 "color: white;"
-                f"height: {ITEM_HEIGHT}px;"
+                f"height: {GUI_ITEM_HEIGHT}px;"
                 "background-color: transparent;"
             )
             self.label_sendAddress.setStyleSheet(labelStyle)
@@ -612,7 +598,7 @@ class Ui(QtWidgets.QMainWindow):
                 f"</ span> <span style = 'color: rgb(140, 170, 250); font-weight: bold;' >"
                 f" {symbol} </ span>")
             lineEditStyle = (
-                f"height: {ITEM_HEIGHT}px;"
+                f"height: {GUI_ITEM_HEIGHT}px;"
                 "background-color: rgb(250, 240, 200); color: black"
             )
             self.lineEdit_nodeProvider.setStyleSheet(lineEditStyle)
@@ -775,16 +761,6 @@ class Ui(QtWidgets.QMainWindow):
         except Exception as er:
             gui_error.WINDOW('changeNetwork', str(er)).exec()
 
-    def addTokensList(self):
-        try:
-            tokenJson = network.getRequest(f"https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main"
-                                           f"/resources/tokenList.json")
-            for token in tokenJson.json()['list']:
-                self.tokes['list'].append(token)
-        except Exception as er:
-            gui_error.WINDOW("addTokensList", str(er)).exec()
-            exit()
-
     def comboBoxAddressChange(self):
         try:
             if self.comboBox_activeAddressVal.count() == 0:
@@ -798,7 +774,8 @@ class Ui(QtWidgets.QMainWindow):
                     f"</ span> <span style = 'color: rgb(140, 170, 250); font-weight: bold;' >"
                     f" {symbol} </ span>")
             else:
-                name = self.db.readColumn('NAM', self.comboBox_activeAddressVal.currentText())[0][0]
+                name = self.db.readColumn('accounts', 'NAM', 'ADR',
+                                          self.comboBox_activeAddressVal.currentText())[0][0]
                 self.lineEdit_accountName.setText(name)
         except Exception as er:
             gui_error.WINDOW("comboBoxChange", str(er)).exec()
@@ -859,7 +836,7 @@ class Ui(QtWidgets.QMainWindow):
                 self.lineEdit_accountName.setEnabled(True)
                 self.lineEdit_accountName.setStyleSheet("background-color: rgb(250, 240, 200); color: black")
                 self.pushButton_accountName.setText('Save')
-                self.pushButton_accountName.setIcon(QtGui.QIcon(system.getIconPath('save.png')))
+                self.pushButton_accountName.setIcon(QIcon(system.getIconPath('save.png')))
                 self.pushButton_nodeProvider.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
             elif self.pushButton_accountName.text() == 'Save':
                 self.lineEdit_accountName.setEnabled(False)
@@ -867,10 +844,11 @@ class Ui(QtWidgets.QMainWindow):
                     "background-color: transparent; border: none;"
                     "color: rgb(108, 204, 244); font-weight: bold;")
                 self.pushButton_accountName.setText('Edit')
-                self.pushButton_accountName.setIcon(QtGui.QIcon(system.getIconPath('edit.png')))
+                self.pushButton_accountName.setIcon(QIcon(system.getIconPath('edit.png')))
                 self.pushButton_nodeProvider.setIconSize(QSize(ICON_SIZE, ICON_SIZE))
-                self.db.updateRowValue('NAM', self.lineEdit_accountName.text(),
-                                       self.comboBox_activeAddressVal.currentText())
+                self.db.updateRowColumnValue('accounts', 'NAM',
+                                             self.lineEdit_accountName.text(), 'ADR',
+                                             self.comboBox_activeAddressVal.currentText())
         except Exception as er:
             gui_error.WINDOW('editAccountName', str(er)).exec()
 
@@ -899,7 +877,7 @@ class Ui(QtWidgets.QMainWindow):
     def createAccountRandom(self):
         try:
             userAnswer = True
-            if self.db.isAccountExist():
+            if self.db.isTableEmpty():
                 createAccount_window = gui_userChoice.WINDOW('Create new random account',
                                                              'Some account(s) already exist',
                                                              'Create new one?')
@@ -912,7 +890,7 @@ class Ui(QtWidgets.QMainWindow):
             else:
                 acc = account.New.random()  # create new account
                 acc['name'] = 'No name'
-                self.db.insertRow(acc)
+                self.db.insertAccountRow(acc)
                 self.comboBox_activeAddressVal.addItem(acc['address'])
                 self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
         except Exception as er:
@@ -930,7 +908,7 @@ class Ui(QtWidgets.QMainWindow):
             else:
                 acc = account.New.fromEntropy(entropy)
                 acc['name'] = 'No name'
-                self.db.insertRow(acc)
+                self.db.insertAccountRow(acc)
                 self.comboBox_activeAddressVal.addItem(acc['address'])
                 self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
         except Exception as er:
@@ -948,7 +926,7 @@ class Ui(QtWidgets.QMainWindow):
             else:
                 acc = account.New.fromPrivateKey(privateKey)
                 acc['name'] = 'No name'
-                self.db.insertRow(acc)
+                self.db.insertAccountRow(acc)
                 self.comboBox_activeAddressVal.addItem(acc['address'])
                 self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
         except Exception as er:
@@ -969,7 +947,7 @@ class Ui(QtWidgets.QMainWindow):
                        'address': address,
                        'mnemonic': '',
                        'name': 'No name'}
-                self.db.insertRow(acc)
+                self.db.insertAccountRow(acc)
                 self.comboBox_activeAddressVal.addItem(acc['address'])
                 self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
             else:
@@ -988,7 +966,7 @@ class Ui(QtWidgets.QMainWindow):
             else:
                 acc = account.New.fromMnemonic(mnemonic)
                 acc['name'] = 'No name'
-                self.db.insertRow(acc)
+                self.db.insertAccountRow(acc)
                 self.comboBox_activeAddressVal.addItem(acc['address'])
                 self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
         except Exception as er:
@@ -1035,32 +1013,37 @@ class Ui(QtWidgets.QMainWindow):
 
     def showSecrets(self, secretType: dataTypes.SECRET):
         try:
-            if not self.db.readColumn(
-                    dataTypes.SECRET.PRIVATE_KEY.value,
-                    self.comboBox_activeAddressVal.currentText())[0][0]:
+            if not self.db.readColumn('accounts',
+                                      dataTypes.SECRET.PRIVATE_KEY.value, 'ADR',
+                                      self.comboBox_activeAddressVal.currentText())[0][0]:
                 gui_message.WINDOW("Show secrets", "View only account",
                                    "no secret can be retrieved").exec()
             else:
                 self.textEdit_main.clear()
-                if secretType == dataTypes.SECRET.ENTROPY and (self.db.readColumn(
-                        dataTypes.SECRET.ENTROPY.value, self.comboBox_activeAddressVal.currentText()
-                ) == self.db.readColumn(dataTypes.SECRET.PRIVATE_KEY.value,
-                                        self.comboBox_activeAddressVal.currentText())):
+                if secretType == dataTypes.SECRET.ENTROPY and (
+                        self.db.readColumn('accounts',
+                                           dataTypes.SECRET.ENTROPY.value, 'ADR',
+                                           self.comboBox_activeAddressVal.currentText()
+                                           ) == self.db.readColumn('accounts',
+                                                                   dataTypes.SECRET.PRIVATE_KEY.value,
+                                                                   self.comboBox_activeAddressVal.currentText())):
                     gui_message.WINDOW('Show secrets',
                                        'You have recovered an old account.',
                                        'Entropy is not recoverable from private key').exec()
-                elif secretType == dataTypes.SECRET.MNEMONIC and (self.db.readColumn(
-                        dataTypes.SECRET.MNEMONIC.value, self.comboBox_activeAddressVal.currentText()
-                ) == self.db.readColumn(dataTypes.SECRET.PRIVATE_KEY.value,
-                                        self.comboBox_activeAddressVal.currentText())):
+                elif secretType == dataTypes.SECRET.MNEMONIC and (
+                        self.db.readColumn('accounts', dataTypes.SECRET.MNEMONIC.value, 'ADR',
+                                           self.comboBox_activeAddressVal.currentText()
+                                           ) == self.db.readColumn('accounts',
+                                                                   dataTypes.SECRET.PRIVATE_KEY.value, 'ADR',
+                                                                   self.comboBox_activeAddressVal.currentText())):
                     gui_message.WINDOW('Show secrets',
                                        'You have recovered an old account.',
                                        'Mnemonic is not recoverable from private key').exec()
                 elif secretType == dataTypes.SECRET.PUBLIC_KEY_X or secretType == dataTypes.SECRET.PUBLIC_KEY_Y:
-                    result_X = self.db.readColumn(
-                        dataTypes.SECRET.PUBLIC_KEY_X.value, self.comboBox_activeAddressVal.currentText())
-                    result_Y = self.db.readColumn(
-                        dataTypes.SECRET.PUBLIC_KEY_Y.value, self.comboBox_activeAddressVal.currentText())
+                    result_X = self.db.readColumn('accounts', dataTypes.SECRET.PUBLIC_KEY_X.value,
+                                                  'ADR', self.comboBox_activeAddressVal.currentText())
+                    result_Y = self.db.readColumn('accounts', dataTypes.SECRET.PUBLIC_KEY_Y.value,
+                                                  'ADR', self.comboBox_activeAddressVal.currentText())
                     if len(result_X) == 1 and len(result_Y) == 1:
                         self.textEdit_main.append(f'Your account PUBLIC_KEY COORDINATE keep it safe:\n')
                         self.textEdit_main.append('X : ' + result_X[0][0])
@@ -1068,7 +1051,8 @@ class Ui(QtWidgets.QMainWindow):
                     else:
                         raise Exception(f"failed to receive coordinates from database.\nX: {result_X}\nY: {result_Y}")
                 else:
-                    result = self.db.readColumn(secretType.value, self.comboBox_activeAddressVal.currentText())
+                    result = self.db.readColumn('accounts', secretType.value, 'ADR',
+                                                self.comboBox_activeAddressVal.currentText())
                     if len(result) == 1:
                         self.textEdit_main.append(f'Your account {secretType.name} keep it safe:\n')
                         self.textEdit_main.append(f'{result[0][0]}\n')
@@ -1086,7 +1070,7 @@ class Ui(QtWidgets.QMainWindow):
     def getBalance(self):
         try:
             if not self.comboBox_activeAddressVal.count() == 0:  # 0 means no account available
-                checkURL(self.lineEdit_nodeProvider.text())
+                checkURI(self.lineEdit_nodeProvider.text())
                 balance = ethereum.getBalance(self.comboBox_activeAddressVal.currentText(),
                                               self.lineEdit_nodeProvider.text())
                 if balance < 0:
@@ -1129,7 +1113,7 @@ class Ui(QtWidgets.QMainWindow):
                     to = ''  # for contracts
                 else:
                     to = self.lineEdit_sendAddress.text()
-                checkURL(self.lineEdit_nodeProvider.text())
+                checkURI(self.lineEdit_nodeProvider.text())
                 print('chainId = ', chainId)
                 return {
                     'sender': self.comboBox_activeAddressVal.currentText(),
@@ -1232,10 +1216,12 @@ class Ui(QtWidgets.QMainWindow):
                                    'Nothing has been sent').exec()
             else:
                 transactions = self.setPriority(transactions, gas)
-                transactionResult = ethereum.sendValueTransaction(privateKey=(self.db.readColumn(
-                    dataTypes.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0],
-                                                                  txElements=transactions,
-                                                                  duplicate=duplicate)
+                transactionResult = ethereum.sendValueTransaction(
+                    privateKey=(self.db.readColumn('accounts',
+                                                   dataTypes.SECRET.PRIVATE_KEY.value, 'ADR',
+                                                   transactions['sender']))[0][0],
+                    txElements=transactions,
+                    duplicate=duplicate)
                 self.transactionResult = transactionResult
                 if self.transactionResult['message'] != 'succeed':
                     raise Exception(f"{self.transactionResult['message']}")
@@ -1268,10 +1254,12 @@ class Ui(QtWidgets.QMainWindow):
                                    'Nothing has been sent').exec()
             else:
                 transactions = self.setPriority(transactions, gas)
-                transactionResult = ethereum.sendMessageTransaction(privateKey=(self.db.readColumn(
-                    dataTypes.SECRET.PRIVATE_KEY.value, transactions['sender']))[0][0],
-                                                                    txElements=transactions,
-                                                                    duplicate=duplicate)
+                transactionResult = ethereum.sendMessageTransaction(
+                    privateKey=(self.db.readColumn('accounts',
+                                                   dataTypes.SECRET.PRIVATE_KEY.value, 'ADR',
+                                                   transactions['sender']))[0][0],
+                    txElements=transactions,
+                    duplicate=duplicate)
                 self.transactionResult = transactionResult
                 if self.transactionResult['message'] != 'succeed':
                     raise Exception(f"{self.transactionResult['message']}")
@@ -1280,7 +1268,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def showTransaction(self, txHash):
         try:
-            checkURL(self.lineEdit_nodeProvider.text())
+            checkURI(self.lineEdit_nodeProvider.text())
             checkHex(txHash)
             tx = ethereum.getTransaction(txHash, self.lineEdit_nodeProvider.text())
             self.textEdit_main.clear()
@@ -1303,7 +1291,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def showTransactionMessage(self, txHash):
         try:
-            checkURL(self.lineEdit_nodeProvider.text())
+            checkURI(self.lineEdit_nodeProvider.text())
             checkHex(txHash)
             tx = ethereum.getTransaction(txHash, self.lineEdit_nodeProvider.text())
             self.textEdit_main.clear()
@@ -1351,7 +1339,7 @@ class Ui(QtWidgets.QMainWindow):
 
     def showNonce(self):
         try:
-            checkURL(self.lineEdit_nodeProvider.text())
+            checkURI(self.lineEdit_nodeProvider.text())
             nonce = ethereum.getAccountNonce(self.comboBox_activeAddressVal.currentText(),
                                              self.lineEdit_nodeProvider.text())
             self.textEdit_main.clear()
@@ -1370,7 +1358,7 @@ class Ui(QtWidgets.QMainWindow):
 
             if not self.comboBox_activeAddressVal.currentText():
                 raise Exception(f"address = '{self.comboBox_activeAddressVal.currentText()}' !")
-            checkURL(self.lineEdit_nodeProvider.text())
+            checkURI(self.lineEdit_nodeProvider.text())
             if not self.lineEdit_nodeProvider.text():
                 raise Exception(f"provider = '{self.lineEdit_nodeProvider.text()}' !")
             if isInternal:
@@ -1486,7 +1474,7 @@ class Ui(QtWidgets.QMainWindow):
             TxHash = TxHashWindow.getInput()
             if TxHash:
                 checkHex(TxHash)
-                checkURL(self.lineEdit_nodeProvider.text())
+                checkURI(self.lineEdit_nodeProvider.text())
                 result = ethereum.getPublicKeyFromTransaction(TxHash, self.lineEdit_nodeProvider.text())
                 self.textEdit_main.clear()
                 self.textEdit_main.append(f"\nSender address: {result['address']}\n"
@@ -1501,7 +1489,7 @@ class Ui(QtWidgets.QMainWindow):
         try:
             if not self.comboBox_activeAddressVal.currentText():
                 raise Exception(f"address = '{self.comboBox_activeAddressVal.currentText()}' !")
-            rowData = self.db.readRow(self.comboBox_activeAddressVal.currentText())[0]
+            rowData = self.db.readRow('accounts', self.comboBox_activeAddressVal.currentText())[0]
             data = {'entropy': rowData[0],
                     'privateKey': rowData[1],
                     'publicKeyCoordinate': (rowData[2], rowData[3]),
@@ -1581,7 +1569,7 @@ class Ui(QtWidgets.QMainWindow):
                 else:
                     raise Exception(f"unknown file format")
                 self.showWallet(jsonData, filePath)
-                self.db.insertRow(jsonData)
+                self.db.insertAccountRow(jsonData)
                 self.comboBox_activeAddressVal.addItem(jsonData['address'])
                 self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
         except Exception as er:
@@ -1618,7 +1606,7 @@ class Ui(QtWidgets.QMainWindow):
             if not deleteIt:
                 gui_message.WINDOW('deleteAccount', 'Nothing has been removed.').exec()
             else:
-                self.db.deleteRow(accountToDelete)
+                self.db.deleteRow('accounts', 'ADR', accountToDelete)
                 if self.comboBox_activeAddressVal.count() == 1:
                     self.comboBox_activeAddressVal.clear()
                 else:

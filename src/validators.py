@@ -28,10 +28,10 @@ def checkLen(value, len_: int):
         raise Exception(f"checkLen -> {er}")
 
 
-def checkURL(value: str):
+def checkURI(value: str):
     try:
         checkType(value, TYPE.STRING)
         result = urlparse(value)
         return all([result.scheme, result.netloc])
     except Exception as er:
-        raise Exception(f"checkURL -> {er}")
+        raise Exception(f"checkURI -> {er}")

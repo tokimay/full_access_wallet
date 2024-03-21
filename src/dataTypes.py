@@ -19,3 +19,12 @@ class TYPE(Enum):
     TUPLE = tuple
     FLOAT = float
     BOOLEAN = bool
+
+
+class TOKENS(Enum):
+    SYMBOL = 'symbol'
+    TYPE = 'type'
+    NAME = 'name'
+    DECIMALS = 'decimals'
+    ADDRESS = 'address'
+    LOGO = 'logoURI'
