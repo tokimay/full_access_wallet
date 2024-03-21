@@ -42,7 +42,7 @@ class AddTokenToDataBase(QThread):
                 self.listWidget.scrollToBottom()
                 self.signalData.emit(i)
                 i = i + res
-            print('i = ', i, 'count = ', count)
+            print('i-1 = ', i-1, 'count = ', count)
             if i-1 == count:
                 self.signalData.emit(count)
             else:

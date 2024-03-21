@@ -1,16 +1,6 @@
 from enum import Enum
 
 
-class SECRET(Enum):
-    ENTROPY = 'ENT'
-    PRIVATE_KEY = 'PRV'
-    PUBLIC_KEY_X = 'PUK_COR_X'
-    PUBLIC_KEY_Y = 'PUK_COR_Y'
-    PUBLIC_KEY = 'PUK'
-    ADDRESS = 'ADR'
-    MNEMONIC = 'NEM'
-
-
 class TYPE(Enum):
     STRING = str
     INTEGER = int
@@ -21,10 +11,22 @@ class TYPE(Enum):
     BOOLEAN = bool
 
 
-class TOKENS(Enum):
-    SYMBOL = 'symbol'
-    TYPE = 'type'
-    NAME = 'name'
-    DECIMALS = 'decimals'
-    ADDRESS = 'address'
-    LOGO = 'logoURI'
+class ACCOUNT(Enum):
+    NAME = 'NAM'
+    ADDRESS = 'ADR'
+    ENTROPY = 'ENT'
+    PRIVATE_KEY = 'PRK'
+    PUBLIC_KEY_X = 'PUX'
+    PUBLIC_KEY_Y = 'PUY'
+    PUBLIC_KEY = 'PUK'
+    MNEMONIC = 'NEM'
+
+
+class TOKEN(Enum):
+    NAME = 'NAM'
+    ADDRESS = 'ADR'
+    SYMBOL = 'SYM'
+    TYPE = 'TYP'
+    DECIMALS = 'DML'
+    LOGO = 'LGU'
+    ABI = 'ABI'

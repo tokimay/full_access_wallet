@@ -1,9 +1,5 @@
 from PyQt6.QtWidgets import QProgressBar, QDialog, QVBoxLayout, QListWidget
-from src import network
-from src.dataTypes import TOKENS
-from src.system import errorSignal
-from src.threads import AddTokenToDataBase
-from src.values import TABLE_TOKEN
+from src import network, dataTypes, system, threads, values
 
 
 class AddTokens(QDialog):
@@ -24,53 +20,51 @@ class AddTokens(QDialog):
             self.vbox.addWidget(self.listWidget)
             self.setLayout(self.vbox)
             self.progress.setMaximum(self.count)
-            self.thread = AddTokenToDataBase(db, tokens, self.listWidget)
+            self.thread = threads.AddTokenToDataBase(db, tokens, self.listWidget)
             self.thread.signalData.connect(self.signalAccept)
             self.thread.error.connect(self.exception)
             self.thread.start()
         except Exception as er:
-            errorSignal.newError.emit(f"AddTokens -> __init__ -> {str(er)}")
+            system.errorSignal.newError.emit(f"AddTokens -> __init__ -> {str(er)}")
 
     def signalAccept(self, msg):
         try:
-            print('emit = ', msg, ' ', type(msg))
             if msg == self.count:
-                print('pppppppppppppp')
                 self.endProgress()
             else:
                 self.progress.setValue(int(msg))
         except Exception as er:
-            errorSignal.newError.emit(f"AddTokens -> signal_accept -> {str(er)}")
+            system.errorSignal.newError.emit(f"AddTokens -> signal_accept -> {str(er)}")
 
     def endProgress(self):
         try:
-            print('eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
             self.close()
         except Exception as er:
-            errorSignal.newError.emit(f"AddTokens -> endProgress -> {str(er)}")
+            system.errorSignal.newError.emit(f"AddTokens -> endProgress -> {str(er)}")
 
     def exception(self, message):
         self.thread.terminate()
-        errorSignal.newError.emit(f"AddTokens -> __init__ -> {message}")
+        system.errorSignal.newError.emit(f"AddTokens -> __init__ -> {message}")
 
     def closeEvent(self, evnt):
         self.thread.terminate()
 
 
-def readTokens(db):
-    tokens = db.readAllRows(TABLE_TOKEN)
-    result = []
-    for token in tokens:
-        d = {
-            TOKENS.SYMBOL.value: token[0],
-            TOKENS.TYPE.value: token[1],
-            TOKENS.NAME.value: token[2],
-            TOKENS.DECIMALS.value: token[3],
-            TOKENS.ADDRESS.value: token[4],
-            TOKENS.LOGO.value: token[5]
-        }
-        result.append(d)
-    for r in result:
-        print(r)
-    print(len(result))
-
+def readTokens(db) -> list:
+    try:
+        tokens = db.readAllRows(values.TABLE_TOKEN)
+        result = []
+        for token in tokens:
+            d = {
+                dataTypes.TOKEN.NAME.value: token[0],
+                dataTypes.TOKEN.ADDRESS.value: token[1],
+                dataTypes.TOKEN.SYMBOL.value: token[2],
+                dataTypes.TOKEN.TYPE.value: token[3],
+                dataTypes.TOKEN.DECIMALS.value: token[4],
+                dataTypes.TOKEN.LOGO.value: token[5],
+                dataTypes.TOKEN.ABI.value: token[6]
+            }
+            result.append(d)
+        return result
+    except Exception as er:
+        raise Exception(f"readTokens -> {er}")

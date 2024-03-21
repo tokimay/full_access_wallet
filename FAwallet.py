@@ -1,26 +1,23 @@
-from src import database, dataTypes, data
-from src.GUI import gui_mainWindow, gui_userChoice, gui_message, gui_error
-from src.threads import GetBalance
-from src.values import *
 from PyQt6.QtWidgets import QApplication
 from sys import argv
+from src import values, threads, database, dataTypes, data
+from src.GUI import gui_error, gui_mainWindow, gui_userChoice, gui_message
 
 APP = QApplication(argv)
 
 
-db = database.SQLITE(DB_NAME)
+db = database.SQLITE(values.DB_NAME)
 getBalance = False
 
 try:
     db.initializeNew()
-    if db.isTableEmpty('tokens'):
-        t = data.AddTokens(db)
-        t.exec()
+    if db.isTableEmpty(values.TABLE_TOKEN):
+        data.AddTokens(db).exec()
 except Exception as er:
     gui_error.WINDOW('FAwallet', str(er)).exec()
     exit()
 
-window = gui_mainWindow.Ui(DB_NAME)
+window = gui_mainWindow.Ui(values.DB_NAME)
 window.show()
 
 try:
@@ -35,7 +32,7 @@ try:
             window.createAccountRandom()
             getBalance = True
     else:
-        accounts = db.readColumnAllRows('accounts', dataTypes.SECRET.ADDRESS.value)
+        accounts = db.readColumnAllRows('accounts', dataTypes.ACCOUNT.ADDRESS.value)
         for ad in accounts:
             window.comboBox_activeAddressVal.addItem(ad[0])
             accountName = db.readColumn('accounts', 'NAM', 'ADR',
@@ -43,7 +40,7 @@ try:
             window.lineEdit_accountName.setText(str(accountName[0][0]))
         getBalance = True
     if getBalance:
-        balanceThread = GetBalance(window)
+        balanceThread = threads.GetBalance(window)
         balanceThread.finished.connect(APP.exit)
         balanceThread.start()
 except Exception as er:

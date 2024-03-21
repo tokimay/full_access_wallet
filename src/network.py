@@ -21,7 +21,8 @@ def getTokenList() -> dict:
                          "name": "Ethereum",
                          "decimals": 0,
                          "logoURI": ETH_ICON_URI,
-                         "address": ""}
+                         "address": "Null",
+                         "abi": "Null"}
             }
         ]}
         tokenJson = getRequest(TOKEN_LIST_URI)

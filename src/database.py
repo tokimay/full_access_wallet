@@ -1,7 +1,5 @@
 from sqlite3 import connect
-
-from src.dataTypes import TOKENS
-from src.values import TABLE_ACCOUNT, TABLE_TOKEN
+from src import values, dataTypes
 
 
 class SQLITE:
@@ -47,43 +45,47 @@ class SQLITE:
         try:
             connection = connect(self.databaseName)
             cursor = connection.cursor()
-            table = f"""CREATE TABLE IF NOT EXISTS {TABLE_ACCOUNT} (
-                        ENT VARCHAR(255) NOT NULL,
-                        PRV VARCHAR(255) NOT NULL,
-                        PUK_COR_X VARCHAR(255) NOT NULL,
-                        PUK_COR_Y VARCHAR(255) NOT NULL,
-                        PUK VARCHAR(255) NOT NULL,
-                        ADR VARCHAR(255) NOT NULL,
-                        NEM TEXT NOT NULL,
-                        NAM VARCHAR(255)
-                                        );"""
+            table = f"""CREATE TABLE IF NOT EXISTS {values.TABLE_ACCOUNT} (
+            {dataTypes.ACCOUNT.NAME.value} VARCHAR(255), 
+            {dataTypes.ACCOUNT.ADDRESS.value} VARCHAR(255) NOT NULL,
+            {dataTypes.ACCOUNT.ENTROPY.value} VARCHAR(255) NOT NULL,
+            {dataTypes.ACCOUNT.PRIVATE_KEY.value} VARCHAR(255) NOT NULL,
+            {dataTypes.ACCOUNT.PUBLIC_KEY_X.value} VARCHAR(255) NOT NULL,
+            {dataTypes.ACCOUNT.PUBLIC_KEY_Y.value} VARCHAR(255) NOT NULL,
+            {dataTypes.ACCOUNT.PUBLIC_KEY.value} VARCHAR(255) NOT NULL,
+            {dataTypes.ACCOUNT.MNEMONIC.value} TEXT NOT NULL);"""
             cursor.execute(table)
             connection.commit()
             connection.close()
-            if not self.isTableExist(TABLE_ACCOUNT):
+            if not self.isTableExist(values.TABLE_ACCOUNT):
                 raise Exception(f"failed to create table in database.")
+            else:
+                print(f"create the table {values.TABLE_ACCOUNT} successfully")
         except Exception as er:
             raise Exception(f"createTableAccounts -> {er}")
 
     def insertAccountRow(self, acc: dict):
         try:
-            if self.isExist(TABLE_ACCOUNT, 'ADR', acc['address']):
+            if self.isExist(values.TABLE_ACCOUNT, dataTypes.ACCOUNT.ADDRESS.value, acc['address']):
                 raise Exception(f"'{acc['address']}'\nis already exist in database.")
             connection = connect(self.databaseName)
             cursor = connection.cursor()
             cursor.execute(
-                f"INSERT INTO {TABLE_ACCOUNT}(ENT, PRV, PUK_COR_X, PUK_COR_Y, PUK, ADR, NEM, NAM) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                (
-                    acc['entropy'],
-                    acc['privateKey'],
-                    str(acc['publicKeyCoordinate'][0]),
-                    str(acc['publicKeyCoordinate'][1]),
-                    acc['publicKey'],
-                    acc['address'],
-                    acc['mnemonic'],
-                    acc['name']
-                ))
+                f"""INSERT INTO {values.TABLE_ACCOUNT} VALUES (
+                {dataTypes.ACCOUNT.NAME.value}, {dataTypes.ACCOUNT.ADDRESS.value}, 
+                {dataTypes.ACCOUNT.ENTROPY.value}, {dataTypes.ACCOUNT.PRIVATE_KEY.value}, 
+                {dataTypes.ACCOUNT.PUBLIC_KEY_X.value}, {dataTypes.ACCOUNT.PUBLIC_KEY_Y.value}, 
+                {dataTypes.ACCOUNT.PUBLIC_KEY.value}, {dataTypes.ACCOUNT.MNEMONIC.value});"""
+                , (
+                    {acc['name']},
+                    {acc['address']},
+                    {acc['entropy']},
+                    {acc['privateKey']},
+                    {str(acc['publicKeyCoordinate'][0])},
+                    {str(acc['publicKeyCoordinate'][1])},
+                    {acc['publicKey']},
+                    {acc['mnemonic']})
+            )
             connection.commit()
             connection.close()
             if cursor.rowcount <= 0:
@@ -95,48 +97,50 @@ class SQLITE:
         try:
             connection = connect(self.databaseName)
             cursor = connection.cursor()
-            table = (
-                f"CREATE TABLE IF NOT EXISTS {TABLE_TOKEN} ("
-                f"{TOKENS.SYMBOL.value} CHARACTER(20) NOT NULL,"
-                f"{TOKENS.TYPE.value} CHARACTER(20) NOT NULL, "
-                f"{TOKENS.NAME.value} CHARACTER(20) NOT NULL,"
-                f"{TOKENS.DECIMALS.value} INT NOT NULL, "
-                f"{TOKENS.ADDRESS.value} VARCHAR(255) NOT NULL,  "
-                f"{TOKENS.LOGO.value} TEXT NOT NULL);"
-            )
+            table = f"""CREATE TABLE IF NOT EXISTS {values.TABLE_TOKEN} (
+                    {dataTypes.TOKEN.NAME.value} CHARACTER(20) NOT NULL, 
+                    {dataTypes.TOKEN.ADDRESS.value} VARCHAR(255) NOT NULL, 
+                    {dataTypes.TOKEN.SYMBOL.value} CHARACTER(20) NOT NULL, 
+                    {dataTypes.TOKEN.TYPE.value} CHARACTER(20) NOT NULL, 
+                    {dataTypes.TOKEN.DECIMALS.value} INT NOT NULL, 
+                    {dataTypes.TOKEN.LOGO.value} TEXT NOT NULL,
+                    {dataTypes.TOKEN.ABI.value} BLOB NOT NULL);"""
             cursor.execute(table)
             connection.commit()
             connection.close()
-            if not self.isTableExist(TABLE_TOKEN):
+            if not self.isTableExist(values.TABLE_TOKEN):
                 raise Exception(f"failed to create table in database.")
+            else:
+                print(f"create the table {values.TABLE_TOKEN} successfully")
         except Exception as er:
             raise Exception(f"createTableTokens -> {er}")
 
     def insertTokenRow(self, token: dict) -> int:
         try:
-            if self.isExist(TABLE_TOKEN, TOKENS.ADDRESS.value, token['data']['address']):
+            if self.isExist(values.TABLE_TOKEN, dataTypes.TOKEN.ADDRESS.value, token['data']['address']):
                 # delete if exist to update data
-                self.deleteRow(TABLE_TOKEN, TOKENS.ADDRESS.value, token['data']['address'])
+                self.deleteRow(values.TABLE_TOKEN, dataTypes.TOKEN.ADDRESS.value, token['data']['address'])
                 print(f"the old '{token['symbol']}' data was removed. new data will be replaced.")
             connection = connect(self.databaseName)
             cursor = connection.cursor()
             cursor.execute(
-                f"INSERT INTO {TABLE_TOKEN}("
-                f"{TOKENS.SYMBOL.value}, "
-                f"{TOKENS.TYPE.value}, "
-                f"{TOKENS.NAME.value}, "
-                f"{TOKENS.DECIMALS.value},"
-                f" {TOKENS.ADDRESS.value},"
-                f" {TOKENS.LOGO.value}) "
-                "VALUES (?, ?, ?, ?, ?, ?)",
-                (
-                    token['symbol'],
-                    token['data']['type'],
-                    token['data']['name'],
-                    int(token['data']['decimals']),
-                    token['data']['address'],
-                    token['data']['logoURI']
-                ))
+                f"INSERT INTO {values.TABLE_TOKEN} ("
+                f"{dataTypes.TOKEN.NAME.value}, "
+                f"{dataTypes.TOKEN.ADDRESS.value}, "
+                f"{dataTypes.TOKEN.SYMBOL.value}, "
+                f"{dataTypes.TOKEN.TYPE.value}, "
+                f"{dataTypes.TOKEN.DECIMALS.value}, "
+                f"{dataTypes.TOKEN.LOGO.value}, "
+                f"{dataTypes.TOKEN.ABI.value})"
+                f"VALUES (?, ?, ?, ?, ?, ?, ?);",
+                (token['data']['name'],
+                 token['data']['address'],
+                 token['symbol'],
+                 token['data']['type'],
+                 int(token['data']['decimals']),
+                 f"{str(token['data']['logoURI'])}'",
+                 f"{str(token['data']['abi'])}")
+            )
             connection.commit()
             connection.close()
             if cursor.rowcount <= 0:
@@ -190,16 +194,17 @@ class SQLITE:
         except Exception as er:
             raise Exception(f"readColumn -> {er}")
 
-    def readRow(self, tableName: str, address: str) -> list:
+    def readRow(self, tableName: str, condition: str, conditionVal: str) -> list:
         try:
             connection = connect(self.databaseName)
             cursor = connection.cursor()
-            cursor.execute(f"""SELECT * FROM {tableName} WHERE ADR = ?""", (address,))
+            cursor.execute(f"""SELECT * FROM {tableName} WHERE {condition} = ?""",
+                           (conditionVal,))
             ls = cursor.fetchall()
             connection.commit()
             connection.close()
             if len(ls) <= 0:
-                raise Exception(f"can not find '{address}' data in database.")
+                raise Exception(f"can not find '{condition}' data in database.")
             return ls
         except Exception as er:
             raise Exception(f"readRow -> {er}")
@@ -228,7 +233,7 @@ class SQLITE:
             connection.commit()
             connection.close()
             if cursor.rowcount <= 0:  # delete nothing, if row is not exist will raise exception
-                self.readRow(tableName, conditionVal)
+                self.readRow(tableName, condition, conditionVal)
         except Exception as er:
             raise Exception(f"updateRowColumnValue -> {er}")
 
@@ -240,6 +245,15 @@ class SQLITE:
             connection.commit()
             connection.close()
             if cursor.rowcount <= 0:  # delete nothing, if row is not exist will raise exception
-                self.readRow(tableName, conditionVal)
+                self.readRow(tableName, condition, conditionVal)
         except Exception as er:
             raise Exception(f"deleteRow -> {er}")
+
+    def getTableColumns(self, tableName) -> list:
+        try:
+            connection = connect(self.databaseName)
+            cursor = connection.cursor()
+            cursor = connection.execute(f"select * from {tableName}")
+            return list(map(lambda x: x[0], cursor.description))
+        except Exception as er:
+            raise Exception(f"getTableColumns -> {er}")
