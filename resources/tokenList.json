@@ -552,7 +552,7 @@
     },
     {
       "data": {
-        "abi": "",
+        "abi": "Null",
         "address": "0x226f7b842E0F0120b7E194D05432b3fd14773a9D",
         "decimals": 18,
         "logoURI": "https://github.com/tokimay/Full_Access_Wallet/tree/main/resources/tokensLogo/UNN.png",
