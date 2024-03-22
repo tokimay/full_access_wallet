@@ -2,8 +2,8 @@
   "list": [
     {
       "data": {
-        "abi": "",
-        "address": "",
+        "abi": "Null",
+        "address": "Null",
         "decimals": 0,
         "logoURI": "https://github.com/tokimay/Full_Access_Wallet/tree/main/resources/tokensLogo/ETH.png",
         "name": "Ethereum",
