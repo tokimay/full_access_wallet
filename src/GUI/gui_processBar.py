@@ -2,10 +2,10 @@ from PyQt6.QtWidgets import QProgressBar, QDialog, QVBoxLayout, QListWidget
 from src import network, system, threads
 
 
-class WINDOW(QDialog):
+class AddTokensToDatabase(QDialog):
     def __init__(self, db):
         try:
-            super(WINDOW, self).__init__()
+            super(AddTokensToDatabase, self).__init__()
             tokens = network.getTokenList()
             self.count = len(tokens['list'])
             self.setWindowTitle('Syncing tokens list..')
@@ -20,7 +20,7 @@ class WINDOW(QDialog):
             self.vbox.addWidget(self.listWidget)
             self.setLayout(self.vbox)
             self.progress.setMaximum(self.count)
-            self.thread = threads.AddTokenToDataBase(db, tokens, self.listWidget)
+            self.thread = threads.AddToken(db, tokens, self.listWidget)
             self.thread.signalData.connect(self.signalAccept)
             self.thread.error.connect(self.exception)
             self.thread.start()
@@ -48,3 +48,5 @@ class WINDOW(QDialog):
 
     def closeEvent(self, evnt):
         self.thread.terminate()
+
+

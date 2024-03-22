@@ -1,11 +1,9 @@
-from json import loads
+from json import loads, load
 from requests import get
 from sha3 import keccak_256
+from src import values, dataTypes, cryptography, ellipticCurve, validators
 from src.GUI import gui_mouseTracker
-from src.ellipticCurve import secp256k1
-from src.cryptography import ENTROPY
-from src.dataTypes import TYPE
-from src.validators import checkType, checkHex, checkLen
+
 
 """
 ETHEREUM_DEFAULT_PATH = "m/44'/60'/0'/0/0"
@@ -36,23 +34,23 @@ class New:
     @staticmethod
     def entropyToPrivateKey(entropy: str) -> str:
         try:
-            checkType(entropy, TYPE.STRING)
+            validators.checkType(entropy, dataTypes.TYPE.STRING)
             if entropy.startswith('0b'):
                 entropy = entropy[2:]
-            checkLen(entropy, LEN_ENTROPY)
-            return ENTROPY.ToPbkdf2HmacSha256(entropy)  # need complete by hashing
+            validators.checkLen(entropy, LEN_ENTROPY)
+            return cryptography.ENTROPY.ToPbkdf2HmacSha256(entropy)  # need complete by hashing
         except Exception as er:
             raise Exception(f"entropyToPrivateKey -> {er}")
 
     @staticmethod
     def privateKeyToPublicKeyCoordinate(privateKey: str) -> tuple:
         try:
-            checkType(privateKey, TYPE.STRING)
-            checkHex(privateKey)
+            validators.checkType(privateKey, dataTypes.TYPE.STRING)
+            validators.checkHex(privateKey)
             if privateKey.startswith('0x') or privateKey.startswith('0X'):
                 privateKey = privateKey[2:]
-            checkLen(privateKey, LEN_PRIVATE_KEY)
-            curve = secp256k1()
+            validators.checkLen(privateKey, LEN_PRIVATE_KEY)
+            curve = ellipticCurve.secp256k1()
             publicKeyCoordinate = curve.getPublicKeyCoordinate(int(privateKey, 16))
             if not curve:
                 raise Exception(f"calculated coordinates are not on the curve.")
@@ -63,8 +61,8 @@ class New:
     @staticmethod
     def publicKeyCoordinateToPublicKey(coordinate: tuple) -> str:
         try:
-            checkType(coordinate, TYPE.TUPLE)
-            checkLen(coordinate, 2)
+            validators.checkType(coordinate, dataTypes.TYPE.TUPLE)
+            validators.checkLen(coordinate, 2)
             coordinate_x_y = (coordinate[0].to_bytes(32, byteorder='big') +
                               coordinate[1].to_bytes(32, byteorder='big'))
             return '0x' + coordinate_x_y.hex()
@@ -74,11 +72,11 @@ class New:
     @staticmethod
     def publicKeyToAddress(publicKey: str) -> str:
         try:
-            checkType(publicKey, TYPE.STRING)
-            checkHex(publicKey)
+            validators.checkType(publicKey, dataTypes.TYPE.STRING)
+            validators.checkHex(publicKey)
             if publicKey.startswith('0x') or publicKey.startswith('0X'):
                 publicKey = publicKey[2:]
-            checkLen(publicKey, LEN_PUBLIC_KEY)
+            validators.checkLen(publicKey, LEN_PUBLIC_KEY)
             return '0x' + keccak_256(bytes.fromhex(publicKey)).digest()[-20:].hex()
         except Exception as er:
             raise Exception(f"publicKeyToAddress -> {er}")
@@ -86,27 +84,24 @@ class New:
     @staticmethod
     def entropyToMnemonic(entropy: str) -> str:
         try:
-            checkType(entropy, TYPE.STRING)
+            validators.checkType(entropy, dataTypes.TYPE.STRING)
             if entropy.startswith('0b'):
                 entropy = entropy[2:]
-            checkLen(entropy, LEN_ENTROPY)
+            validators.checkLen(entropy, LEN_ENTROPY)
 
             mnemonic = []
-            response = get(
-                'https://github.com/tokimay/Full_Access_Wallet/blob/main/resources/bip39EnglishWordList.txt')
-            file = loads(response.text)
-            bip39 = file["payload"]['blob']['rawLines']
+            bip39 = get(values.BIP_39_LIST_URI).text.splitlines()
 
-            checkType(bip39, TYPE.LIST)
-            checkLen(bip39, LEN_BIP39)
+            validators.checkType(bip39, dataTypes.TYPE.LIST)
+            validators.checkLen(bip39, LEN_BIP39)
 
-            sha256Entropy = ENTROPY.ToSha256(entropy)
+            sha256Entropy = cryptography.ENTROPY.ToSha256(entropy)
             if sha256Entropy.startswith('0b'):
                 sha256Entropy = entropy[2:]
-            checkLen(sha256Entropy, LEN_SHA256_ENTROPY)
+            validators.checkLen(sha256Entropy, LEN_SHA256_ENTROPY)
 
             checkSumEntropy = entropy + str(sha256Entropy[:8])
-            checkLen(checkSumEntropy, LEN_CEK_SM_ENTROPY)
+            validators.checkLen(checkSumEntropy, LEN_CEK_SM_ENTROPY)
 
             chunk = 11
             while chunk <= LEN_CEK_SM_ENTROPY:
@@ -122,27 +117,24 @@ class New:
     def mnemonicToEntropy(mnemonic: str) -> str:
         try:
             entropy = ''
-            response = get(
-                'https://github.com/tokimay/Full_Access_Wallet/blob/main/resources/bip39EnglishWordList.txt')
-            file = loads(response.text)
-            bip39 = file["payload"]['blob']['rawLines']
-            checkType(bip39, TYPE.LIST)
-            checkLen(bip39, LEN_BIP39)
+            bip39 = get(values.BIP_39_LIST_URI).text.splitlines()
+            validators.checkType(bip39, dataTypes.TYPE.LIST)
+            validators.checkLen(bip39, LEN_BIP39)
             mnemonicList = mnemonic.split()
-            checkLen(mnemonicList, LEN_MNEMONIC)
+            validators.checkLen(mnemonicList, LEN_MNEMONIC)
             for word in mnemonicList:
                 if not (word in bip39):
                     raise Exception(f"Invalid Mnemonic.\n'{word}' is not in BIP39 word list")
                 else:
                     index = bin(bip39.index(word))[2:].zfill(11)
                     entropy = entropy + index
-            checkLen(entropy, LEN_CEK_SM_ENTROPY)
+            validators.checkLen(entropy, LEN_CEK_SM_ENTROPY)
             checkSum = entropy[-8:]
             entropy = entropy[:-8]  # remove checksum
-            sha256Entropy = ENTROPY.ToSha256(entropy)
+            sha256Entropy = cryptography.ENTROPY.ToSha256(entropy)
             if sha256Entropy.startswith('0b'):
                 sha256Entropy = entropy[2:]
-            checkLen(sha256Entropy, LEN_SHA256_ENTROPY)
+            validators.checkLen(sha256Entropy, LEN_SHA256_ENTROPY)
             if not checkSum == str(sha256Entropy[:8]):
                 raise Exception(f"Invalid mnemonic.")
             else:
@@ -160,7 +152,7 @@ class New:
             publicKey = New.publicKeyCoordinateToPublicKey(publicKeyCoordinate)
             address = New.publicKeyToAddress(publicKey)
             return {
-                'name': 'NoName',
+                'name': 'No name',
                 'address': address,
                 'entropy': entropy,
                 'privateKey': privateKey,

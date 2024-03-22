@@ -1,6 +1,8 @@
 from time import sleep
 from PyQt6.QtCore import QThread, pyqtSignal
 
+from src import data, system
+
 
 class GetBalance(QThread):
     def __init__(self, window):
@@ -13,24 +15,41 @@ class GetBalance(QThread):
             self.window.getBalance()
 
 
-class AddTokenToDataBase(QThread):
+class GetTokenBalance(QThread):
+    end = pyqtSignal(list)
+
+    def __init__(self, tokens: list, provider: str, address: str):
+        super().__init__()
+        self.tokens = tokens
+        self.provider = provider
+        self.address = address
+
+    def run(self):
+        try:
+            tokenList = data.getAccountTokens(self.tokens, self.provider, self.address)
+            self.end.emit(tokenList)
+        except Exception as er:
+            system.errorSignal.emit(f"GetTokenBalance:Thread -> run -> {er}")
+
+
+class AddToken(QThread):
     signalData = pyqtSignal(int)
     error = pyqtSignal(str)
 
     def __init__(self, db, tokens, listWidget):
         try:
-            super(AddTokenToDataBase, self).__init__()
+            super(AddToken, self).__init__()
             self.db = db
             self.tokens = tokens
             self.listWidget = listWidget
         except Exception as er:
-            self.error.emit(f"__init__:Thread -> {er}")
+            self.error.emit(f"AddToken:Thread -> __init__ -> {er}")
 
     def __del__(self):
         try:
             self.wait()
         except Exception as er:
-            self.error.emit(f"__del__:Thread -> {er}")
+            self.error.emit(f"AddToken:Thread -> __del__ -> {er}")
 
     def run(self):
         try:
@@ -42,10 +61,10 @@ class AddTokenToDataBase(QThread):
                 self.listWidget.scrollToBottom()
                 self.signalData.emit(i)
                 i = i + res
-            print('i-1 = ', i-1, 'count = ', count)
-            if i-1 == count:
+            print('i-1 = ', i - 1, 'count = ', count)
+            if i - 1 == count:
                 self.signalData.emit(count)
             else:
                 raise Exception(f"cursor.rowcount:{i} != count:{count}")
         except Exception as er:
-            self.error.emit(f"AddTokenToDataBase:Thread -> {er}")
+            self.error.emit(f"AddToken:Thread -> run -> {er}")

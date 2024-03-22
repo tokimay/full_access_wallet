@@ -365,13 +365,16 @@ def getTokenInfo(provider: str, contractAddress: str) -> dict:
         raise Exception(f"getTokenInfo -> {er}")
 
 
-def getTokenBalance(provider: str, contractAddress: str, abi: list, targetAddress: str):
+def getTokenBalance(provider: str, contractAddress: str, targetAddress: str, abi: list = None):
     try:
         checkURI(provider)
         w3 = Web3(HTTPProvider(provider))
         if not w3.is_connected():
             raise Exception(f"connect to '{provider}' failed.")
-        contract = w3.eth.contract(Web3.to_checksum_address(contractAddress.lower()), abi=values.BASIC_ABI)
+        if abi is None:
+            contract = w3.eth.contract(Web3.to_checksum_address(contractAddress.lower()), abi=values.BASIC_ABI)
+        else:
+            contract = w3.eth.contract(Web3.to_checksum_address(contractAddress.lower()), abi=abi)
         return contract.functions.balanceOf(Web3.to_checksum_address(targetAddress.lower())).call()
     except Exception as er:
         raise Exception(f"getTokenBalance -> {er} \naddress: {contractAddress}\nprovider: {provider}")

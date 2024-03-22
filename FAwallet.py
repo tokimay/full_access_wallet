@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QApplication
 from sys import argv
 from src import values, threads, database, dataTypes, data
-from src.GUI import gui_error, gui_mainWindow, gui_userChoice, gui_message, gui_addTokens
+from src.GUI import gui_error, gui_mainWindow, gui_userChoice, gui_message, gui_processBar
 
 APP = QApplication(argv)
 
@@ -12,7 +12,7 @@ getBalance = False
 try:
     db.initializeNew()
     if db.isTableEmpty(values.TABLE_TOKEN):
-        gui_addTokens.WINDOW(db).exec()
+        gui_processBar.AddTokensToDatabase(db).exec()
 except Exception as er:
     gui_error.WINDOW('FAwallet', str(er)).exec()
     exit()

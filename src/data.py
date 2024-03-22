@@ -4,7 +4,7 @@ from src import network, dataTypes, system, threads, values, ethereum
 def readAllTokens(db) -> list:
     try:
         tokens = db.readAllRows(values.TABLE_TOKEN)
-        result =[]
+        result = []
         for token in tokens:
             d = {
                 dataTypes.TOKEN.NAME.value: token[0],
@@ -21,22 +21,42 @@ def readAllTokens(db) -> list:
         raise Exception(f"readTokens -> {er}")
 
 
-def getAccountTokens(db, provider: str, address: str):
+def getAccountTokens(tokens: list, provider: str, address: str) -> list:
+    ls = [
+        {dataTypes.TOKEN.NAME.value: 'Ethereum',
+         dataTypes.TOKEN.SYMBOL.value: 'ETH',
+         dataTypes.TOKEN.LOGO.value: 'https://github.com/tokimay/Full_Access_Wallet/tree/main/resources/tokensLogo/'
+                                     'ETH.png',
+         'balance': 0}, ]
     t = None
     try:
-        tokens = readAllTokens(db)
         for token in tokens:
             t = token
-            if token['ABI'] != 'Null' and token['ABI'] != 'NOTOK' and token['ADR'] != 'Null':
-                tokenBalance = ethereum.getTokenBalance(provider=provider, contractAddress=token['ADR'],
-                                                        abi=token['ABI'], targetAddress=address)
-                print(f"{token['SYM']} Balance = {tokenBalance}")
+            if token[dataTypes.TOKEN.ABI.value] != 'Null' and token[dataTypes.TOKEN.ABI.value] != 'NOTOK' and token[dataTypes.TOKEN.ADDRESS.value] != 'Null':
+                tokenBalance = 0
+                try:
+                    tokenBalance = ethereum.getTokenBalance(provider=provider,
+                                                            contractAddress=token[dataTypes.TOKEN.ADDRESS.value],
+                                                            targetAddress=address)
+                except Exception as er:
+                    print(f">>>{t[dataTypes.TOKEN.NAME.value]} by symbol {t[dataTypes.TOKEN.SYMBOL.value]}\n"
+                          f">>>and address {t[dataTypes.TOKEN.ADDRESS.value]}\n"
+                          f">>>abi value is {t[dataTypes.TOKEN.ABI.value]}")
+                    print(f"getAccountTokens -> {er}")
+                    pass
+                print(f"{token[dataTypes.TOKEN.SYMBOL.value]} Balance = {tokenBalance}")
+                if tokenBalance > 0:
+                    ls.append({dataTypes.TOKEN.NAME.value: token[dataTypes.TOKEN.NAME.value],
+                               dataTypes.TOKEN.SYMBOL.value: token[dataTypes.TOKEN.ABI.value],
+                               dataTypes.TOKEN.LOGO.value: token[dataTypes.TOKEN.LOGO.value],
+                               'balance': tokenBalance})
             else:
-                print(f">>>{token['NAM']} by symbol {token['SYM']}\n"
-                      f">>>and address {token['NAM']}\n"
-                      f">>>abi value is {token['ABI']}")
+                print(f">>>{token[dataTypes.TOKEN.NAME.value]} by symbol {token[dataTypes.TOKEN.SYMBOL.value]}\n"
+                      f">>>and address {token[dataTypes.TOKEN.ADDRESS.value]}\n"
+                      f">>>abi value is {token[dataTypes.TOKEN.ABI.value]}")
+        return ls
     except Exception as er:
-        print(f">>>{t['NAM']} by symbol {t['SYM']}\n"
-              f">>>and address {t['NAM']}\n"
-              f">>>abi value is {t['ABI']}")
+        print(f">>>{t[dataTypes.TOKEN.NAME.value]} by symbol {t[dataTypes.TOKEN.SYMBOL.value]}\n"
+              f">>>and address {t[dataTypes.TOKEN.ADDRESS.value]}\n"
+              f">>>abi value is {t[dataTypes.TOKEN.ABI.value]}")
         raise Exception(f"getAccountTokens -> {er}")

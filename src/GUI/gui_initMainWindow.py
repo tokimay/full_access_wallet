@@ -230,7 +230,7 @@ class WINDOW:
             self.window.pushButton_send.setObjectName("pushButton_send")
             self.window.pushButton_send.setText("Send TX")
             self.window.comboBox_tokens.setObjectName("comboBox_tokens")
-            self.window.comboBox_tokens.addItem('Add costume token')
+            self.window.comboBox_tokens.addItem('Loading tokens...')
 
             # row 6
             self.window.label_sendValue.setObjectName("label_sendValue")

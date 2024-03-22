@@ -1,6 +1,7 @@
-DB_NAME = 'Data'
+DB_NAME = 'Wallet.db'
 TOKEN_LIST_URI = f"https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokenList.json"
 ETH_ICON_URI = f"https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ETH.png"
+BIP_39_LIST_URI = f"https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/bip39EnglishWordList.txt"
 GUI_ITEM_HEIGHT = 25
 GUI_MENU_HEIGHT = 16
 ICON_SIZE = 16

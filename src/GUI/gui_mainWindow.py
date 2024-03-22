@@ -9,7 +9,7 @@ from tkinter import filedialog, Tk
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWidgets import (QGridLayout, QLabel, QPushButton, QComboBox, QLineEdit,
                              QRadioButton, QTextEdit, QMenuBar, QMenu, QStatusBar)
-from src import system, database, data, values, dataTypes, network, ethereum, account, validators, cryptography
+from src import system, database, data, values, dataTypes, network, ethereum, account, validators, cryptography, threads
 from src.GUI import gui_error, gui_userInput, gui_userChoice, gui_message, gui_initMainWindow
 
 
@@ -126,12 +126,11 @@ class Ui(QMainWindow):
             self.statusbar = QStatusBar(self)
             self.db = database.SQLITE(dbName)
             self.transactionResult = {'message': '', 'hash': '', 'pending': 0}
-            self.tokes = []
+            self.coins = []
             self.initMainWindow = gui_initMainWindow.WINDOW(self)
             self.setAddress()
-            self.initTokenList()
+            self.getTokenList()
             self.setClickEvents()
-            self.setMenuActionsTips()
         except Exception as er:
             system.errorSignal.newError.emit(f"Ui -> __init__ -> {str(er)}")
 
@@ -145,26 +144,53 @@ class Ui(QMainWindow):
                     gui_message.WINDOW('Create new account', 'You always can create new account or restore old one',
                                        'Wallet -> New account').exec()
                 else:  # create first new account
-                    self.createAccountRandom()
+                    acc = account.New.random()  # create new account
+                    self.db.insertAccountRow(acc)
                     self.setAddress()  # call itself to add new address in ui elements
             else:
                 accounts = self.db.readAllRows(tableName=values.TABLE_ACCOUNT)
                 for ac in accounts:
                     self.lineEdit_accountName.setText(str(ac[0]))
                     self.comboBox_activeAddressVal.addItem(ac[1])
+                    self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
         except Exception as er:
             system.errorSignal.newError.emit(f"Ui -> setAddress -> {str(er)}")
 
-    def initTokenList(self):
+    def getTokenList(self):
         try:
-            self.tokes = data.getAccountTokens(self.db,
-                                               self.lineEdit_nodeProvider.text(),
-                                               self.comboBox_activeAddressVal.currentText())
-            for t in self.tokes:
-                print('=' * 10)
-            print(len(self.tokes))
+            balanceThread = None
+
+            def endT(coins):
+                self.coins = coins
+                balanceThread.terminate()
+                for tok in self.coins:
+                    self.addNewItemToComboBoxToken(tok)
+
+            tokens = data.readAllTokens(self.db)
+            balanceThread = threads.GetTokenBalance(tokens,
+                                                    self.lineEdit_nodeProvider.text(),
+                                                    self.comboBox_activeAddressVal.currentText())
+            balanceThread.end.connect(endT)
+            balanceThread.start()
         except Exception as er:
             system.errorSignal.newError.emit(f"Ui -> initTokenList -> {str(er)}")
+
+    def addNewItemToComboBoxToken(self, item: dict):
+        try:
+            index = self.comboBox_tokens.currentIndex()
+            request = network.getRequest(item[dataTypes.TOKEN.LOGO.value])
+            pixmap = QPixmap()
+            pixmap.loadFromData(request.content)
+            self.comboBox_tokens.insertItem(index, item[dataTypes.TOKEN.NAME.value])
+            self.comboBox_tokens.setItemIcon(index, QIcon(QIcon(pixmap)))
+            self.comboBox_tokens.setIconSize(QSize(values.ICON_SIZE, values.ICON_SIZE))
+            self.comboBox_tokens.setCurrentIndex(index)
+            self.label_amountVal.setText(
+                f"<span style = 'color: red; font-weight: bold;' > {item['balance']}"
+                f"</ span> <span style = 'color: rgb(140, 170, 250); font-weight: bold;' >"
+                f" {item[dataTypes.TOKEN.SYMBOL.value]} </ span>")
+        except Exception as er:
+            system.errorSignal.newError.emit(f"Ui -> addNewItemToComboBoxToken -> {str(er)}")
 
     def resetStatueBarStyleSheet(self):
         try:
@@ -238,7 +264,7 @@ class Ui(QMainWindow):
             if self.comboBox_activeAddressVal.count() == 0:
                 self.lineEdit_accountName.clear()
                 symbol = 'None'
-                for token in self.tokes['list']:
+                for token in self.coins['list']:
                     if token['data']['name'] == self.comboBox_tokens.currentText():
                         symbol = token['symbol']
                 self.label_amountVal.setText(
@@ -266,41 +292,6 @@ class Ui(QMainWindow):
                     self.addTokensByContract(contract)
         except Exception as er:
             gui_error.WINDOW('addNewTokenToList', str(er)).exec()
-
-    def addNewItemToComboBoxToken(self, item: str):
-        try:
-            index = self.comboBox_tokens.currentIndex()
-            url = ''
-            for token in self.tokes['list']:
-                if token['symbol'] == item:
-                    url = token['data']['logoURI']
-            request = network.getRequest(url)
-            pixmap = QPixmap()
-            pixmap.loadFromData(request.content)
-            self.comboBox_tokens.insertItem(index, item)
-            self.pushButton_send.setIconSize(QSize(values.ICON_SIZE, values.ICON_SIZE))
-            self.comboBox_tokens.setItemIcon(index, QIcon(QIcon(pixmap)))
-            self.comboBox_tokens.setIconSize(QSize(values.ICON_SIZE, values.ICON_SIZE))
-            self.comboBox_tokens.setCurrentIndex(index)
-        except Exception as er:
-            gui_error.WINDOW('addNewItemToComboBoxToken', str(er)).exec()
-
-    def addTokensByContract(self, contract):
-        print(1)
-        token = ethereum.getTokenInfo(self.lineEdit_nodeProvider.text(), contract)
-        print(token)
-        self.tokes['list'].append({
-            'symbol': token['symbol'],
-            'data': {
-                'type': 'ERC20',
-                'name': token['name'],
-                'decimals': int(token['decimals']),
-                'logoURI': '',
-                'address': token['address']
-            }
-        })
-        for l in self.tokes['list']:
-            print(l)
 
     def editAccountName(self):
         try:
@@ -348,10 +339,22 @@ class Ui(QMainWindow):
 
     def createAccountRandom(self):
         try:
-            acc = account.New.random()  # create new account
-            self.db.insertAccountRow(acc)
-            self.comboBox_activeAddressVal.addItem(acc['address'])
-            self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
+            userAnswer = True
+            doIt = True
+            if self.db.isTableEmpty(values.TABLE_ACCOUNT):
+                createAccount_window = gui_userChoice.WINDOW('Create new random account',
+                                                             'Some account(s) already exist',
+                                                             'Create new one?')
+                createAccount_window.exec()
+                userAnswer = createAccount_window.getAnswer()
+            if not userAnswer:
+                doIt = False  # cancel by user
+            if doIt:
+                acc = account.New.random()  # create new account
+                self.db.insertAccountRow(acc)
+                self.lineEdit_accountName.setText(acc['name'])
+                self.comboBox_activeAddressVal.addItem(acc['address'])
+                self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
         except Exception as er:
             system.errorSignal.newError.emit(f"Ui -> createAccountRandom -> {str(er)}")
 
@@ -558,7 +561,7 @@ class Ui(QMainWindow):
                     if balance > 0:
                         color = 'green'
                     symbol = 'None'
-                    for token in self.tokes['list']:
+                    for token in self.coins['list']:
                         if token['symbol'] == self.comboBox_tokens.currentText():
                             symbol = token['symbol']
                     self.label_amountVal.setText(
