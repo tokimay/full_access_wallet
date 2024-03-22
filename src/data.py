@@ -1,59 +1,10 @@
-from PyQt6.QtWidgets import QProgressBar, QDialog, QVBoxLayout, QListWidget
-from src import network, dataTypes, system, threads, values
+from src import network, dataTypes, system, threads, values, ethereum
 
 
-class AddTokens(QDialog):
-    def __init__(self, db):
-        try:
-            super(AddTokens, self).__init__()
-            tokens = network.getTokenList()
-            self.count = len(tokens['list'])
-            self.setWindowTitle('Syncing tokens list..')
-            self.progress = QProgressBar(self)
-            self.progress.setValue(0)
-            self.resize(300, 400)
-            self.progress.resize(300, 50)
-            self.vbox = QVBoxLayout()
-            self.listWidget = QListWidget()
-            self.listWidget.resize(300, 350)
-            self.vbox.addWidget(self.progress)
-            self.vbox.addWidget(self.listWidget)
-            self.setLayout(self.vbox)
-            self.progress.setMaximum(self.count)
-            self.thread = threads.AddTokenToDataBase(db, tokens, self.listWidget)
-            self.thread.signalData.connect(self.signalAccept)
-            self.thread.error.connect(self.exception)
-            self.thread.start()
-        except Exception as er:
-            system.errorSignal.newError.emit(f"AddTokens -> __init__ -> {str(er)}")
-
-    def signalAccept(self, msg):
-        try:
-            if msg == self.count:
-                self.endProgress()
-            else:
-                self.progress.setValue(int(msg))
-        except Exception as er:
-            system.errorSignal.newError.emit(f"AddTokens -> signal_accept -> {str(er)}")
-
-    def endProgress(self):
-        try:
-            self.close()
-        except Exception as er:
-            system.errorSignal.newError.emit(f"AddTokens -> endProgress -> {str(er)}")
-
-    def exception(self, message):
-        self.thread.terminate()
-        system.errorSignal.newError.emit(f"AddTokens -> __init__ -> {message}")
-
-    def closeEvent(self, evnt):
-        self.thread.terminate()
-
-
-def readTokens(db) -> list:
+def readAllTokens(db) -> list:
     try:
         tokens = db.readAllRows(values.TABLE_TOKEN)
-        result = []
+        result =[]
         for token in tokens:
             d = {
                 dataTypes.TOKEN.NAME.value: token[0],
@@ -68,3 +19,24 @@ def readTokens(db) -> list:
         return result
     except Exception as er:
         raise Exception(f"readTokens -> {er}")
+
+
+def getAccountTokens(db, provider: str, address: str):
+    t = None
+    try:
+        tokens = readAllTokens(db)
+        for token in tokens:
+            t = token
+            if token['ABI'] != 'Null' and token['ABI'] != 'NOTOK' and token['ADR'] != 'Null':
+                tokenBalance = ethereum.getTokenBalance(provider=provider, contractAddress=token['ADR'],
+                                                        abi=token['ABI'], targetAddress=address)
+                print(f"{token['SYM']} Balance = {tokenBalance}")
+            else:
+                print(f">>>{token['NAM']} by symbol {token['SYM']}\n"
+                      f">>>and address {token['NAM']}\n"
+                      f">>>abi value is {token['ABI']}")
+    except Exception as er:
+        print(f">>>{t['NAM']} by symbol {t['SYM']}\n"
+              f">>>and address {t['NAM']}\n"
+              f">>>abi value is {t['ABI']}")
+        raise Exception(f"getAccountTokens -> {er}")

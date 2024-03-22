@@ -14,17 +14,7 @@ def getRequest(uri: str):
 
 def getTokenList() -> dict:
     try:
-        tokes = {"list": [
-            {
-                "symbol": "ETH",
-                "data": {"type": "ERC20",
-                         "name": "Ethereum",
-                         "decimals": 0,
-                         "logoURI": ETH_ICON_URI,
-                         "address": "Null",
-                         "abi": "Null"}
-            }
-        ]}
+        tokes = {"list": []}
         tokenJson = getRequest(TOKEN_LIST_URI)
         for token in tokenJson.json()['list']:
             tokes['list'].append(token)

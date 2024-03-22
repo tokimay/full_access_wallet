@@ -159,12 +159,15 @@ class New:
             publicKeyCoordinate = New.privateKeyToPublicKeyCoordinate(privateKey)
             publicKey = New.publicKeyCoordinateToPublicKey(publicKeyCoordinate)
             address = New.publicKeyToAddress(publicKey)
-            return {'entropy': entropy,
-                    'privateKey': privateKey,
-                    'publicKeyCoordinate': publicKeyCoordinate,
-                    'publicKey': publicKey,
-                    'address': address,
-                    'mnemonic': mnemonic}
+            return {
+                'name': 'NoName',
+                'address': address,
+                'entropy': entropy,
+                'privateKey': privateKey,
+                'publicKeyCoordinate': publicKeyCoordinate,
+                'publicKey': publicKey,
+                'mnemonic': mnemonic
+            }
         except Exception as er:
             raise Exception(f"random -> {er}")
 
@@ -176,12 +179,15 @@ class New:
             publicKeyCoordinate = New.privateKeyToPublicKeyCoordinate(privateKey)
             publicKey = New.publicKeyCoordinateToPublicKey(publicKeyCoordinate)
             address = New.publicKeyToAddress(publicKey)
-            return {'entropy': entropy,
-                    'privateKey': privateKey,
-                    'publicKeyCoordinate': publicKeyCoordinate,
-                    'publicKey': publicKey,
-                    'address': address,
-                    'mnemonic': mnemonic}
+            return {
+                'name': 'No name',
+                'address': address,
+                'entropy': entropy,
+                'privateKey': privateKey,
+                'publicKeyCoordinate': publicKeyCoordinate,
+                'publicKey': publicKey,
+                'mnemonic': mnemonic
+            }
         except Exception as er:
             raise Exception(f"fromEntropy -> {er}")
 
@@ -193,12 +199,15 @@ class New:
             publicKeyCoordinate = New.privateKeyToPublicKeyCoordinate(privateKey)
             publicKey = New.publicKeyCoordinateToPublicKey(publicKeyCoordinate)
             address = New.publicKeyToAddress(publicKey)
-            return {'entropy': entropy,
-                    'privateKey': privateKey,
-                    'publicKeyCoordinate': publicKeyCoordinate,
-                    'publicKey': publicKey,
-                    'address': address,
-                    'mnemonic': mnemonic}
+            return {
+                'name': 'No name',
+                'address': address,
+                'entropy': entropy,
+                'privateKey': privateKey,
+                'publicKeyCoordinate': publicKeyCoordinate,
+                'publicKey': publicKey,
+                'mnemonic': mnemonic
+            }
         except Exception as er:
             raise Exception(f"fromPrivateKey -> {er}")
 
@@ -210,11 +219,14 @@ class New:
             publicKeyCoordinate = New.privateKeyToPublicKeyCoordinate(privateKey)
             publicKey = New.publicKeyCoordinateToPublicKey(publicKeyCoordinate)
             address = New.publicKeyToAddress(publicKey)
-            return {'entropy': entropy,
-                    'privateKey': privateKey,
-                    'publicKeyCoordinate': publicKeyCoordinate,
-                    'publicKey': publicKey,
-                    'address': address,
-                    'mnemonic': mnemonic}
+            return {
+                'name': 'No name',
+                'address': address,
+                'entropy': entropy,
+                'privateKey': privateKey,
+                'publicKeyCoordinate': publicKeyCoordinate,
+                'publicKey': publicKey,
+                'mnemonic': mnemonic
+            }
         except Exception as er:
             raise Exception(f"fromMnemonic -> {er}")

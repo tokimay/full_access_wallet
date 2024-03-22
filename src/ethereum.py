@@ -5,7 +5,7 @@ from eth_account._utils.legacy_transactions import serializable_unsigned_transac
 from eth_account._utils.signing import to_standard_v, extract_chain_id
 from web3 import Web3, HTTPProvider
 
-from src import network
+from src import network, values
 from src.validators import checkURI
 
 
@@ -353,7 +353,7 @@ def getTokenInfo(provider: str, contractAddress: str) -> dict:
         if not w3.is_connected():
             raise Exception(f"connect to '{provider}' failed.")
         abi = getABI(contractAddress)
-        contract = w3.eth.contract(contractAddress, abi=abi)
+        contract = w3.eth.contract(Web3.to_checksum_address(contractAddress.lower()), abi=abi)
         return {
             'address': contractAddress,
             'api': abi,
@@ -365,21 +365,13 @@ def getTokenInfo(provider: str, contractAddress: str) -> dict:
         raise Exception(f"getTokenInfo -> {er}")
 
 
-def getTokenBalance(provider: str, contractAddress: str, abi: list, target: str):
+def getTokenBalance(provider: str, contractAddress: str, abi: list, targetAddress: str):
     try:
         checkURI(provider)
         w3 = Web3(HTTPProvider(provider))
         if not w3.is_connected():
             raise Exception(f"connect to '{provider}' failed.")
-
-        abi = __getABI(contractAddress)
-        contract = w3.eth.contract(contractAddress, abi=abi)
-        return {
-            'address': contractAddress,
-            'api': abi,
-            'name': contract.functions.name().call(),
-            'symbol': contract.functions.symbol().call(),
-            'decimals': contract.functions.decimals().call()
-        }
+        contract = w3.eth.contract(Web3.to_checksum_address(contractAddress.lower()), abi=values.BASIC_ABI)
+        return contract.functions.balanceOf(Web3.to_checksum_address(targetAddress.lower())).call()
     except Exception as er:
-        raise Exception(f"getTokenInfo -> {er}")
+        raise Exception(f"getTokenBalance -> {er} \naddress: {contractAddress}\nprovider: {provider}")

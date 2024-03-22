@@ -71,20 +71,26 @@ class SQLITE:
             connection = connect(self.databaseName)
             cursor = connection.cursor()
             cursor.execute(
-                f"""INSERT INTO {values.TABLE_ACCOUNT} VALUES (
-                {dataTypes.ACCOUNT.NAME.value}, {dataTypes.ACCOUNT.ADDRESS.value}, 
-                {dataTypes.ACCOUNT.ENTROPY.value}, {dataTypes.ACCOUNT.PRIVATE_KEY.value}, 
-                {dataTypes.ACCOUNT.PUBLIC_KEY_X.value}, {dataTypes.ACCOUNT.PUBLIC_KEY_Y.value}, 
-                {dataTypes.ACCOUNT.PUBLIC_KEY.value}, {dataTypes.ACCOUNT.MNEMONIC.value});"""
-                , (
-                    {acc['name']},
-                    {acc['address']},
-                    {acc['entropy']},
-                    {acc['privateKey']},
-                    {str(acc['publicKeyCoordinate'][0])},
-                    {str(acc['publicKeyCoordinate'][1])},
-                    {acc['publicKey']},
-                    {acc['mnemonic']})
+                f"INSERT INTO {values.TABLE_ACCOUNT} ("
+                f"{dataTypes.ACCOUNT.NAME.value}, "
+                f"{dataTypes.ACCOUNT.ADDRESS.value}, "
+                f"{dataTypes.ACCOUNT.ENTROPY.value}, "
+                f"{dataTypes.ACCOUNT.PRIVATE_KEY.value}, "
+                f"{dataTypes.ACCOUNT.PUBLIC_KEY_X.value}, "
+                f"{dataTypes.ACCOUNT.PUBLIC_KEY_Y.value}, "
+                f"{dataTypes.ACCOUNT.PUBLIC_KEY.value}, "
+                f"{dataTypes.ACCOUNT.MNEMONIC.value}) "
+                f"VALUES (?, ?, ?, ?, ?, ?, ?, ?);",
+                (
+                    str(acc['name']),
+                    str(acc['address']),
+                    str(acc['entropy']),
+                    str(acc['privateKey']),
+                    str(acc['publicKeyCoordinate'][0]),
+                    str(acc['publicKeyCoordinate'][1]),
+                    str(acc['publicKey']),
+                    str(acc['mnemonic'])
+                )
             )
             connection.commit()
             connection.close()
@@ -133,13 +139,15 @@ class SQLITE:
                 f"{dataTypes.TOKEN.LOGO.value}, "
                 f"{dataTypes.TOKEN.ABI.value})"
                 f"VALUES (?, ?, ?, ?, ?, ?, ?);",
-                (token['data']['name'],
-                 token['data']['address'],
-                 token['symbol'],
-                 token['data']['type'],
-                 int(token['data']['decimals']),
-                 f"{str(token['data']['logoURI'])}'",
-                 f"{str(token['data']['abi'])}")
+                (
+                    str(token['data']['name']),
+                    str(token['data']['address']),
+                    str(token['symbol']),
+                    str(token['data']['type']),
+                    int(token['data']['decimals']),
+                    str(token['data']['logoURI']),
+                    str(token['data']['abi'])
+                )
             )
             connection.commit()
             connection.close()
