@@ -184,8 +184,6 @@ class Ui(QMainWindow):
             pixmap.loadFromData(request.content)
             self.comboBox_tokens.insertItem(index, item[dataTypes.TOKEN.NAME.value])
             self.comboBox_tokens.setItemIcon(index, QIcon(QIcon(pixmap)))
-            self.pushButton_send.setIcon(QIcon(QIcon(pixmap)))
-            self.pushButton_send.setIconSize(QSize(values.ICON_SIZE, values.ICON_SIZE))
             self.comboBox_tokens.setIconSize(QSize(values.ICON_SIZE, values.ICON_SIZE))
             self.comboBox_tokens.setCurrentIndex(index)
             self.label_amountVal.setText(
