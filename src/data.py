@@ -22,12 +22,7 @@ def readAllTokens(db) -> list:
 
 
 def getAccountTokens(tokens: list, provider: str, address: str) -> list:
-    ls = [
-        {dataTypes.TOKEN.NAME.value: 'Ethereum',
-         dataTypes.TOKEN.SYMBOL.value: 'ETH',
-         dataTypes.TOKEN.LOGO.value: 'https://github.com/tokimay/Full_Access_Wallet/tree/main/resources/tokensLogo/'
-                                     'ETH.png',
-         'balance': 0}, ]
+    ls = [{}, ]
     t = None
     try:
         for token in tokens:
