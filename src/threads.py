@@ -1,7 +1,7 @@
 from time import sleep
 from PyQt6.QtCore import QThread, pyqtSignal
 
-from src import data, system
+from src import data, system, dataTypes
 
 
 class GetBalance(QThread):
@@ -56,6 +56,10 @@ class AddToken(QThread):
             count = len(self.tokens['list'])
             i = 1
             for tok in self.tokens['list']:
+                if tok['symbol'] == 'ETH' or tok['symbol'] == 'USDT':
+                    tok['favorite'] = True
+                else:
+                    tok['favorite'] = False
                 res = self.db.insertTokenRow(tok)
                 self.listWidget.addItem(f"successfully add '{tok['symbol']}' info to dataBase")
                 self.listWidget.scrollToBottom()
