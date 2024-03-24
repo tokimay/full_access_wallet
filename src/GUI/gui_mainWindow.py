@@ -163,10 +163,13 @@ class Ui(QMainWindow):
             def endT(coins):
                 self.coins = coins
                 balanceThread.terminate()
-                for tok in self.coins:
+                for tok in coins:
+                    print(tok)
                     self.addNewItemToComboBoxToken(tok)
 
-            tokens = data.readAllTokens(self.db)
+            tokens = data.readAllFavoriteTokens(self.db)
+            print(tokens)
+            print('='*10)
             balanceThread = threads.GetTokenBalance(tokens,
                                                     self.lineEdit_nodeProvider.text(),
                                                     self.comboBox_activeAddressVal.currentText())
@@ -178,20 +181,59 @@ class Ui(QMainWindow):
     def addNewItemToComboBoxToken(self, item: dict):
         try:
             index = self.comboBox_tokens.currentIndex()
-            print(item[dataTypes.TOKEN.LOGO.value])
-            request = network.getRequest(item[dataTypes.TOKEN.LOGO.value])
+            print(2)
+            print(dataTypes.TOKEN.LOGO.value)
+            print(item)
+            res = network.getRequest(str(item[dataTypes.TOKEN.LOGO.value]))
+            print(2.1)
+            print(res)
             pixmap = QPixmap()
-            pixmap.loadFromData(request.content)
+            print(2.2)
+
+            pixmap.loadFromData(res.content)
+            print(3)
+
             self.comboBox_tokens.insertItem(index, item[dataTypes.TOKEN.NAME.value])
             self.comboBox_tokens.setItemIcon(index, QIcon(QIcon(pixmap)))
             self.comboBox_tokens.setIconSize(QSize(values.ICON_SIZE, values.ICON_SIZE))
             self.comboBox_tokens.setCurrentIndex(index)
-            self.label_amountVal.setText(
-                f"<span style = 'color: red; font-weight: bold;' > {item['balance']}"
-                f"</ span> <span style = 'color: rgb(140, 170, 250); font-weight: bold;' >"
-                f" {item[dataTypes.TOKEN.SYMBOL.value]} </ span>")
+            self.comboBox_tokens.removeItem(self.comboBox_tokens.findText(values.COMBO_BOX_TOKEN))
+            self.comboBox_tokens.addItem('Manage tokens')
+            self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
+            self.setLabelAmountValStyleSheet(item[dataTypes.TOKEN.SYMBOL.value], float(item['balance']))
         except Exception as er:
             system.errorSignal.newError.emit(f"Ui -> addNewItemToComboBoxToken -> {str(er)}")
+
+    def setLabelAmountValStyleSheet(self, symbol: str, balance: float):
+        try:
+            self.label_amountVal.setText(
+                f"<span style = 'color: red; font-weight: bold;' > {balance}"
+                f"</ span> <span style = 'color: rgb(140, 170, 250); font-weight: bold;' >"
+                f" {symbol} </ span>")
+        except Exception as er:
+            system.errorSignal.newError.emit(f"Ui -> setLabelAmountValStyleSheet -> {str(er)}")
+
+    def lineEditSendValueChange(self):
+        try:
+            if self.lineEdit_sendValue.text() == '':
+                self.lineEdit_sendValue.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
+            else:
+                OldValue = float(self.lineEdit_sendValue.text())
+                OldMax = 1
+                OldMin = 0.01
+                NewMax = 65
+                NewMin = 245
+                OldRange = (OldMax - OldMin)
+                NewRange = (NewMax - NewMin)
+                NewValue = int((((OldValue - OldMin) * NewRange) / OldRange) + NewMin)
+                if NewValue < 65:
+                    NewValue = 65
+                elif NewValue > 245:
+                    NewValue = 245
+                self.lineEdit_sendValue.setStyleSheet(f'background-color: rgb(245, {NewValue}, 65); color: black')
+        except Exception as er:
+            print(str(er))
+            pass  # nothing to do
 
     def resetStatueBarStyleSheet(self):
         try:
@@ -316,27 +358,6 @@ class Ui(QMainWindow):
         except Exception as er:
             gui_error.WINDOW('editAccountName', str(er)).exec()
 
-    def lineEditSendValueChange(self):
-        try:
-            if self.lineEdit_sendValue.text() == '':
-                self.lineEdit_sendValue.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
-            else:
-                OldValue = float(self.lineEdit_sendValue.text())
-                OldMax = 1
-                OldMin = 0.01
-                NewMax = 65
-                NewMin = 245
-                OldRange = (OldMax - OldMin)
-                NewRange = (NewMax - NewMin)
-                NewValue = int((((OldValue - OldMin) * NewRange) / OldRange) + NewMin)
-                if NewValue < 65:
-                    NewValue = 65
-                elif NewValue > 245:
-                    NewValue = 245
-                self.lineEdit_sendValue.setStyleSheet(f'background-color: rgb(245, {NewValue}, 65); color: black')
-        except Exception as er:
-            print(str(er))
-            pass  # nothing to do
 
     def createAccountRandom(self):
         try:

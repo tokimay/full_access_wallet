@@ -2,6 +2,7 @@ from os.path import join
 from pathlib import Path
 from PyQt6.QtCore import QObject, pyqtSignal
 from src.GUI import gui_error
+from time import gmtime, strftime
 
 
 def getRoot():
@@ -35,7 +36,7 @@ class Emitter(QObject):
 
 
 def error(message: str):
-    gui_error.WINDOW('FAwallet', f"{message}").exec()
+    gui_error.WINDOW('FAwallet', f"{strftime('%H:%M:%S', gmtime())}: {message}").exec()
 
 
 errorSignal = Emitter()

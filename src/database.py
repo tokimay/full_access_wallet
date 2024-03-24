@@ -1,5 +1,6 @@
 from sqlite3 import connect
 from src import values, dataTypes
+from time import gmtime, strftime
 
 
 class SQLITE:
@@ -60,7 +61,7 @@ class SQLITE:
             if not self.isTableExist(values.TABLE_ACCOUNT):
                 raise Exception(f"failed to create table in database.")
             else:
-                print(f"create the table {values.TABLE_ACCOUNT} successfully")
+                print(f"{strftime('%H:%M:%S', gmtime())}: create the table {values.TABLE_ACCOUNT} successfully")
         except Exception as er:
             raise Exception(f"createTableAccounts -> {er}")
 
@@ -118,7 +119,7 @@ class SQLITE:
             if not self.isTableExist(values.TABLE_TOKEN):
                 raise Exception(f"failed to create table in database.")
             else:
-                print(f"create the table {values.TABLE_TOKEN} successfully")
+                print(f"{strftime('%H:%M:%S', gmtime())}: create the table {values.TABLE_TOKEN} successfully")
         except Exception as er:
             raise Exception(f"createTableTokens -> {er}")
 
@@ -127,7 +128,8 @@ class SQLITE:
             if self.isExist(values.TABLE_TOKEN, dataTypes.TOKEN.ADDRESS.value, token['data']['address']):
                 # delete if exist to update data
                 self.deleteRow(values.TABLE_TOKEN, dataTypes.TOKEN.ADDRESS.value, token['data']['address'])
-                print(f"the old '{token['symbol']}' data was removed. new data will be replaced.")
+                print(f"{strftime('%H:%M:%S', gmtime())}: the old '{token['symbol']}' "
+                      f"data was removed. new data will be replaced.")
             connection = connect(self.databaseName)
             cursor = connection.cursor()
             cursor.execute(
@@ -157,7 +159,8 @@ class SQLITE:
             if cursor.rowcount <= 0:
                 raise Exception(f"inserting '{token['symbol']}' data to database failed.")
             else:
-                print(f"successfully add '{token['symbol']}' info to dataBase")
+                print(f"{strftime('%H:%M:%S', gmtime())}: successfully add '{token['symbol']}' "
+                      f"info to dataBase")
                 return cursor.rowcount
         except Exception as er:
             raise Exception(f"insertTokenRow -> {er}")
@@ -175,6 +178,21 @@ class SQLITE:
             return ls
         except Exception as er:
             raise Exception(f"readAllRows -> {er}")
+
+    def readAllRowsByCondition(self, tableName: str, condition: str, conditionVal) -> list:
+        try:
+            connection = connect(self.databaseName)
+            cursor = connection.cursor()
+            cursor.execute(f"""SELECT * FROM {tableName} WHERE {condition} = ?""",
+                           (conditionVal,))
+            ls = cursor.fetchall()
+            connection.commit()
+            connection.close()
+            if len(ls) <= 0:
+                raise Exception(f"can not read database.\n")
+            return ls
+        except Exception as er:
+            raise Exception(f"readAllRowsByCondition -> {er}")
 
     def readColumnAllRows(self, tableName: str, columnName: str) -> list:
         try:

@@ -54,6 +54,7 @@ class ENTROPY:
         except Exception as er:
             raise Exception(f"ToPbkdf2HmacSha256 -> {er}")
 
+
 class AES:
     def __init__(self):
         pass

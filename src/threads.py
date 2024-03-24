@@ -1,7 +1,7 @@
 from time import sleep
 from PyQt6.QtCore import QThread, pyqtSignal
-
-from src import data, system, dataTypes
+from time import gmtime, strftime
+from src import data, system
 
 
 class GetBalance(QThread):
@@ -65,7 +65,7 @@ class AddToken(QThread):
                 self.listWidget.scrollToBottom()
                 self.signalData.emit(i)
                 i = i + res
-            print('i-1 = ', i - 1, 'count = ', count)
+            print(f"{strftime('%H:%M:%S', gmtime())}:i-1 = ', i - 1, 'count = {count}")
             if i - 1 == count:
                 self.signalData.emit(count)
             else:

@@ -18,6 +18,7 @@ SIDE_TAB_WIDTH = 25
 SIDE_TAB_MARGIN = 2
 TABLE_ACCOUNT = 'accounts'
 TABLE_TOKEN = 'tokens'
+COMBO_BOX_TOKEN = 'Loading tokens...'
 
 BASIC_ABI = [
     {

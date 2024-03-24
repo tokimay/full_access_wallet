@@ -1,4 +1,3 @@
-from json import loads, load
 from requests import get
 from sha3 import keccak_256
 from src import values, dataTypes, cryptography, ellipticCurve, validators

@@ -29,5 +29,5 @@ class TOKEN(Enum):
     TYPE = 'TYP'
     DECIMALS = 'DML'
     FAVORITE = False
-    LOGO = 'LGU'
+    LOGO = 'LGO'
     ABI = 'ABI'

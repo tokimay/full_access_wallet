@@ -4,6 +4,7 @@ from urllib import request
 from eth_account._utils.legacy_transactions import serializable_unsigned_transaction_from_dict
 from eth_account._utils.signing import to_standard_v, extract_chain_id
 from web3 import Web3, HTTPProvider
+from time import gmtime, strftime
 
 from src import network, values
 from src.validators import checkURI
@@ -108,10 +109,10 @@ def sendValueTransaction(privateKey: str, txElements: dict, duplicate: bool = Fa
             nonce = noncePending
         else:
             nonce = nonceConfirmed
-        print('gas ', gas, 'Gwei')
-        print('maxFeePerGas ', maxFeePerGas, 'Gwei')
-        print('maxPriorityFeePerGas ', maxPriorityFeePerGas, 'Gwei')
-        print('nonce ', nonce)
+        print(f"{strftime('%H:%M:%S', gmtime())}: gas {gas} Gwei")
+        print(f"{strftime('%H:%M:%S', gmtime())}: maxFeePerGas {maxFeePerGas} Gwei")
+        print(f"{strftime('%H:%M:%S', gmtime())}: maxPriorityFeePerGas {maxPriorityFeePerGas} Gwei")
+        print(f"{strftime('%H:%M:%S', gmtime())}: nonce {nonce}")
 
         transaction = ({
             'to': Web3.to_checksum_address(txElements['receiver']),
@@ -127,19 +128,19 @@ def sendValueTransaction(privateKey: str, txElements: dict, duplicate: bool = Fa
         if gas < estimatedGas:
             gas = estimatedGas
             transaction.update({'gas': gas})
-            print('new gas ', gas, 'Gwei')
+            print(f"{strftime('%H:%M:%S', gmtime())}: new gas {gas} Gwei")
         lastBlockBaseFeePerGas = __getPendingBlock(txElements['provider'])['baseFeePerGas']
         if maxFeePerGas < lastBlockBaseFeePerGas:
             maxFeePerGas = lastBlockBaseFeePerGas
             transaction.update({'maxFeePerGas': maxFeePerGas})
-            print('new maxFeePerGas ', maxFeePerGas, 'Gwei')
+            print(f"{strftime('%H:%M:%S', gmtime())}: new maxFeePerGas {maxFeePerGas} Gwei")
 
         signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
-        print('rawTransaction:', signed.rawTransaction)
-        print('signed hash:', signed.hash.hex())
-        print('r:', signed.r)
-        print('s:', signed.s)
-        print('v:', signed.v)
+        print(f"{strftime('%H:%M:%S', gmtime())}: rawTransaction: {signed.rawTransaction}")
+        print(f"{strftime('%H:%M:%S', gmtime())}: signed hash: {signed.hash.hex()}")
+        print(f"{strftime('%H:%M:%S', gmtime())}: r: {signed.r}")
+        print(f"{strftime('%H:%M:%S', gmtime())}: s: {signed.s}")
+        print(f"{strftime('%H:%M:%S', gmtime())}: v: {signed.v}")
         txHash = w3.eth.send_raw_transaction(signed.rawTransaction)
         result['message'] = 'succeed'
         result['pending'] = noncePending - nonceConfirmed
@@ -175,10 +176,10 @@ def sendMessageTransaction(privateKey: str, txElements: dict, duplicate: bool = 
             nonce = noncePending
         else:
             nonce = nonceConfirmed
-        print('gas ', gas, 'Gwei')
-        print('maxFeePerGas ', maxFeePerGas, 'Gwei')
-        print('maxPriorityFeePerGas ', maxPriorityFeePerGas, 'Gwei')
-        print('nonce ', nonce)
+        print(f"{strftime('%H:%M:%S', gmtime())}: gas {gas} Gwei")
+        print(f"{strftime('%H:%M:%S', gmtime())}: maxFeePerGas {maxFeePerGas} Gwei")
+        print(f"{strftime('%H:%M:%S', gmtime())}: maxPriorityFeePerGas {maxPriorityFeePerGas} Gwei")
+        print(f"{strftime('%H:%M:%S', gmtime())}: nonce {nonce}")
         transaction = ({
             'to': Web3.to_checksum_address(txElements['receiver']),
             'value': w3.to_wei(txElements['vale'], 'ether'),
@@ -194,19 +195,19 @@ def sendMessageTransaction(privateKey: str, txElements: dict, duplicate: bool = 
         if gas < estimatedGas:
             gas = estimatedGas
             transaction.update({'gas': gas})
-            print('new gas ', gas, 'Gwei')
+            print(f"{strftime('%H:%M:%S', gmtime())}: new gas {gas} Gwei")
         lastBlockBaseFeePerGas = __getPendingBlock(txElements['provider'])['baseFeePerGas']
         if maxFeePerGas < lastBlockBaseFeePerGas:
             maxFeePerGas = lastBlockBaseFeePerGas
             transaction.update({'maxFeePerGas': maxFeePerGas})
-            print('new maxFeePerGas ', maxFeePerGas, 'Gwei')
+            print(f"{strftime('%H:%M:%S', gmtime())}: new maxFeePerGas {maxFeePerGas} Gwei")
 
         signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
-        print('rawTransaction:', signed.rawTransaction)
-        print('signed hash:', signed.hash)
-        print('r:', signed.r)
-        print('s:', signed.s)
-        print('v:', signed.v)
+        print(f"{strftime('%H:%M:%S', gmtime())}: rawTransaction: {signed.rawTransaction}")
+        print(f"{strftime('%H:%M:%S', gmtime())}: signed hash: {signed.hash.hex()}")
+        print(f"{strftime('%H:%M:%S', gmtime())}: r: {signed.r}")
+        print(f"{strftime('%H:%M:%S', gmtime())}: s: {signed.s}")
+        print(f"{strftime('%H:%M:%S', gmtime())}: v: {signed.v}")
         txHash = w3.eth.send_raw_transaction(signed.rawTransaction)
         result['message'] = 'succeed'
         result['pending'] = noncePending - nonceConfirmed
@@ -287,9 +288,9 @@ def getPublicKeyFromTransaction(TXHash: str, provider: str) -> dict:
         s = tx.s.hex()
         v = (to_standard_v(extract_chain_id(tx.v)[1]))
 
-        print('r: ', r)
-        print('s: ', s)
-        print('v: ', v)
+        print(f"{strftime('%H:%M:%S', gmtime())}: r: {r}")
+        print(f"{strftime('%H:%M:%S', gmtime())}: s: {s}")
+        print(f"{strftime('%H:%M:%S', gmtime())}: v: {v}")
 
         sg = w3.eth.account._keys.Signature(vrs=(v, int(r, 16), int(s, 16)))
 
