@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (QGridLayout, QLabel, QPushButton, QComboBox, QLineE
                              QRadioButton, QTextEdit, QMenuBar, QMenu, QStatusBar)
 from src import system, database, data, values, dataTypes, network, ethereum, account, validators, cryptography, threads
 from src.GUI import gui_error, gui_userInput, gui_userChoice, gui_message, gui_initMainWindow
+from time import gmtime, strftime
 
 
 class Ui(QMainWindow):
@@ -123,131 +124,23 @@ class Ui(QMainWindow):
             self.line_vertical = QFrame(self.gridLayoutWidget_accounts)
             #  tab webView ---------------------------------------------------------------------
             self.webEngineView = QWebEngineView(self.gridLayoutWidget_webView)
+
             self.statusbar = QStatusBar(self)
+            self.balanceThread = threads.GetBalance()
+
             self.db = database.SQLITE(dbName)
             self.transactionResult = {'message': '', 'hash': '', 'pending': 0}
             self.coins = []
             self.initMainWindow = gui_initMainWindow.WINDOW(self)
+            self.setEvents()
             self.setAddress()
-            self.getTokenList()
-            self.setClickEvents()
+            self.getCoinsList()
+
         except Exception as er:
             system.errorSignal.newError.emit(f"Ui -> __init__ -> {str(er)}")
-
-    def setAddress(self):
-        try:
-            if self.db.isTableEmpty('accounts'):  # there is no account in database
-                createAccount_window = gui_userChoice.WINDOW('Create new account', 'There is no account!',
-                                                             'Create new one?')
-                createAccount_window.exec()
-                if not createAccount_window.getAnswer():  # cancel by user
-                    gui_message.WINDOW('Create new account', 'You always can create new account or restore old one',
-                                       'Wallet -> New account').exec()
-                else:  # create first new account
-                    acc = account.New.random()  # create new account
-                    self.db.insertAccountRow(acc)
-                    self.setAddress()  # call itself to add new address in ui elements
-            else:
-                accounts = self.db.readAllRows(tableName=values.TABLE_ACCOUNT)
-                for ac in accounts:
-                    self.lineEdit_accountName.setText(str(ac[0]))
-                    self.comboBox_activeAddressVal.addItem(ac[1])
-                    self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
-        except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> setAddress -> {str(er)}")
-
-    def getTokenList(self):
-        try:
-            balanceThread = None
-
-            def endT(coins):
-                self.coins = coins
-                balanceThread.terminate()
-                for tok in coins:
-                    print(tok)
-                    self.addNewItemToComboBoxToken(tok)
-
-            tokens = data.readAllFavoriteTokens(self.db)
-            print(tokens)
-            print('='*10)
-            balanceThread = threads.GetTokenBalance(tokens,
-                                                    self.lineEdit_nodeProvider.text(),
-                                                    self.comboBox_activeAddressVal.currentText())
-            balanceThread.end.connect(endT)
-            balanceThread.start()
-        except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> initTokenList -> {str(er)}")
-
-    def addNewItemToComboBoxToken(self, item: dict):
-        try:
-            index = self.comboBox_tokens.currentIndex()
-            print(2)
-            print(dataTypes.TOKEN.LOGO.value)
-            print(item)
-            res = network.getRequest(str(item[dataTypes.TOKEN.LOGO.value]))
-            print(2.1)
-            print(res)
-            pixmap = QPixmap()
-            print(2.2)
-
-            pixmap.loadFromData(res.content)
-            print(3)
-
-            self.comboBox_tokens.insertItem(index, item[dataTypes.TOKEN.NAME.value])
-            self.comboBox_tokens.setItemIcon(index, QIcon(QIcon(pixmap)))
-            self.comboBox_tokens.setIconSize(QSize(values.ICON_SIZE, values.ICON_SIZE))
-            self.comboBox_tokens.setCurrentIndex(index)
-            self.comboBox_tokens.removeItem(self.comboBox_tokens.findText(values.COMBO_BOX_TOKEN))
-            self.comboBox_tokens.addItem('Manage tokens')
-            self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
-            self.setLabelAmountValStyleSheet(item[dataTypes.TOKEN.SYMBOL.value], float(item['balance']))
-        except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> addNewItemToComboBoxToken -> {str(er)}")
-
-    def setLabelAmountValStyleSheet(self, symbol: str, balance: float):
-        try:
-            self.label_amountVal.setText(
-                f"<span style = 'color: red; font-weight: bold;' > {balance}"
-                f"</ span> <span style = 'color: rgb(140, 170, 250); font-weight: bold;' >"
-                f" {symbol} </ span>")
-        except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> setLabelAmountValStyleSheet -> {str(er)}")
-
-    def lineEditSendValueChange(self):
-        try:
-            if self.lineEdit_sendValue.text() == '':
-                self.lineEdit_sendValue.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
-            else:
-                OldValue = float(self.lineEdit_sendValue.text())
-                OldMax = 1
-                OldMin = 0.01
-                NewMax = 65
-                NewMin = 245
-                OldRange = (OldMax - OldMin)
-                NewRange = (NewMax - NewMin)
-                NewValue = int((((OldValue - OldMin) * NewRange) / OldRange) + NewMin)
-                if NewValue < 65:
-                    NewValue = 65
-                elif NewValue > 245:
-                    NewValue = 245
-                self.lineEdit_sendValue.setStyleSheet(f'background-color: rgb(245, {NewValue}, 65); color: black')
-        except Exception as er:
-            print(str(er))
-            pass  # nothing to do
-
-    def resetStatueBarStyleSheet(self):
-        try:
-            self.statusbar.clearMessage()
-            statusbarStyle = (
-                "background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
-                "stop:0 rgb(30, 76, 108) , stop:1 rgb(47, 54, 60)); color: white;"
-            )
-            self.statusbar.setStyleSheet(statusbarStyle)
-        except Exception as er:
-            gui_error.WINDOW('resetStatueBarStyleSheet', str(er)).exec()
             exit()
 
-    def setClickEvents(self):
+    def setEvents(self):
         try:
             self.pushButton_copyAddress.clicked.connect(self.copyAddress)
             self.pushButton_etherScan.clicked.connect(self.goToEtherscan)
@@ -287,9 +180,179 @@ class Ui(QMainWindow):
             self.lineEdit_sendValue.textChanged.connect(self.lineEditSendValueChange)
             self.comboBox_activeAddressVal.currentTextChanged.connect(self.comboBoxAddressChange)
             self.comboBox_tokens.currentTextChanged.connect(self.comboBoxTokenChange)
+            self.balanceThread.finished.connect(self.close)
+            self.balanceThread.ok.connect(self.ReceiveBalance)
+
         except Exception as er:
-            gui_error.WINDOW('setClickEvents', str(er)).exec()
+            system.errorSignal.newError.emit(f"Ui -> setEvents -> {str(er)}")
             exit()
+
+    def setAddress(self):
+        try:
+            if self.db.isTableEmpty('accounts'):  # there is no account in database
+                createAccount_window = gui_userChoice.WINDOW('Create new account', 'There is no account!',
+                                                             'Create new one?')
+                createAccount_window.exec()
+                if not createAccount_window.getAnswer():  # cancel by user
+                    gui_message.WINDOW('Create new account', 'You always can create new account or restore old one',
+                                       'Wallet -> New account').exec()
+                else:  # create first new account
+                    acc = account.New.random()  # create new account
+                    self.db.insertAccountRow(acc)
+                    self.setAddress()  # call itself to add new address in ui elements
+            else:
+                accounts = self.db.readAllRows(tableName=values.TABLE_ACCOUNT)
+                for ac in accounts:
+                    self.lineEdit_accountName.setText(str(ac[0]))
+                    self.comboBox_activeAddressVal.addItem(ac[1])
+                    self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
+        except Exception as er:
+            system.errorSignal.newError.emit(f"Ui -> setAddress -> {str(er)}")
+
+    def getCoinsList(self):
+        try:
+            coins = data.readAllFavoriteTokens(self.db)
+            for coin in coins:
+                self.coins.append({dataTypes.TOKEN.NAME.value: coin[dataTypes.TOKEN.NAME.value],
+                                   dataTypes.TOKEN.SYMBOL.value: coin[dataTypes.TOKEN.SYMBOL.value],
+                                   dataTypes.TOKEN.ADDRESS.value: coin[dataTypes.TOKEN.ADDRESS.value],
+                                   dataTypes.TOKEN.LOGO.value: coin[dataTypes.TOKEN.LOGO.value],
+                                   'balance': 0})
+            for tok in self.coins:
+                self.addNewItemToComboBoxToken(tok)
+        except Exception as er:
+            system.errorSignal.newError.emit(f"Ui -> getCoinsList -> {str(er)}")
+    """
+    def getTokenBalance(self):
+        try:
+            balanceThread = None
+
+            def endT(coins):
+                self.coins = coins
+                balanceThread.quit()
+                balanceThread.exit()
+                balanceThread.terminate()
+                for tok in self.coins:
+                    self.addNewItemToComboBoxToken(tok)
+
+            tokens = data.readAllFavoriteTokens(self.db)
+            balanceThread = threads.GetTokenBalance(tokens,
+                                                    self.lineEdit_nodeProvider.text(),
+                                                    self.comboBox_activeAddressVal.currentText())
+            balanceThread.end.connect(endT)
+            balanceThread.start()
+        except Exception as er:
+            system.errorSignal.newError.emit(f"Ui -> getTokenList -> {str(er)}")
+    """
+    def addNewItemToComboBoxToken(self, item: dict):
+        try:
+            index = self.comboBox_tokens.currentIndex()
+            res = network.getRequest(str(item[dataTypes.TOKEN.LOGO.value]))
+            pixmap = QPixmap()
+            pixmap.loadFromData(res.content)
+            self.comboBox_tokens.insertItem(index, item[dataTypes.TOKEN.NAME.value])
+            self.comboBox_tokens.setItemIcon(index, QIcon(QIcon(pixmap)))
+            self.comboBox_tokens.setIconSize(QSize(values.ICON_SIZE, values.ICON_SIZE))
+            self.comboBox_tokens.setCurrentIndex(index)
+            self.comboBox_tokens.removeItem(self.comboBox_tokens.findText(values.COMBO_BOX_TOKEN))
+            self.setLabelAmountValStyleSheet(item[dataTypes.TOKEN.SYMBOL.value], float(item['balance']), 'red')
+        except Exception as er:
+            system.errorSignal.newError.emit(f"Ui -> addNewItemToComboBoxToken -> {str(er)}")
+
+    def setLabelAmountValStyleSheet(self, symbol: str, balance: float, color: str):
+        try:
+            self.label_amountVal.setText(
+                f"<span style = 'color: {color}; font-weight: bold;' > {balance}"
+                f"</ span> <span style = 'color: rgb(140, 170, 250); font-weight: bold;' >"
+                f" {symbol} </ span>")
+        except Exception as er:
+            system.errorSignal.newError.emit(f"Ui -> setLabelAmountValStyleSheet -> {str(er)}")
+
+    def comboBoxTokenChange(self):
+        try:
+            def error(msg):
+                self.statusbar.setStyleSheet("background-color: red; color: white")
+                self.statusbar.showMessage(f"balance is not synchronized. \n{msg}")
+
+            if not self.comboBox_activeAddressVal.count() == 0:  # 0 means no account available
+                if self.balanceThread.isRunning():
+                    pass  # no thing to do
+                    # self.balanceThread.quit()
+                    # self.balanceThread.exit()
+                    # self.balanceThread.terminate()
+                for coin in self.coins:
+                    if self.comboBox_tokens.currentText() == coin[dataTypes.TOKEN.NAME.value]:
+                        coinData = {
+                            'provider': self.lineEdit_nodeProvider.text(),
+                            'activeAddress': self.comboBox_activeAddressVal.currentText(),
+                            'coinsData': [coin[dataTypes.TOKEN.NAME.value],
+                                          coin[dataTypes.TOKEN.SYMBOL.value],
+                                          coin[dataTypes.TOKEN.ADDRESS.value]
+                                          ]
+                        }
+                        self.balanceThread.setCoin(coinData)
+                        self.balanceThread.error.connect(error)
+                        self.balanceThread.start()
+                        self.resetStatueBarStyleSheet()
+                    else:
+                        pass  # to continue
+                        # raise Exception(f"'{coin[dataTypes.TOKEN.NAME.value]}' is not in main list")
+        except Exception as er:
+            self.statusbar.setStyleSheet("background-color: red; color: white")
+            self.statusbar.showMessage(f"balance is not synchronized. \n{er}")
+
+    def ReceiveBalance(self, balance, symbol):
+        try:
+            if balance < 0:
+                # error in getting balance
+                self.statusbar.showMessage(f"negative balance ! something is wrong")
+            else:
+                color = 'red'
+                if balance > 0:
+                    color = 'green'
+                self.setLabelAmountValStyleSheet(symbol, float(balance), color)
+                self.resetStatueBarStyleSheet()
+                print(f"{strftime('%H:%M:%S', gmtime())}: {symbol} balance = {balance}")
+        except Exception as er:
+            print(f"{strftime('%H:%M:%S', gmtime())}: UI -> ReceiveBalance:{symbol} -> {er} ")
+
+    def resetStatueBarStyleSheet(self):
+        try:
+            self.statusbar.clearMessage()
+            statusbarStyle = (
+                "background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,"
+                "stop:0 rgb(30, 76, 108) , stop:1 rgb(47, 54, 60)); color: white;"
+            )
+            self.statusbar.setStyleSheet(statusbarStyle)
+        except Exception as er:
+            system.errorSignal.newError.emit(f"Ui -> resetStatueBarStyleSheet -> {str(er)}")
+
+    def cc(self):
+        self.comboBox_tokens.addItem('Manage tokens')
+        self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
+
+    def lineEditSendValueChange(self):
+        try:
+            if self.lineEdit_sendValue.text() == '':
+                self.lineEdit_sendValue.setStyleSheet('background-color: rgb(250, 240, 200); color: black')
+            else:
+                OldValue = float(self.lineEdit_sendValue.text())
+                OldMax = 1
+                OldMin = 0.01
+                NewMax = 65
+                NewMin = 245
+                OldRange = (OldMax - OldMin)
+                NewRange = (NewMax - NewMin)
+                NewValue = int((((OldValue - OldMin) * NewRange) / OldRange) + NewMin)
+                if NewValue < 65:
+                    NewValue = 65
+                elif NewValue > 245:
+                    NewValue = 245
+                self.lineEdit_sendValue.setStyleSheet(f'background-color: rgb(245, {NewValue}, 65); color: black')
+        except Exception as er:
+            print(str(er))
+            pass  # nothing to do
+
 
     def changeNetwork(self):
         try:
@@ -321,21 +384,6 @@ class Ui(QMainWindow):
         except Exception as er:
             gui_error.WINDOW("comboBoxChange", str(er)).exec()
 
-    def comboBoxTokenChange(self):
-        try:
-            index = self.comboBox_tokens.currentIndex()
-            if self.comboBox_tokens.currentText() == 'Add costume token':
-                contractWindow = gui_userInput.WINDOW("comboBoxTokenChange",
-                                                      "enter token contracts")
-                contractWindow.exec()
-                contract = contractWindow.getInput()
-                if not contract:
-                    self.comboBox_tokens.setCurrentIndex(index)  # last selected index
-                else:
-                    self.addTokensByContract(contract)
-        except Exception as er:
-            gui_error.WINDOW('addNewTokenToList', str(er)).exec()
-
     def editAccountName(self):
         try:
             if self.pushButton_accountName.text() == 'Edit':
@@ -357,7 +405,6 @@ class Ui(QMainWindow):
                                              self.comboBox_activeAddressVal.currentText())
         except Exception as er:
             gui_error.WINDOW('editAccountName', str(er)).exec()
-
 
     def createAccountRandom(self):
         try:
@@ -568,33 +615,6 @@ class Ui(QMainWindow):
                         raise Exception(f"failed to receive {secretType.name} from database.")
         except Exception as er:
             gui_error.WINDOW('showSecrets', str(er)).exec()
-
-    def getBalance(self):
-        try:
-            if not self.comboBox_activeAddressVal.count() == 0:  # 0 means no account available
-                validators.checkURI(self.lineEdit_nodeProvider.text())
-                balance = ethereum.getBalance(self.comboBox_activeAddressVal.currentText(),
-                                              self.lineEdit_nodeProvider.text())
-                if balance < 0:
-                    # error in getting balance
-                    self.statusbar.showMessage(f"negative balance ! something is wrong")
-                else:
-                    color = 'red'
-                    if balance > 0:
-                        color = 'green'
-                    symbol = 'None'
-                    for token in self.coins['list']:
-                        if token['symbol'] == self.comboBox_tokens.currentText():
-                            symbol = token['symbol']
-                    self.label_amountVal.setText(
-                        f"<span style = 'color: {color}; font-weight: bold;' >  {str(balance)}"
-                        f"</ span> <span style = 'color: rgb(140, 170, 250); font-weight: bold;' >"
-                        f" {symbol} </ span>")
-                    self.resetStatueBarStyleSheet()
-                    print('balance = ', balance)
-        except Exception as er:
-            self.statusbar.setStyleSheet("background-color: red; color: white")
-            self.statusbar.showMessage(f"balance is not synchronized. {er}")
 
     def transactionElements(self, data: str = ''):
         try:

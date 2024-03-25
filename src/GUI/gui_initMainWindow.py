@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QFrame, QTabWidget
 from PyQt6.QtCore import QSize, QRect, QUrl
 from PyQt6.QtGui import QIcon
-from src import system, database, data, values, dataTypes, network, ethereum, account, validators, cryptography
+from src import system, values
 
 
 class WINDOW:

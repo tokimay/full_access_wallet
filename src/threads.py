@@ -5,14 +5,33 @@ from src import data, system
 
 
 class GetBalance(QThread):
-    def __init__(self, window):
-        super().__init__()
-        self.window = window
+    ok = pyqtSignal(float, str)
+    error = pyqtSignal(str)
+
+    def __init__(self, coinData=None):
+        try:
+            super().__init__()
+            self.coinData = coinData
+        except Exception as er:
+            self.error.emit(f"__init__:Thread -> run -> {er}")
+
+    def setCoin(self, coinData):
+        try:
+            self.coinData = coinData
+        except Exception as er:
+            self.error.emit(f"setCoin:Thread -> run -> {er}")
 
     def run(self):
         while True:
-            sleep(5)
-            self.window.getBalance()
+            try:
+                if self.coinData is not None:
+                    balance, symbol = data.getCoinBalance(self.coinData)
+                    self.ok.emit(balance, symbol)
+                    sleep(5)
+                else:
+                    self.terminate()
+            except Exception as er:
+                self.error.emit(f"GetBalance:Thread -> run -> {er}")
 
 
 class GetTokenBalance(QThread):
@@ -24,12 +43,21 @@ class GetTokenBalance(QThread):
         self.provider = provider
         self.address = address
 
+
+"""
     def run(self):
         try:
             tokenList = data.getAccountTokens(self.tokens, self.provider, self.address)
+            print('theread token===================================================')
+            for n in tokenList:
+                print(n)
+            print('theread token===================================================')
+
             self.end.emit(tokenList)
         except Exception as er:
             system.errorSignal.emit(f"GetTokenBalance:Thread -> run -> {er}")
+
+"""
 
 
 class AddToken(QThread):

@@ -7,8 +7,6 @@ APP = QApplication(argv)
 
 
 db = database.SQLITE(values.DB_NAME)
-getBalance = False
-
 try:
     db.initializeNew()
     if db.isTableEmpty(values.TABLE_TOKEN):
@@ -18,15 +16,4 @@ except Exception as er:
     exit()
 window = gui_mainWindow.Ui(values.DB_NAME)
 window.show()
-
-
-try:
-    if getBalance:
-        balanceThread = threads.GetBalance(window)
-        balanceThread.finished.connect(APP.exit)
-        balanceThread.start()
-except Exception as er:
-    gui_error.WINDOW('FAwallet', str(er)).exec()
-    exit()
-
 APP.exec()
