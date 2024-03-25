@@ -13,13 +13,15 @@ class GetBalance(QThread):
             super().__init__()
             self.coinData = coinData
         except Exception as er:
-            self.error.emit(f"__init__:Thread -> run -> {er}")
+            # self.error.emit(f"__init__:Thread -> run -> {er}")
+            self.error.emit(f"{er}")
 
     def setCoin(self, coinData):
         try:
             self.coinData = coinData
         except Exception as er:
-            self.error.emit(f"setCoin:Thread -> run -> {er}")
+            # self.error.emit(f"setCoin:Thread -> run -> {er}")
+            self.error.emit(f"{er}")
 
     def run(self):
         while True:
@@ -31,7 +33,8 @@ class GetBalance(QThread):
                 else:
                     self.terminate()
             except Exception as er:
-                self.error.emit(f"GetBalance:Thread -> run -> {er}")
+                # self.error.emit(f"GetBalance:Thread -> run -> {er}")
+                self.error.emit(f"{er}")
 
 
 class GetTokenBalance(QThread):

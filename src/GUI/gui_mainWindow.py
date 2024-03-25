@@ -178,6 +178,7 @@ class Ui(QMainWindow):
             self.radioButton_testNet.toggled.connect(self.networkChange)
             # -------------------------------------------------------------------------------------------------------
             self.lineEdit_sendValue.textChanged.connect(self.lineEditSendValueChange)
+            self.lineEdit_nodeProvider.textChanged.connect(self.lineEditProviderChange)
             self.comboBox_activeAddressVal.currentTextChanged.connect(self.comboBoxAddressChange)
             self.comboBox_tokens.currentTextChanged.connect(self.comboBoxTokenChange)
             self.balanceThread.finished.connect(self.close)
@@ -364,6 +365,7 @@ class Ui(QMainWindow):
                 self.lineEdit_nodeProvider.setText(values.SEPOLIA_PROVIDER)
             else:
                 raise Exception("unknown network status")
+            self.comboBox_tokens.currentTextChanged.emit('')  # send signal to run function
         except Exception as er:
             system.errorSignal.newError.emit(f"Ui -> networkChange -> {er}")
 
@@ -382,6 +384,12 @@ class Ui(QMainWindow):
                 self.comboBox_tokens.currentTextChanged.emit('')  # send signal to run function
         except Exception as er:
             system.errorSignal.newError.emit(f"Ui -> comboBoxAddressChange -> {er}")
+
+    def lineEditProviderChange(self):
+        try:
+            self.comboBox_tokens.currentTextChanged.emit('')
+        except Exception as er:
+            system.errorSignal.newError.emit(f"Ui -> lineEditProviderChange -> {er}")
 
     def editAccountName(self):
         try:

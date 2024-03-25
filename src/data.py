@@ -86,4 +86,5 @@ def getCoinBalance(data: dict) -> tuple[float, str]:
             balance = balance / 1000000
         return balance, data['coinsData'][1]
     except Exception as er:
-        raise Exception(f"getCoinBalance -> {er}")
+        # raise Exception(f"getCoinBalance -> {er}")
+        raise Exception(f"{er}")
