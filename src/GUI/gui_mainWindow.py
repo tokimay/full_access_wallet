@@ -137,7 +137,7 @@ class Ui(QMainWindow):
             self.getCoinsList()
 
         except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> __init__ -> {str(er)}")
+            system.errorSignal.newError.emit(f"Ui -> __init__ -> {er}")
             exit()
 
     def setEvents(self):
@@ -174,8 +174,8 @@ class Ui(QMainWindow):
             self.action_transactionMessage.triggered.connect(self.showCustomTransactionMessage)
             self.action_pendingTransactions.triggered.connect(self.showPendingTransactions)
             # -------------------------------------------------------------------------------------------------------
-            self.radioButton_mainNet.toggled.connect(self.changeNetwork)
-            self.radioButton_testNet.toggled.connect(self.changeNetwork)
+            self.radioButton_mainNet.toggled.connect(self.networkChange)
+            self.radioButton_testNet.toggled.connect(self.networkChange)
             # -------------------------------------------------------------------------------------------------------
             self.lineEdit_sendValue.textChanged.connect(self.lineEditSendValueChange)
             self.comboBox_activeAddressVal.currentTextChanged.connect(self.comboBoxAddressChange)
@@ -184,7 +184,7 @@ class Ui(QMainWindow):
             self.balanceThread.ok.connect(self.ReceiveBalance)
 
         except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> setEvents -> {str(er)}")
+            system.errorSignal.newError.emit(f"Ui -> setEvents -> {er}")
             exit()
 
     def setAddress(self):
@@ -207,7 +207,7 @@ class Ui(QMainWindow):
                     self.comboBox_activeAddressVal.addItem(ac[1])
                     self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
         except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> setAddress -> {str(er)}")
+            system.errorSignal.newError.emit(f"Ui -> setAddress -> {er}")
 
     def getCoinsList(self):
         try:
@@ -221,7 +221,8 @@ class Ui(QMainWindow):
             for tok in self.coins:
                 self.addNewItemToComboBoxToken(tok)
         except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> getCoinsList -> {str(er)}")
+            system.errorSignal.newError.emit(f"Ui -> getCoinsList -> {er}")
+
     """
     def getTokenBalance(self):
         try:
@@ -244,6 +245,7 @@ class Ui(QMainWindow):
         except Exception as er:
             system.errorSignal.newError.emit(f"Ui -> getTokenList -> {str(er)}")
     """
+
     def addNewItemToComboBoxToken(self, item: dict):
         try:
             index = self.comboBox_tokens.currentIndex()
@@ -257,7 +259,7 @@ class Ui(QMainWindow):
             self.comboBox_tokens.removeItem(self.comboBox_tokens.findText(values.COMBO_BOX_TOKEN))
             self.setLabelAmountValStyleSheet(item[dataTypes.TOKEN.SYMBOL.value], float(item['balance']), 'red')
         except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> addNewItemToComboBoxToken -> {str(er)}")
+            system.errorSignal.newError.emit(f"Ui -> addNewItemToComboBoxToken -> {er}")
 
     def setLabelAmountValStyleSheet(self, symbol: str, balance: float, color: str):
         try:
@@ -266,40 +268,7 @@ class Ui(QMainWindow):
                 f"</ span> <span style = 'color: rgb(140, 170, 250); font-weight: bold;' >"
                 f" {symbol} </ span>")
         except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> setLabelAmountValStyleSheet -> {str(er)}")
-
-    def comboBoxTokenChange(self):
-        try:
-            def error(msg):
-                self.statusbar.setStyleSheet("background-color: red; color: white")
-                self.statusbar.showMessage(f"balance is not synchronized. \n{msg}")
-
-            if not self.comboBox_activeAddressVal.count() == 0:  # 0 means no account available
-                if self.balanceThread.isRunning():
-                    pass  # no thing to do
-                    # self.balanceThread.quit()
-                    # self.balanceThread.exit()
-                    # self.balanceThread.terminate()
-                for coin in self.coins:
-                    if self.comboBox_tokens.currentText() == coin[dataTypes.TOKEN.NAME.value]:
-                        coinData = {
-                            'provider': self.lineEdit_nodeProvider.text(),
-                            'activeAddress': self.comboBox_activeAddressVal.currentText(),
-                            'coinsData': [coin[dataTypes.TOKEN.NAME.value],
-                                          coin[dataTypes.TOKEN.SYMBOL.value],
-                                          coin[dataTypes.TOKEN.ADDRESS.value]
-                                          ]
-                        }
-                        self.balanceThread.setCoin(coinData)
-                        self.balanceThread.error.connect(error)
-                        self.balanceThread.start()
-                        self.resetStatueBarStyleSheet()
-                    else:
-                        pass  # to continue
-                        # raise Exception(f"'{coin[dataTypes.TOKEN.NAME.value]}' is not in main list")
-        except Exception as er:
-            self.statusbar.setStyleSheet("background-color: red; color: white")
-            self.statusbar.showMessage(f"balance is not synchronized. \n{er}")
+            system.errorSignal.newError.emit(f"Ui -> setLabelAmountValStyleSheet -> {er}")
 
     def ReceiveBalance(self, balance, symbol):
         try:
@@ -325,11 +294,46 @@ class Ui(QMainWindow):
             )
             self.statusbar.setStyleSheet(statusbarStyle)
         except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> resetStatueBarStyleSheet -> {str(er)}")
+            system.errorSignal.newError.emit(f"Ui -> resetStatueBarStyleSheet -> {er}")
 
-    def cc(self):
-        self.comboBox_tokens.addItem('Manage tokens')
-        self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
+    def comboBoxTokenChange(self):
+        try:
+            def error(msg):
+                self.statusbar.setStyleSheet("background-color: red; color: white")
+                self.statusbar.showMessage(f"balance is not synchronized. \n{msg}")
+
+            if not self.comboBox_activeAddressVal.count() == 0:  # 0 means no account available
+                self.setLabelAmountValStyleSheet('None', 0, 'White')  # reset and wait to get balance
+                if self.balanceThread.isRunning():
+                    pass  # nothing to do
+                    # self.balanceThread.quit()
+                    # self.balanceThread.exit()
+                    # self.balanceThread.terminate()
+                for coin in self.coins:
+                    if self.comboBox_tokens.currentText() == coin[dataTypes.TOKEN.NAME.value]:
+                        coinData = {
+                            'provider': self.lineEdit_nodeProvider.text(),
+                            'activeAddress': self.comboBox_activeAddressVal.currentText(),
+                            'coinsData': [
+                                coin[dataTypes.TOKEN.NAME.value],
+                                coin[dataTypes.TOKEN.SYMBOL.value],
+                                coin[dataTypes.TOKEN.ADDRESS.value]
+                            ]
+                        }
+                        self.balanceThread.setCoin(coinData)
+                        #print('is signal connect')
+                        #print(self.balanceThread.isSignalConnected(self.balanceThread.error))
+                        #if not self.balanceThread.isSignalConnected(self.balanceThread.error):
+                        self.balanceThread.error.connect(error)
+                        if not self.balanceThread.isRunning():
+                            self.balanceThread.start()
+                        self.resetStatueBarStyleSheet()
+                    else:
+                        pass  # to continue
+                        # raise Exception(f"'{coin[dataTypes.TOKEN.NAME.value]}' is not in main list")
+        except Exception as er:
+            self.statusbar.setStyleSheet("background-color: red; color: white")
+            self.statusbar.showMessage(f"balance is not synchronized. \n{er}")
 
     def lineEditSendValueChange(self):
         try:
@@ -350,11 +354,9 @@ class Ui(QMainWindow):
                     NewValue = 245
                 self.lineEdit_sendValue.setStyleSheet(f'background-color: rgb(245, {NewValue}, 65); color: black')
         except Exception as er:
-            print(str(er))
-            pass  # nothing to do
+            print(f"{strftime('%H:%M:%S', gmtime())}: {er}")
 
-
-    def changeNetwork(self):
+    def networkChange(self):
         try:
             if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
                 self.lineEdit_nodeProvider.setText(values.ETHEREUM_PROVIDER)
@@ -363,26 +365,23 @@ class Ui(QMainWindow):
             else:
                 raise Exception("unknown network status")
         except Exception as er:
-            gui_error.WINDOW('changeNetwork', str(er)).exec()
+            system.errorSignal.newError.emit(f"Ui -> networkChange -> {er}")
 
     def comboBoxAddressChange(self):
         try:
             if self.comboBox_activeAddressVal.count() == 0:
                 self.lineEdit_accountName.clear()
-                symbol = 'None'
-                for token in self.coins['list']:
-                    if token['data']['name'] == self.comboBox_tokens.currentText():
-                        symbol = token['symbol']
-                self.label_amountVal.setText(
-                    "<span style = 'color: red; font-weight: bold;' > 0"
-                    f"</ span> <span style = 'color: rgb(140, 170, 250); font-weight: bold;' >"
-                    f" {symbol} </ span>")
+                self.setLabelAmountValStyleSheet('None', 0, 'White')
             else:
-                name = self.db.readColumn('accounts', 'NAM', 'ADR',
-                                          self.comboBox_activeAddressVal.currentText())[0][0]
+                name = self.db.readColumn(tableName=values.TABLE_ACCOUNT,
+                                          columnName=dataTypes.ACCOUNT.NAME.value,
+                                          condition=dataTypes.ACCOUNT.ADDRESS.value,
+                                          conditionVal=self.comboBox_activeAddressVal.currentText())[0][0]
                 self.lineEdit_accountName.setText(name)
+                self.setLabelAmountValStyleSheet('None', 0, 'White')  # reset and wait to get balance
+                self.comboBox_tokens.currentTextChanged.emit('')  # send signal to run function
         except Exception as er:
-            gui_error.WINDOW("comboBoxChange", str(er)).exec()
+            system.errorSignal.newError.emit(f"Ui -> comboBoxAddressChange -> {er}")
 
     def editAccountName(self):
         try:
@@ -404,13 +403,13 @@ class Ui(QMainWindow):
                                              self.lineEdit_accountName.text(), 'ADR',
                                              self.comboBox_activeAddressVal.currentText())
         except Exception as er:
-            gui_error.WINDOW('editAccountName', str(er)).exec()
+            system.errorSignal.newError.emit(f"Ui -> editAccountName -> {er}")
 
     def createAccountRandom(self):
         try:
             userAnswer = True
             doIt = True
-            if self.db.isTableEmpty(values.TABLE_ACCOUNT):
+            if self.db.isTableEmpty(tableName=values.TABLE_ACCOUNT):
                 createAccount_window = gui_userChoice.WINDOW('Create new random account',
                                                              'Some account(s) already exist',
                                                              'Create new one?')
@@ -425,7 +424,7 @@ class Ui(QMainWindow):
                 self.comboBox_activeAddressVal.addItem(acc['address'])
                 self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
         except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> createAccountRandom -> {str(er)}")
+            system.errorSignal.newError.emit(f"Ui -> createAccountRandom -> {er}")
 
     def createAccountFromEntropy(self):
         try:
@@ -438,12 +437,12 @@ class Ui(QMainWindow):
                                    'you can try again from Wallet -> New account -> Recover from entropy').exec()
             else:
                 acc = account.New.fromEntropy(entropy)
-                acc['name'] = 'No name'
                 self.db.insertAccountRow(acc)
+                self.lineEdit_accountName.setText(acc['name'])
                 self.comboBox_activeAddressVal.addItem(acc['address'])
                 self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
         except Exception as er:
-            gui_error.WINDOW('createAccountFromEntropy', str(er)).exec()
+            system.errorSignal.newError.emit(f"Ui -> createAccountFromEntropy -> {er}")
 
     def createAccountFromPrivateKey(self):
         try:
@@ -456,12 +455,27 @@ class Ui(QMainWindow):
                                    'you can try again from Wallet -> New account -> Recover from private key').exec()
             else:
                 acc = account.New.fromPrivateKey(privateKey)
-                acc['name'] = 'No name'
-                self.db.insertAccountRow(acc)
+                self.lineEdit_accountName.setText(acc['name'])
                 self.comboBox_activeAddressVal.addItem(acc['address'])
                 self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
         except Exception as er:
-            gui_error.WINDOW('createAccountFromPrivateKey', str(er)).exec()
+            system.errorSignal.newError.emit(f"Ui -> createAccountFromPrivateKey -> {er}")
+
+    def createAccountFromMnemonic(self):
+        try:
+            getMnemonic = gui_userInput.WINDOW('Recover account from mnemonic', 'Enter your mnemonic:')
+            getMnemonic.exec()
+            mnemonic = getMnemonic.getInput()
+            if mnemonic == '':
+                gui_message.WINDOW('Recover account from mnemonic', 'Nothing received',
+                                   'you can try again from Wallet -> New account -> Recover from mnemonic').exec()
+            else:
+                acc = account.New.fromMnemonic(mnemonic)
+                self.lineEdit_accountName.setText(acc['name'])
+                self.comboBox_activeAddressVal.addItem(acc['address'])
+                self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
+        except Exception as er:
+            system.errorSignal.newError.emit(f"Ui -> createAccountFromMnemonic -> {er}")
 
     def createViewOnlyAccount(self):
         try:
@@ -481,27 +495,8 @@ class Ui(QMainWindow):
                 self.db.insertAccountRow(acc)
                 self.comboBox_activeAddressVal.addItem(acc['address'])
                 self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
-            else:
-                pass
         except Exception as er:
-            gui_error.WINDOW('createViewOnlyAccount', str(er)).exec()
-
-    def createAccountFromMnemonic(self):
-        try:
-            getMnemonic = gui_userInput.WINDOW('Recover account from mnemonic', 'Enter your mnemonic:')
-            getMnemonic.exec()
-            mnemonic = getMnemonic.getInput()
-            if mnemonic == '':
-                gui_message.WINDOW('Recover account from mnemonic', 'Nothing received',
-                                   'you can try again from Wallet -> New account -> Recover from mnemonic').exec()
-            else:
-                acc = account.New.fromMnemonic(mnemonic)
-                acc['name'] = 'No name'
-                self.db.insertAccountRow(acc)
-                self.comboBox_activeAddressVal.addItem(acc['address'])
-                self.comboBox_activeAddressVal.setCurrentIndex(self.comboBox_activeAddressVal.count() - 1)
-        except Exception as er:
-            gui_error.WINDOW('createAccountFromMnemonic', str(er)).exec()
+            system.errorSignal.newError.emit(f"Ui -> createViewOnlyAccount -> {er}")
 
     def goToEtherscan(self):
         try:
@@ -518,7 +513,7 @@ class Ui(QMainWindow):
                 else:
                     raise Exception("unknown network status")
         except Exception as er:
-            gui_error.WINDOW('goToEtherscan', str(er)).exec()
+            system.errorSignal.newError.emit(f"Ui -> goToEtherscan -> {er}")
 
     def goToEtherNodes(self):
         try:
@@ -531,7 +526,7 @@ class Ui(QMainWindow):
             else:
                 raise Exception("unknown network status")
         except Exception as er:
-            gui_error.WINDOW('goToEtherNodes', str(er)).exec()
+            system.errorSignal.newError.emit(f"Ui -> goToEtherNodes -> {er}")
 
     def copyAddress(self):
         try:
@@ -540,7 +535,7 @@ class Ui(QMainWindow):
                 copy(active_address)
             # spam = pyperclip.paste()
         except Exception as er:
-            gui_error.WINDOW('copyAddress', str(er)).exec()
+            system.errorSignal.newError.emit(f"Ui -> copyAddress -> {er}")
 
     def showSecrets(self, secretType: dataTypes.ACCOUNT):
         try:
@@ -558,10 +553,10 @@ class Ui(QMainWindow):
                             condition=dataTypes.ACCOUNT.ADDRESS.value,
                             conditionVal=self.comboBox_activeAddressVal.currentText()
                         ) == self.db.readColumn(
-                    tableName=values.TABLE_ACCOUNT,
-                    columnName=dataTypes.ACCOUNT.PRIVATE_KEY.value,
-                    condition=dataTypes.ACCOUNT.ADDRESS.value,
-                    conditionVal=self.comboBox_activeAddressVal.currentText())):
+                            tableName=values.TABLE_ACCOUNT,
+                            columnName=dataTypes.ACCOUNT.PRIVATE_KEY.value,
+                            condition=dataTypes.ACCOUNT.ADDRESS.value,
+                            conditionVal=self.comboBox_activeAddressVal.currentText())):
                     gui_message.WINDOW('Show secrets',
                                        'You have recovered an old account.',
                                        'Entropy is not recoverable from private key').exec()
@@ -572,10 +567,10 @@ class Ui(QMainWindow):
                             condition=dataTypes.ACCOUNT.ADDRESS.value,
                             conditionVal=self.comboBox_activeAddressVal.currentText()
                         ) == self.db.readColumn(
-                    tableName=values.TABLE_ACCOUNT,
-                    columnName=dataTypes.ACCOUNT.PRIVATE_KEY.value,
-                    condition=dataTypes.ACCOUNT.ADDRESS.value,
-                    conditionVal=self.comboBox_activeAddressVal.currentText())):
+                            tableName=values.TABLE_ACCOUNT,
+                            columnName=dataTypes.ACCOUNT.PRIVATE_KEY.value,
+                            condition=dataTypes.ACCOUNT.ADDRESS.value,
+                            conditionVal=self.comboBox_activeAddressVal.currentText())):
                     gui_message.WINDOW('Show secrets',
                                        'You have recovered an old account.',
                                        'Mnemonic is not recoverable from private key').exec()
@@ -614,9 +609,9 @@ class Ui(QMainWindow):
                     else:
                         raise Exception(f"failed to receive {secretType.name} from database.")
         except Exception as er:
-            gui_error.WINDOW('showSecrets', str(er)).exec()
+            system.errorSignal.newError.emit(f"Ui -> showSecrets -> {er}")
 
-    def transactionElements(self, data: str = ''):
+    def transactionElements(self, txData: str = ''):
         try:
             if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
                 chainId = 1  # Ethereum chain ID
@@ -643,12 +638,12 @@ class Ui(QMainWindow):
                     'vale': val,
                     'provider': self.lineEdit_nodeProvider.text(),
                     'chainId': chainId,
-                    'data': data
+                    'data': txData
                 }
             else:
                 raise Exception("selecting main or test net")
         except Exception as er:
-            gui_error.WINDOW('transactionElements', str(er)).exec()
+            system.errorSignal.newError.emit(f"Ui -> transactionElements -> {er}")
 
     def showPendingTransactions(self):
         pendingBlock = ethereum.getPendingTransactions(self.lineEdit_nodeProvider.text())
@@ -678,7 +673,7 @@ class Ui(QMainWindow):
                 self.lineEdit_message.clear()
                 self.lineEdit_sendAddress.clear()
         except Exception as er:
-            gui_error.WINDOW('send', str(er)).exec()
+            system.errorSignal.newError.emit(f"Ui -> send -> {er}")
             if self.transactionResult['message'] == 'replacement transaction underpriced':
                 nonceWindow = gui_userChoice.WINDOW('send',
                                                     f"{self.transactionResult['pending']} transaction(s) "

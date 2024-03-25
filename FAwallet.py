@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QApplication
 from sys import argv
-from src import values, threads, database, dataTypes, data
-from src.GUI import gui_error, gui_mainWindow, gui_userChoice, gui_message, gui_processBar
+from src import values, database
+from src.GUI import gui_error, gui_mainWindow, gui_processBar
 
 APP = QApplication(argv)
 
