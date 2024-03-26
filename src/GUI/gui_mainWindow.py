@@ -129,10 +129,13 @@ class Ui(QMainWindow):
             self.balanceThread = threads.GetBalance()
 
             self.db = database.SQLITE(dbName)
-            self.transactionResult = {'message': '', 'hash': '', 'pending': 0}
+            # self.transactionResult = {'message': '', 'hash': '', 'pending': 0}
+            self.transactionResult = {}
+
             self.coins = []
             self.initMainWindow = gui_initMainWindow.WINDOW(self)
-            self.setEvents()
+            self._setEvents()
+            self._setNetWork()
             self.setAddress()
             self.getCoinsList()
 
@@ -140,14 +143,14 @@ class Ui(QMainWindow):
             system.errorSignal.newError.emit(f"Ui -> __init__ -> {er}")
             exit()
 
-    def setEvents(self):
+    def _setEvents(self):
         try:
             self.pushButton_copyAddress.clicked.connect(self.copyAddress)
             self.pushButton_etherScan.clicked.connect(self.goToEtherscan)
             self.pushButton_nodeProvider.clicked.connect(self.goToEtherNodes)
             self.pushButton_accountName.clicked.connect(self.editAccountName)
             self.pushButton_deleteAccount.clicked.connect(self.deleteAccount)
-            self.pushButton_send.clicked.connect(self.send)
+            self.pushButton_send.clicked.connect(self.sendERC20Transaction)
             # Wallets-New wallet---------------------------------------------------------------------------------
             self.action_newRandomAccount.triggered.connect(self.createAccountRandom)
             self.action_recoverFromMnemonic.triggered.connect(self.createAccountFromMnemonic)
@@ -185,8 +188,7 @@ class Ui(QMainWindow):
             self.balanceThread.ok.connect(self.ReceiveBalance)
 
         except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> setEvents -> {er}")
-            exit()
+            raise Exception('_setEvents -> ', str(er))
 
     def setAddress(self):
         try:
@@ -210,45 +212,44 @@ class Ui(QMainWindow):
         except Exception as er:
             system.errorSignal.newError.emit(f"Ui -> setAddress -> {er}")
 
+    def _setNetWork(self):
+        try:
+            if not self.comboBox_tokens.currentText() == values.COMBO_BOX_TOKEN:  # COMBO_BOX_TOKEN = initialize
+                netType = self.db.readColumn(tableName=values.TABLE_TOKEN,
+                                             columnName=dataTypes.TOKEN.TYPE.value,
+                                             condition=dataTypes.TOKEN.NAME.value,
+                                             conditionVal=self.comboBox_tokens.currentText())
+                if netType[0][0] == 'MainNet' or not netType[0][0]:
+                    self.radioButton_mainNet.setChecked(True)
+                    self.radioButton_testNet.setChecked(False)
+                elif netType[0][0] == 'Sepolia':
+                    self.radioButton_mainNet.setChecked(False)
+                    self.radioButton_testNet.setChecked(True)
+                else:
+                    raise Exception(f"netWork type")
+        except Exception as er:
+            raise Exception('_setMainNet -> ', str(er))
+
     def getCoinsList(self):
         try:
             coins = data.readAllFavoriteTokens(self.db)
             for coin in coins:
                 self.coins.append({dataTypes.TOKEN.NAME.value: coin[dataTypes.TOKEN.NAME.value],
                                    dataTypes.TOKEN.SYMBOL.value: coin[dataTypes.TOKEN.SYMBOL.value],
+                                   dataTypes.TOKEN.TYPE.value: coin[dataTypes.TOKEN.TYPE.value],
                                    dataTypes.TOKEN.ADDRESS.value: coin[dataTypes.TOKEN.ADDRESS.value],
+                                   dataTypes.TOKEN.CHAIN_ID.value: coin[dataTypes.TOKEN.CHAIN_ID.value],
                                    dataTypes.TOKEN.LOGO.value: coin[dataTypes.TOKEN.LOGO.value],
+                                   dataTypes.TOKEN.ABI.value: coin[dataTypes.TOKEN.ABI.value],
                                    'balance': 0})
             for tok in self.coins:
                 self.addNewItemToComboBoxToken(tok)
         except Exception as er:
             system.errorSignal.newError.emit(f"Ui -> getCoinsList -> {er}")
 
-    """
-    def getTokenBalance(self):
-        try:
-            balanceThread = None
-
-            def endT(coins):
-                self.coins = coins
-                balanceThread.quit()
-                balanceThread.exit()
-                balanceThread.terminate()
-                for tok in self.coins:
-                    self.addNewItemToComboBoxToken(tok)
-
-            tokens = data.readAllFavoriteTokens(self.db)
-            balanceThread = threads.GetTokenBalance(tokens,
-                                                    self.lineEdit_nodeProvider.text(),
-                                                    self.comboBox_activeAddressVal.currentText())
-            balanceThread.end.connect(endT)
-            balanceThread.start()
-        except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> getTokenList -> {str(er)}")
-    """
-
     def addNewItemToComboBoxToken(self, item: dict):
         try:
+            self._setNetWork()
             index = self.comboBox_tokens.currentIndex()
             res = network.getRequest(str(item[dataTypes.TOKEN.LOGO.value]))
             pixmap = QPixmap()
@@ -299,6 +300,8 @@ class Ui(QMainWindow):
 
     def comboBoxTokenChange(self):
         try:
+            self._setNetWork()
+
             def error(msg):
                 self.statusbar.setStyleSheet("background-color: red; color: white")
                 self.statusbar.showMessage(f"balance is not synchronized. \n{msg}")
@@ -322,9 +325,9 @@ class Ui(QMainWindow):
                             ]
                         }
                         self.balanceThread.setCoin(coinData)
-                        #print('is signal connect')
-                        #print(self.balanceThread.isSignalConnected(self.balanceThread.error))
-                        #if not self.balanceThread.isSignalConnected(self.balanceThread.error):
+                        # print('is signal connect')
+                        # print(self.balanceThread.isSignalConnected(self.balanceThread.error))
+                        # if not self.balanceThread.isSignalConnected(self.balanceThread.error):
                         self.balanceThread.error.connect(error)
                         if not self.balanceThread.isRunning():
                             self.balanceThread.start()
@@ -561,10 +564,10 @@ class Ui(QMainWindow):
                             condition=dataTypes.ACCOUNT.ADDRESS.value,
                             conditionVal=self.comboBox_activeAddressVal.currentText()
                         ) == self.db.readColumn(
-                            tableName=values.TABLE_ACCOUNT,
-                            columnName=dataTypes.ACCOUNT.PRIVATE_KEY.value,
-                            condition=dataTypes.ACCOUNT.ADDRESS.value,
-                            conditionVal=self.comboBox_activeAddressVal.currentText())):
+                    tableName=values.TABLE_ACCOUNT,
+                    columnName=dataTypes.ACCOUNT.PRIVATE_KEY.value,
+                    condition=dataTypes.ACCOUNT.ADDRESS.value,
+                    conditionVal=self.comboBox_activeAddressVal.currentText())):
                     gui_message.WINDOW('Show secrets',
                                        'You have recovered an old account.',
                                        'Entropy is not recoverable from private key').exec()
@@ -575,10 +578,10 @@ class Ui(QMainWindow):
                             condition=dataTypes.ACCOUNT.ADDRESS.value,
                             conditionVal=self.comboBox_activeAddressVal.currentText()
                         ) == self.db.readColumn(
-                            tableName=values.TABLE_ACCOUNT,
-                            columnName=dataTypes.ACCOUNT.PRIVATE_KEY.value,
-                            condition=dataTypes.ACCOUNT.ADDRESS.value,
-                            conditionVal=self.comboBox_activeAddressVal.currentText())):
+                    tableName=values.TABLE_ACCOUNT,
+                    columnName=dataTypes.ACCOUNT.PRIVATE_KEY.value,
+                    condition=dataTypes.ACCOUNT.ADDRESS.value,
+                    conditionVal=self.comboBox_activeAddressVal.currentText())):
                     gui_message.WINDOW('Show secrets',
                                        'You have recovered an old account.',
                                        'Mnemonic is not recoverable from private key').exec()
@@ -619,7 +622,7 @@ class Ui(QMainWindow):
         except Exception as er:
             system.errorSignal.newError.emit(f"Ui -> showSecrets -> {er}")
 
-    def transactionElements(self, txData: str = ''):
+    def _transactionElements(self, txData: str = ''):
         try:
             if self.radioButton_mainNet.isChecked() and not self.radioButton_testNet.isChecked():
                 chainId = 1  # Ethereum chain ID
@@ -639,7 +642,7 @@ class Ui(QMainWindow):
                 else:
                     to = self.lineEdit_sendAddress.text()
                 validators.checkURI(self.lineEdit_nodeProvider.text())
-                print('chainId = ', chainId)
+                print(f"{strftime('%H:%M:%S', gmtime())}: chainId = {chainId}")
                 return {
                     'sender': self.comboBox_activeAddressVal.currentText(),
                     'receiver': to,
@@ -651,53 +654,9 @@ class Ui(QMainWindow):
             else:
                 raise Exception("selecting main or test net")
         except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> transactionElements -> {er}")
+            raise Exception('transactionElements -> ', str(er))
 
-    def showPendingTransactions(self):
-        pendingBlock = ethereum.getPendingTransactions(self.lineEdit_nodeProvider.text())
-        print()
-
-    def send(self, duplicate: bool = False):
-        try:
-            if self.lineEdit_message.text():
-                self.sentMessage(duplicate)
-            elif not self.lineEdit_message.text() and self.lineEdit_sendValue.text():
-                self.sentETH(duplicate)
-            elif not self.lineEdit_message.text() and not self.lineEdit_sendValue.text():
-                raise Exception(f"sending options are empty")
-            else:
-                raise Exception(f"send parameters!")
-            print(self.transactionResult)
-            if self.transactionResult['message'] == 'succeed':
-                gui_message.WINDOW("Your job is done', 'Transaction succeed:",
-                                   f"Hash: {self.transactionResult['hash']}").exec()
-                self.showTransaction(self.transactionResult['hash'])
-                cursor = QTextCursor(self.textEdit_main.document())
-                cursor.setPosition(0)
-                self.textEdit_main.setTextCursor(cursor)
-                self.textEdit_main.insertPlainText(f"transaction Hash:\n{self.transactionResult['hash']}\n"
-                                                   f"--------------------\n")
-                self.lineEdit_sendValue.clear()
-                self.lineEdit_message.clear()
-                self.lineEdit_sendAddress.clear()
-        except Exception as er:
-            system.errorSignal.newError.emit(f"Ui -> send -> {er}")
-            if self.transactionResult['message'] == 'replacement transaction underpriced':
-                nonceWindow = gui_userChoice.WINDOW('send',
-                                                    f"{self.transactionResult['pending']} transaction(s) "
-                                                    f"also waiting for confirmation.\n"
-                                                    f"you can change transaction nonce and force it to submit.",
-                                                    f"(if you see this message repeatedly, "
-                                                    f"cancel this dialog and wait for pending transaction fate)\n"
-                                                    f"want to do it or cancel it?")
-                nonceWindow.exec()
-                userAnswer = nonceWindow.getAnswer()
-                if not userAnswer:
-                    pass
-                else:
-                    self.send(True)
-
-    def setPriority(self, transactions, gas) -> dict:
+    def _setPriority(self, transactions, gas) -> dict:
         try:
             if self.comboBox_GasFeePriority.currentIndex() == 0:
                 transactions['maxFeePerGas'] = gas['MAX_Fee']['high']
@@ -715,83 +674,9 @@ class Ui(QMainWindow):
                 raise Exception(f"unknown priority")
             return transactions
         except Exception as er:
-            raise Exception(f"setPriority -> {er}")
+            raise Exception('setPriority -> ', str(er))
 
-    def sentETH(self, duplicate: bool = False):
-        try:
-            if not self.lineEdit_sendAddress.text():
-                raise Exception(f"address = '{self.lineEdit_sendAddress.text()}' !")
-
-            if not self.lineEdit_sendValue.text():
-                raise Exception(f"value = '{self.lineEdit_sendValue.text()}' !")
-
-            transactions = self.transactionElements()
-            gas = ethereum.estimateGas(transactions)
-            senETH = gui_userChoice.WINDOW('Sending your money to others',
-                                           f"Send: {transactions['vale']} ETH\n"
-                                           f"to: '{transactions['receiver']}'\n"
-                                           f"estimated gas fee is:\n"
-                                           f"Lowest: {gas['GasPrice']['low']} ETH\n"
-                                           f"Median: {gas['GasPrice']['medium']} ETH\n"
-                                           f"Highest: {gas['GasPrice']['high']} ETH\n",
-                                           'Are you sure?')
-            senETH.exec()
-            if not senETH.getAnswer():  # cancel by user
-                gui_message.WINDOW('I\'m entranced with joy', 'You are in safe',
-                                   'Nothing has been sent').exec()
-            else:
-                transactions = self.setPriority(transactions, gas)
-                transactionResult = ethereum.sendValueTransaction(
-                    privateKey=(self.db.readColumn('accounts',
-                                                   dataTypes.ACCOUNT.PRIVATE_KEY.value, 'ADR',
-                                                   transactions['sender']))[0][0],
-                    txElements=transactions,
-                    duplicate=duplicate)
-                self.transactionResult = transactionResult
-                if self.transactionResult['message'] != 'succeed':
-                    raise Exception(f"{self.transactionResult['message']}")
-        except Exception as er:
-            raise Exception(f"sentETH -> {er}")
-
-    def sentMessage(self, duplicate: bool = False):
-        try:
-            if not self.lineEdit_sendAddress.text():
-                raise Exception(f"address = '{self.lineEdit_sendAddress.text()}' !")
-
-            if not self.lineEdit_message.text():
-                raise Exception(f"message = '{self.lineEdit_sendValue.text()}' !")
-            message = self.lineEdit_message.text()
-
-            transactions = self.transactionElements(data=message.encode("utf-8").hex())
-            gas = ethereum.estimateGas(transactions)
-            senMSG = gui_userChoice.WINDOW("Sending your message to others",
-                                           f"Send message: '{message}'\n"
-                                           f"and value: '{transactions['vale']}' ETH\n"
-                                           f"to {transactions['receiver']}\n"
-                                           f"\nestimated gas fee is:\n"
-                                           f"Lowest = {gas['GasPrice']['low']} ETH\n"
-                                           f"Median = {gas['GasPrice']['medium']} ETH\n"
-                                           f"Highest = {gas['GasPrice']['high']} ETH\n",
-                                           'Are you sure?')
-            senMSG.exec()
-            if not senMSG.getAnswer():  # cancel by user
-                gui_message.WINDOW('I\'m entranced with joy', 'You are in safe',
-                                   'Nothing has been sent').exec()
-            else:
-                transactions = self.setPriority(transactions, gas)
-                transactionResult = ethereum.sendMessageTransaction(
-                    privateKey=(self.db.readColumn('accounts',
-                                                   dataTypes.ACCOUNT.PRIVATE_KEY.value, 'ADR',
-                                                   transactions['sender']))[0][0],
-                    txElements=transactions,
-                    duplicate=duplicate)
-                self.transactionResult = transactionResult
-                if self.transactionResult['message'] != 'succeed':
-                    raise Exception(f"{self.transactionResult['message']}")
-        except Exception as er:
-            raise Exception(f"sentMessage -> {er}")
-
-    def showTransaction(self, txHash):
+    def _showTransaction(self, txHash):
         try:
             validators.checkURI(self.lineEdit_nodeProvider.text())
             validators.checkHex(txHash)
@@ -814,6 +699,165 @@ class Ui(QMainWindow):
         except Exception as er:
             raise Exception('showTransaction -> ', str(er))
 
+    def sendERC20Transaction(self, duplicate: bool = False):
+        try:
+            if not self.lineEdit_message.text() and not self.lineEdit_sendValue.text():
+                raise Exception(f"sending options are empty")
+
+            if self.comboBox_tokens.currentText() == 'Ethereum':
+                if self.lineEdit_message.text():
+                    self._sentMessage(duplicate)
+                elif not self.lineEdit_message.text() and self.lineEdit_sendValue.text():
+                    self._sentETH(duplicate)
+            else:
+                self._sendToken(duplicate)
+            if self.transactionResult:
+                self.textEdit_main.clear()
+                self.textEdit_main.setText(f"{self.transactionResult}")
+                if self.transactionResult['message'] == 'succeed':
+                    gui_message.WINDOW("Your job is done', 'Transaction succeed:",
+                                       f"Hash: {self.transactionResult['hash']}").exec()
+                    self._showTransaction(self.transactionResult['hash'])
+                    cursor = QTextCursor(self.textEdit_main.document())
+                    cursor.setPosition(0)
+                    self.textEdit_main.setTextCursor(cursor)
+                    self.textEdit_main.insertPlainText(f"transaction Hash:\n{self.transactionResult['hash']}\n"
+                                                       f"--------------------\n")
+                    self.lineEdit_sendValue.clear()
+                    self.lineEdit_message.clear()
+                    self.lineEdit_sendAddress.clear()
+        except Exception as er:
+            system.errorSignal.newError.emit(f"Ui -> send -> {er}")
+            if self.transactionResult:
+                if self.transactionResult['message'] == 'replacement transaction underpriced':
+                    nonceWindow = gui_userChoice.WINDOW('send',
+                                                        f"{self.transactionResult['pending']} transaction(s) "
+                                                        f"also waiting for confirmation.\n"
+                                                        f"you can change transaction nonce and force it to submit.",
+                                                        f"(if you see this message repeatedly, "
+                                                        f"cancel this dialog and wait for pending transaction fate)\n"
+                                                        f"want to do it or cancel it?")
+                    nonceWindow.exec()
+                    userAnswer = nonceWindow.getAnswer()
+                    if not userAnswer:
+                        pass
+                    else:
+                        self.sendERC20Transaction(True)
+
+    def _sendToken(self, duplicate):
+        try:
+            if not self.lineEdit_sendAddress.text():
+                raise Exception(f"address = '{self.lineEdit_sendAddress.text()}' !")
+
+            if not self.lineEdit_sendValue.text():
+                raise Exception(f"value = '{self.lineEdit_sendValue.text()}' !")
+            token = self.comboBox_tokens.currentText()
+            transactions = self._transactionElements()
+            contractAddress, abi, chainID = data.getTokenInfo(self.coins, token)
+            transactions['chainId'] = chainID
+            transactions['abi'] = abi
+            transactions['contractAddress'] = contractAddress
+            gas = ethereum.estimateGas(transactions)
+            senToken = gui_userChoice.WINDOW('Sending your money to others',
+                                             f"Send: {transactions['vale']} {token}\n"
+                                             f"to: '{transactions['receiver']}'\n"
+                                             f"estimated gas fee is:\n"
+                                             f"Lowest: {gas['GasPrice']['low']} ETH\n"
+                                             f"Median: {gas['GasPrice']['medium']} ETH\n"
+                                             f"Highest: {gas['GasPrice']['high']} ETH\n",
+                                             'Are you sure?')
+            senToken.exec()
+            if not senToken.getAnswer():  # cancel by user
+                gui_message.WINDOW('I\'m entranced with joy', 'You are in safe',
+                                   'Nothing has been sent').exec()
+            else:
+                transactions = self._setPriority(transactions, gas)
+                transactionResult = ethereum.sendTokenTransaction(
+                    privateKey=(self.db.readColumn('accounts',
+                                                   dataTypes.ACCOUNT.PRIVATE_KEY.value, 'ADR',
+                                                   transactions['sender']))[0][0],
+                    txElements=transactions,
+                    duplicate=duplicate)
+                self.transactionResult = transactionResult
+                if self.transactionResult['message'] != 'succeed':
+                    raise Exception(f"{self.transactionResult['message']}")
+        except Exception as er:
+            raise Exception(f"_sendToken -> {er}")
+
+    def _sentETH(self, duplicate: bool = False):
+        try:
+            if not self.lineEdit_sendAddress.text():
+                raise Exception(f"address = '{self.lineEdit_sendAddress.text()}' !")
+
+            if not self.lineEdit_sendValue.text():
+                raise Exception(f"value = '{self.lineEdit_sendValue.text()}' !")
+
+            transactions = self._transactionElements()
+            gas = ethereum.estimateGas(transactions)
+            senETH = gui_userChoice.WINDOW('Sending your money to others',
+                                           f"Send: {transactions['vale']} ETH\n"
+                                           f"to: '{transactions['receiver']}'\n"
+                                           f"estimated gas fee is:\n"
+                                           f"Lowest: {gas['GasPrice']['low']} ETH\n"
+                                           f"Median: {gas['GasPrice']['medium']} ETH\n"
+                                           f"Highest: {gas['GasPrice']['high']} ETH\n",
+                                           'Are you sure?')
+            senETH.exec()
+            if not senETH.getAnswer():  # cancel by user
+                gui_message.WINDOW('I\'m entranced with joy', 'You are in safe',
+                                   'Nothing has been sent').exec()
+            else:
+                transactions = self._setPriority(transactions, gas)
+                transactionResult = ethereum.sendValueTransaction(
+                    privateKey=(self.db.readColumn('accounts',
+                                                   dataTypes.ACCOUNT.PRIVATE_KEY.value, 'ADR',
+                                                   transactions['sender']))[0][0],
+                    txElements=transactions,
+                    duplicate=duplicate)
+                self.transactionResult = transactionResult
+                if self.transactionResult['message'] != 'succeed':
+                    raise Exception(f"{self.transactionResult['message']}")
+        except Exception as er:
+            raise Exception(f"_sentETH -> {er}")
+
+    def _sentMessage(self, duplicate: bool = False):
+        try:
+            if not self.lineEdit_sendAddress.text():
+                raise Exception(f"address = '{self.lineEdit_sendAddress.text()}' !")
+
+            if not self.lineEdit_message.text():
+                raise Exception(f"message = '{self.lineEdit_sendValue.text()}' !")
+            message = self.lineEdit_message.text()
+
+            transactions = self._transactionElements(txData=message.encode("utf-8").hex())
+            gas = ethereum.estimateGas(transactions)
+            senMSG = gui_userChoice.WINDOW("Sending your message to others",
+                                           f"Send message: '{message}'\n"
+                                           f"and value: '{transactions['vale']}' ETH\n"
+                                           f"to {transactions['receiver']}\n"
+                                           f"\nestimated gas fee is:\n"
+                                           f"Lowest = {gas['GasPrice']['low']} ETH\n"
+                                           f"Median = {gas['GasPrice']['medium']} ETH\n"
+                                           f"Highest = {gas['GasPrice']['high']} ETH\n",
+                                           'Are you sure?')
+            senMSG.exec()
+            if not senMSG.getAnswer():  # cancel by user
+                gui_message.WINDOW('I\'m entranced with joy', 'You are in safe',
+                                   'Nothing has been sent').exec()
+            else:
+                transactions = self._setPriority(transactions, gas)
+                transactionResult = ethereum.sendMessageTransaction(
+                    privateKey=(self.db.readColumn('accounts',
+                                                   dataTypes.ACCOUNT.PRIVATE_KEY.value, 'ADR',
+                                                   transactions['sender']))[0][0],
+                    txElements=transactions,
+                    duplicate=duplicate)
+                self.transactionResult = transactionResult
+                if self.transactionResult['message'] != 'succeed':
+                    raise Exception(f"{self.transactionResult['message']}")
+        except Exception as er:
+            raise Exception(f"_sentMessage -> {er}")
+
     def showTransactionMessage(self, txHash):
         try:
             validators.checkURI(self.lineEdit_nodeProvider.text())
@@ -834,7 +878,7 @@ class Ui(QMainWindow):
             cursor.setPosition(0)
             self.textEdit_main.setTextCursor(cursor)
         except Exception as er:
-            gui_error.WINDOW('showTransactionMessage', str(er)).exec()
+            system.errorSignal.newError.emit(f"Ui -> showTransactionMessage -> {er}")
 
     def showCustomTransaction(self):
         try:
@@ -845,7 +889,7 @@ class Ui(QMainWindow):
             TXHash = TXHashWindow.getInput()
             if TXHash:
                 validators.checkHex(TXHash)
-                self.showTransaction(TXHash)
+                self._showTransaction(TXHash)
         except Exception as er:
             gui_error.WINDOW('showCustomTransaction', str(er)).exec()
 
@@ -1141,3 +1185,7 @@ class Ui(QMainWindow):
                 gui_message.WINDOW('deleteAccount', 'the account was deleted.').exec()
         except Exception as er:
             gui_error.WINDOW('deleteAccount', str(er)).exec()
+
+    def showPendingTransactions(self):
+        pendingBlock = ethereum.getPendingTransactions(self.lineEdit_nodeProvider.text())
+        print()

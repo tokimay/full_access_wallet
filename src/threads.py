@@ -47,22 +47,6 @@ class GetTokenBalance(QThread):
         self.address = address
 
 
-"""
-    def run(self):
-        try:
-            tokenList = data.getAccountTokens(self.tokens, self.provider, self.address)
-            print('theread token===================================================')
-            for n in tokenList:
-                print(n)
-            print('theread token===================================================')
-
-            self.end.emit(tokenList)
-        except Exception as er:
-            system.errorSignal.emit(f"GetTokenBalance:Thread -> run -> {er}")
-
-"""
-
-
 class AddToken(QThread):
     signalData = pyqtSignal(int)
     error = pyqtSignal(str)
@@ -87,7 +71,7 @@ class AddToken(QThread):
             count = len(self.tokens['list'])
             i = 1
             for tok in self.tokens['list']:
-                if tok['symbol'] == 'ETH' or tok['symbol'] == 'USDT':
+                if tok['symbol'] == 'ETH' or tok['symbol'] == 'USDT' or tok['data']['type'] == 'Sepolia':
                     tok['favorite'] = True
                 else:
                     tok['favorite'] = False

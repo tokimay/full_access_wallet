@@ -110,6 +110,7 @@ class SQLITE:
                     {dataTypes.TOKEN.SYMBOL.value} CHARACTER(20) NOT NULL, 
                     {dataTypes.TOKEN.TYPE.value} CHARACTER(20) NOT NULL, 
                     {dataTypes.TOKEN.DECIMALS.value} INT NOT NULL, 
+                    {dataTypes.TOKEN.CHAIN_ID.value} INT NOT NULL, 
                     {dataTypes.TOKEN.FAVORITE.value} BOOLEAN NOT NULL,
                     {dataTypes.TOKEN.LOGO.value} TEXT NOT NULL,                  
                     {dataTypes.TOKEN.ABI.value} BLOB NOT NULL);"""
@@ -139,16 +140,18 @@ class SQLITE:
                 f"{dataTypes.TOKEN.SYMBOL.value}, "
                 f"{dataTypes.TOKEN.TYPE.value}, "
                 f"{dataTypes.TOKEN.DECIMALS.value}, "
+                f"{dataTypes.TOKEN.CHAIN_ID.value}, "
                 f"{dataTypes.TOKEN.FAVORITE.value}, "
                 f"{dataTypes.TOKEN.LOGO.value}, "
                 f"{dataTypes.TOKEN.ABI.value})"
-                f"VALUES (?, ?, ?, ?, ?, ?, ?, ?);",
+                f"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
                 (
                     str(token['data']['name']),
                     str(token['data']['address']),
                     str(token['symbol']),
                     str(token['data']['type']),
                     int(token['data']['decimals']),
+                    int(token['data']['chainID']),
                     bool(token['favorite']),
                     str(token['data']['logoURI']),
                     str(token['data']['abi'])

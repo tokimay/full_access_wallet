@@ -10,7 +10,10 @@ from src import network, values
 from src.validators import checkURI
 
 
-def getBalance(address: str, provider: str) -> float:
+def getBalance(
+        address: str,
+        provider: str
+) -> float:
     try:
         checkURI(provider)
         w3 = Web3(HTTPProvider(provider))
@@ -22,11 +25,15 @@ def getBalance(address: str, provider: str) -> float:
             balance = w3.eth.get_balance(address_CKSM)
             return w3.from_wei(balance, 'ether')
     except Exception as er:
-        print(getBalance , er)
         raise Exception(f"getBalance -> {er}")
 
 
-def getTokenBalance(provider: str, contractAddress: str, targetAddress: str, abi: list = None) -> float:
+def getTokenBalance(
+        provider: str,
+        contractAddress: str,
+        targetAddress: str,
+        abi: list = None
+) -> float:
     try:
         checkURI(provider)
         w3 = Web3(HTTPProvider(provider))
@@ -41,7 +48,9 @@ def getTokenBalance(provider: str, contractAddress: str, targetAddress: str, abi
         raise Exception(f"getTokenBalance -> {er} \naddress: {contractAddress}\nprovider: {provider}")
 
 
-def estimateGas(txElements: dict) -> dict:
+def estimateGas(
+        txElements: dict
+) -> dict:
     try:
         BaseFeeMultiplier = {"low": 1,  # 1.10,  # 10% increase
                              "medium": 1.25,  # 1.30,  # 20% increase
@@ -102,7 +111,11 @@ def estimateGas(txElements: dict) -> dict:
         raise Exception(f"estimateGas -> {er}")
 
 
-def sendValueTransaction(privateKey: str, txElements: dict, duplicate: bool = False) -> dict:
+def sendValueTransaction(
+        privateKey: str,
+        txElements: dict,
+        duplicate: bool = False
+) -> dict:
     result = {'message': '', 'hash': '', 'pending': 0}
     noncePending = 0
     nonceConfirmed = 0
@@ -145,7 +158,7 @@ def sendValueTransaction(privateKey: str, txElements: dict, duplicate: bool = Fa
             gas = estimatedGas
             transaction.update({'gas': gas})
             print(f"{strftime('%H:%M:%S', gmtime())}: new gas {gas} Gwei")
-        lastBlockBaseFeePerGas = __getPendingBlock(txElements['provider'])['baseFeePerGas']
+        lastBlockBaseFeePerGas = getPendingBlock(txElements['provider'])['baseFeePerGas']
         if maxFeePerGas < lastBlockBaseFeePerGas:
             maxFeePerGas = lastBlockBaseFeePerGas
             transaction.update({'maxFeePerGas': maxFeePerGas})
@@ -171,7 +184,11 @@ def sendValueTransaction(privateKey: str, txElements: dict, duplicate: bool = Fa
         return result
 
 
-def sendMessageTransaction(privateKey: str, txElements: dict, duplicate: bool = False) -> dict:
+def sendMessageTransaction(
+        privateKey: str,
+        txElements: dict,
+        duplicate: bool = False
+) -> dict:
     result = {'message': '', 'hash': '', 'pending': 0}
     noncePending = 0
     nonceConfirmed = 0
@@ -212,7 +229,7 @@ def sendMessageTransaction(privateKey: str, txElements: dict, duplicate: bool = 
             gas = estimatedGas
             transaction.update({'gas': gas})
             print(f"{strftime('%H:%M:%S', gmtime())}: new gas {gas} Gwei")
-        lastBlockBaseFeePerGas = __getPendingBlock(txElements['provider'])['baseFeePerGas']
+        lastBlockBaseFeePerGas = getPendingBlock(txElements['provider'])['baseFeePerGas']
         if maxFeePerGas < lastBlockBaseFeePerGas:
             maxFeePerGas = lastBlockBaseFeePerGas
             transaction.update({'maxFeePerGas': maxFeePerGas})
@@ -238,7 +255,88 @@ def sendMessageTransaction(privateKey: str, txElements: dict, duplicate: bool = 
         return result
 
 
-def getTransaction(txHash: str, provider: str) -> str:
+def sendTokenTransaction(
+        privateKey: str,
+        txElements: dict,
+        duplicate: bool = False
+) -> dict:
+    result = {'message': '', 'hash': '', 'pending': 0}
+    noncePending = 0
+    nonceConfirmed = 0
+    try:
+        checkURI(txElements['provider'])
+        w3 = Web3(HTTPProvider(txElements['provider']))
+        if not w3.is_connected():
+            raise Exception(f"connect to '{txElements['provider']}' failed.")
+
+        gas = int((w3.to_wei(txElements['GasPrice'], 'ether')) / 10000000000)
+        maxFeePerGas = int((w3.to_wei(txElements['maxFeePerGas'], 'ether')) / 10000000000)
+        maxPriorityFeePerGas = int((w3.to_wei(txElements['maxFeePerGas'], 'ether')) / 10000000000)
+        # if maxPriorityFeePerGas < 1000000000:
+        #    maxPriorityFeePerGas = 1000000000
+        nonceConfirmed = w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender']))
+        noncePending = w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender']),
+                                                    'pending')
+        if duplicate:
+            nonce = noncePending
+        else:
+            nonce = nonceConfirmed
+        print(f"{strftime('%H:%M:%S', gmtime())}: gas {gas} Gwei")
+        print(f"{strftime('%H:%M:%S', gmtime())}: maxFeePerGas {maxFeePerGas} Gwei")
+        print(f"{strftime('%H:%M:%S', gmtime())}: maxPriorityFeePerGas {maxPriorityFeePerGas} Gwei")
+        print(f"{strftime('%H:%M:%S', gmtime())}: nonce {nonce}")
+        if txElements['abi'] is None:
+            contract = w3.eth.contract(Web3.to_checksum_address(txElements['contractAddress'].lower()),
+                                       abi=getABI(txElements['contractAddress']))
+        else:
+            contract = w3.eth.contract(Web3.to_checksum_address(txElements['contractAddress'].lower()),
+                                       abi=txElements['abi'])
+        transaction = contract.functions.build_transaction({
+            'to': Web3.to_checksum_address(txElements['receiver']),
+            'value': w3.to_wei(txElements['vale'], 'ether'),
+            'gas': gas,  # 200000,
+            'maxFeePerGas': maxFeePerGas,  # 2000000000,
+            'maxPriorityFeePerGas': maxPriorityFeePerGas,  # 1000000000,
+            'nonce': w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender'])),
+            'chainId': txElements['chainId'],
+            # 'hardfork': 'petersburg',
+            'data': txElements['data']
+        })
+        estimatedGas = w3.eth.estimate_gas(transaction)
+        if gas < estimatedGas:
+            gas = estimatedGas
+            transaction.update({'gas': gas})
+            print(f"{strftime('%H:%M:%S', gmtime())}: new gas {gas} Gwei")
+        lastBlockBaseFeePerGas = getPendingBlock(txElements['provider'])['baseFeePerGas']
+        if maxFeePerGas < lastBlockBaseFeePerGas:
+            maxFeePerGas = lastBlockBaseFeePerGas
+            transaction.update({'maxFeePerGas': maxFeePerGas})
+            print(f"{strftime('%H:%M:%S', gmtime())}: new maxFeePerGas {maxFeePerGas} Gwei")
+
+        signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
+        print(f"{strftime('%H:%M:%S', gmtime())}: rawTransaction: {signed.rawTransaction}")
+        print(f"{strftime('%H:%M:%S', gmtime())}: signed hash: {signed.hash.hex()}")
+        print(f"{strftime('%H:%M:%S', gmtime())}: r: {signed.r}")
+        print(f"{strftime('%H:%M:%S', gmtime())}: s: {signed.s}")
+        print(f"{strftime('%H:%M:%S', gmtime())}: v: {signed.v}")
+        txHash = w3.eth.send_raw_transaction(signed.rawTransaction)
+        result['message'] = 'succeed'
+        result['pending'] = noncePending - nonceConfirmed
+        result['hash'] = txHash.hex()
+    except Exception as er:
+        er = str(er).replace("\'", "\"")
+        er = loads(er)
+        result['message'] = er['message']
+        result['pending'] = noncePending - nonceConfirmed
+        raise Exception(f"sendTokenTransaction -> {er}")
+    finally:
+        return result
+
+
+def getTransaction(
+        txHash: str,
+        provider: str
+) -> str:
     try:
         checkURI(provider)
         w3 = Web3(HTTPProvider(provider))
@@ -251,7 +349,10 @@ def getTransaction(txHash: str, provider: str) -> str:
         raise Exception(f"getTransaction -> {er}")
 
 
-def getAccountNonce(address: str, provider: str) -> int:
+def getAccountNonce(
+        address: str,
+        provider: str
+) -> int:
     try:
         checkURI(provider)
         w3 = Web3(HTTPProvider(provider))
@@ -262,7 +363,13 @@ def getAccountNonce(address: str, provider: str) -> int:
         raise Exception(f"getAccountNonce -> {er}")
 
 
-def getTransactionHistory(address: str, provider: str, API: str, mainNet: bool, isInternal: bool) -> bytes:
+def getTransactionHistory(
+        address: str,
+        provider: str,
+        API: str,
+        mainNet: bool,
+        isInternal: bool
+) -> bytes:
     try:
         checkURI(provider)
         w3 = Web3(HTTPProvider(provider))
@@ -292,7 +399,10 @@ def getTransactionHistory(address: str, provider: str, API: str, mainNet: bool, 
         raise Exception(f"getNormalHistory -> {er}")
 
 
-def getPublicKeyFromTransaction(TXHash: str, provider: str) -> dict:
+def getPublicKeyFromTransaction(
+        TXHash: str,
+        provider: str
+) -> dict:
     try:
         checkURI(provider)
         w3 = Web3(HTTPProvider(provider))
@@ -321,12 +431,16 @@ def getPublicKeyFromTransaction(TXHash: str, provider: str) -> dict:
         raise Exception(f"getPublicKeyFromTransaction -> {er}")
 
 
-def getPendingTransactions(provider: str) -> list:
+def getPendingTransactions(
+        provider: str
+) -> list:
     checkURI(provider)
-    return __getPendingBlock(provider)['transactions']
+    return getPendingBlock(provider)['transactions']
 
 
-def __getLastBlock(provider: str) -> dict:
+def getLastBlock(
+        provider: str
+) -> dict:
     try:
         checkURI(provider)
         w3 = Web3(HTTPProvider(provider))
@@ -339,7 +453,9 @@ def __getLastBlock(provider: str) -> dict:
         raise Exception(f"getLastBlock -> {er}")
 
 
-def __getPendingBlock(provider: str) -> dict:
+def getPendingBlock(
+        provider: str
+) -> dict:
     try:
         checkURI(provider)
         w3 = Web3(HTTPProvider(provider))
@@ -352,7 +468,9 @@ def __getPendingBlock(provider: str) -> dict:
         raise Exception(f"getLastBlock -> {er}")
 
 
-def getABI(contractAddress: str) -> str:
+def getABI(
+        contractAddress: str
+) -> str:
     try:
         response = network.getRequest(f"https://api.etherscan.io/api?module=contract&action=getabi&address="
                                       f"{contractAddress}")
@@ -363,7 +481,10 @@ def getABI(contractAddress: str) -> str:
         raise Exception(f"getABI -> {er}")
 
 
-def getTokenInfo(provider: str, contractAddress: str) -> dict:
+def getTokenInfo(
+        provider: str,
+        contractAddress: str
+) -> dict:
     try:
         checkURI(provider)
         w3 = Web3(HTTPProvider(provider))

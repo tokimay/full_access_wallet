@@ -28,6 +28,7 @@ class TOKEN(Enum):
     SYMBOL = 'SYM'
     TYPE = 'TYP'
     DECIMALS = 'DML'
+    CHAIN_ID = 'CID'
     FAVORITE = False
     LOGO = 'LGO'
     ABI = 'ABI'

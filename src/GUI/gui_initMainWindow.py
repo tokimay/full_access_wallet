@@ -315,8 +315,6 @@ class WINDOW:
             self.window.comboBox_activeAddressVal.clear()
             self.window.comboBox_tokens.setCurrentIndex(0)
             self.window.comboBox_GasFeePriority.setCurrentIndex(1)
-            self.window.radioButton_mainNet.setChecked(True)
-            self.window.radioButton_testNet.setChecked(False)
             self.window.lineEdit_accountName.setEnabled(False)
             # webView  -------------------------------------------------------------------------
             self.window.webEngineView.setObjectName("webEngineView")
