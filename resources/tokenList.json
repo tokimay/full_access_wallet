@@ -8,7 +8,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ETH.jpg",
         "name": "Ethereum",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ETH"
     },
@@ -20,7 +20,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/WETH.jpg",
         "name": "WETH",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "WETH"
     },
@@ -32,7 +32,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/TUSD.jpg",
         "name": "TrueUSD",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "TUSD"
     },
@@ -44,7 +44,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/LON.jpg",
         "name": "Tokenlon",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "LON"
     },
@@ -56,7 +56,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SKL.jpg",
         "name": "SKALE Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SKL"
     },
@@ -68,7 +68,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/UFT.jpg",
         "name": "UniLend",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "UFT"
     },
@@ -80,7 +80,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ORN.jpg",
         "name": "Orion Protocol",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ORN"
     },
@@ -92,7 +92,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/RAI.jpg",
         "name": "Rai Reflex Index",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "RAI"
     },
@@ -104,7 +104,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SRK.jpg",
         "name": "SparkPoint",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SRK"
     },
@@ -116,7 +116,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/UMA.jpg",
         "name": "UMA",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "UMA"
     },
@@ -128,7 +128,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/Skey.jpg",
         "name": "SmartKey",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "Skey"
     },
@@ -140,7 +140,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BASE.jpg",
         "name": "Base Protocol",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BASE"
     },
@@ -152,7 +152,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MIR.jpg",
         "name": "Mirror Protocol",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MIR"
     },
@@ -164,7 +164,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/GRO.jpg",
         "name": "Growth DeFi",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "GRO"
     },
@@ -176,7 +176,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/LGO.jpg",
         "name": "LGO Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "LGO"
     },
@@ -188,7 +188,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/STAKE.jpg",
         "name": "xDai",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "STAKE"
     },
@@ -200,7 +200,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/YFI.jpg",
         "name": "yearn.finance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "YFI"
     },
@@ -212,7 +212,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BFC.jpg",
         "name": "Bifrost",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BFC"
     },
@@ -224,7 +224,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MINT.jpg",
         "name": "Public Mint",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MINT"
     },
@@ -236,7 +236,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/POOL.jpg",
         "name": "PoolTogether",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "POOL"
     },
@@ -248,7 +248,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BAT.jpg",
         "name": "Basic Attention Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BAT"
     },
@@ -260,7 +260,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DAO.jpg",
         "name": "DAO Maker",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DAO"
     },
@@ -272,7 +272,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MANA.jpg",
         "name": "Decentraland",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MANA"
     },
@@ -284,7 +284,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/XIO.jpg",
         "name": "Blockzero Labs",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "XIO"
     },
@@ -296,7 +296,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/PUNDIX.jpg",
         "name": "Pundi X",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "PUNDIX"
     },
@@ -308,7 +308,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/LAYER.jpg",
         "name": "Unilayer",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "LAYER"
     },
@@ -320,7 +320,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/UMX.jpg",
         "name": "UniMex Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "UMX"
     },
@@ -332,7 +332,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/1INCH.jpg",
         "name": "1INCH Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "1INCH"
     },
@@ -344,7 +344,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ARMOR.jpg",
         "name": "ARMOR",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ARMOR"
     },
@@ -356,7 +356,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/arNXM.jpg",
         "name": "Armor NXM",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "arNXM"
     },
@@ -368,7 +368,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DPI.jpg",
         "name": "DeFi Pulse Index",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DPI"
     },
@@ -380,7 +380,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DHC.jpg",
         "name": "DeltaHub Community",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DHC"
     },
@@ -392,7 +392,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/eMax.jpg",
         "name": "EthereumMax",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "eMax"
     },
@@ -404,7 +404,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/PAID.jpg",
         "name": "PAID Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "PAID"
     },
@@ -416,7 +416,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/KEX.jpg",
         "name": "KIRA Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "KEX"
     },
@@ -428,7 +428,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/PMON.jpg",
         "name": "Polychain Monsters",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "PMON"
     },
@@ -440,7 +440,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/CC10.jpg",
         "name": "Cryptocurrency Top 10 Tokens Index",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "CC10"
     },
@@ -452,7 +452,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/AUDIO.jpg",
         "name": "Audius",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "AUDIO"
     },
@@ -464,7 +464,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/REP.jpg",
         "name": "Augur",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "REP"
     },
@@ -476,7 +476,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/VSP.jpg",
         "name": "Vesper",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "VSP"
     },
@@ -488,7 +488,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MATTER.jpg",
         "name": "Antimatter.Finance Governance Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MATTER"
     },
@@ -500,7 +500,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/TOWER.jpg",
         "name": "TOWER",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "TOWER"
     },
@@ -512,7 +512,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/NFY.jpg",
         "name": "Non-Fungible Yearn",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "NFY"
     },
@@ -524,7 +524,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/KP3R.jpg",
         "name": "Keep3rV1",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "KP3R"
     },
@@ -536,7 +536,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/LEAD.jpg",
         "name": "Lead Wallet",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "LEAD"
     },
@@ -548,7 +548,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/UNI.jpg",
         "name": "Uniswap",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "UNI"
     },
@@ -560,7 +560,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/CGG.jpg",
         "name": "ChainGuardians Governance Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "CGG"
     },
@@ -572,7 +572,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/OVR.jpg",
         "name": "OVR",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "OVR"
     },
@@ -584,7 +584,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/REPv2.jpg",
         "name": "Reputation",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "REPv2"
     },
@@ -596,7 +596,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/WBTC.jpg",
         "name": "Wrapped Bitcoin",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "WBTC"
     },
@@ -608,7 +608,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/UNN.jpg",
         "name": "UNION Protocol Governance Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "UNN"
     },
@@ -620,7 +620,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SOCKS.jpg",
         "name": "Unisocks Edition 0",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SOCKS"
     },
@@ -632,7 +632,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BID.jpg",
         "name": "Bidao",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BID"
     },
@@ -644,7 +644,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/CELL.jpg",
         "name": "Cellframe",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "CELL"
     },
@@ -656,7 +656,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DGVC.jpg",
         "name": "DegenVC",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DGVC"
     },
@@ -668,7 +668,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/LEASH.jpg",
         "name": "DOGE KILLER",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "LEASH"
     },
@@ -680,7 +680,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/FROGE.jpg",
         "name": "Froge Finance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "FROGE"
     },
@@ -692,7 +692,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/HEX.jpg",
         "name": "HEX",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "HEX"
     },
@@ -704,7 +704,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/CREAM.jpg",
         "name": "Cream Finance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "CREAM"
     },
@@ -716,7 +716,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MTLX.jpg",
         "name": "Mettalex",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MTLX"
     },
@@ -728,7 +728,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/YFIM.jpg",
         "name": "Yfi.mobi",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "YFIM"
     },
@@ -740,7 +740,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ZEE.jpg",
         "name": "ZeroSwap",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ZEE"
     },
@@ -752,7 +752,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DEC.jpg",
         "name": "Decentr",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DEC"
     },
@@ -764,7 +764,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/AKITA.jpg",
         "name": "Akita Inu",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "AKITA"
     },
@@ -776,7 +776,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/wANATHA.jpg",
         "name": "Anatha",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "wANATHA"
     },
@@ -788,7 +788,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/RAMP.jpg",
         "name": "RAMP DEFI",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "RAMP"
     },
@@ -800,7 +800,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/OM.jpg",
         "name": "MANTRA",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "OM"
     },
@@ -812,7 +812,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/PRQ.jpg",
         "name": "PARSIQ",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "PRQ"
     },
@@ -824,7 +824,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SAND.jpg",
         "name": "The Sandbox",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SAND"
     },
@@ -836,7 +836,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/CVP.jpg",
         "name": "Concentrated Voting Power",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "CVP"
     },
@@ -848,7 +848,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DSLA.jpg",
         "name": "DSLA",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DSLA"
     },
@@ -860,7 +860,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/VIDYA.jpg",
         "name": "Vidya",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "VIDYA"
     },
@@ -872,7 +872,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/REN.jpg",
         "name": "Ren",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "REN"
     },
@@ -884,7 +884,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/XOR.jpg",
         "name": "SORA",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "XOR"
     },
@@ -896,7 +896,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/FUN.jpg",
         "name": "FunFair",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "FUN"
     },
@@ -908,7 +908,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BLANK.jpg",
         "name": "GoBlank",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BLANK"
     },
@@ -920,7 +920,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/PICKLE.jpg",
         "name": "Pickle Finance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "PICKLE"
     },
@@ -932,7 +932,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DF.jpg",
         "name": "dForce",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DF"
     },
@@ -944,7 +944,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/FLOKI.jpg",
         "name": "FLOKI",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "FLOKI"
     },
@@ -956,7 +956,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/OXT.jpg",
         "name": "Orchid",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "OXT"
     },
@@ -968,7 +968,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/PAXG.jpg",
         "name": "PAX Gold",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "PAXG"
     },
@@ -980,7 +980,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/WOO.jpg",
         "name": "WOO Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "WOO"
     },
@@ -992,7 +992,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/QNT.jpg",
         "name": "Quant",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "QNT"
     },
@@ -1004,7 +1004,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/JUP.jpg",
         "name": "Jupiter",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "JUP"
     },
@@ -1016,7 +1016,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ORAI.jpg",
         "name": "Oraichain Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ORAI"
     },
@@ -1028,7 +1028,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/TRU.jpg",
         "name": "TrueFi",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "TRU"
     },
@@ -1040,7 +1040,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MCB.jpg",
         "name": "MCDEX Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MCB"
     },
@@ -1052,7 +1052,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/NU.jpg",
         "name": "NuCypher",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "NU"
     },
@@ -1064,7 +1064,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/RAZOR.jpg",
         "name": "Razor Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "RAZOR"
     },
@@ -1076,7 +1076,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/LINK.jpg",
         "name": "Chainlink",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "LINK"
     },
@@ -1088,7 +1088,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/eRSDL.jpg",
         "name": "unFederalReserve",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "eRSDL"
     },
@@ -1100,7 +1100,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/pBTC.jpg",
         "name": "pTokens BTC",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "pBTC"
     },
@@ -1112,7 +1112,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BART.jpg",
         "name": "BarterTrade",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BART"
     },
@@ -1124,7 +1124,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/REVV.jpg",
         "name": "REVV",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "REVV"
     },
@@ -1136,7 +1136,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/sUSD.jpg",
         "name": "sUSD",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "sUSD"
     },
@@ -1148,7 +1148,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/HEGIC.jpg",
         "name": "Hegic",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "HEGIC"
     },
@@ -1160,7 +1160,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MARSH.jpg",
         "name": "UnMarshal",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MARSH"
     },
@@ -1172,7 +1172,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/XFI.jpg",
         "name": "Xfinance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "XFI"
     },
@@ -1184,7 +1184,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DEV.jpg",
         "name": "Dev",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DEV"
     },
@@ -1196,7 +1196,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BOND.jpg",
         "name": "BOND",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BOND"
     },
@@ -1208,7 +1208,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DEXTF.jpg",
         "name": "DEXTF Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DEXTF"
     },
@@ -1220,7 +1220,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/LUSD.jpg",
         "name": "Liquity USD",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "LUSD"
     },
@@ -1232,7 +1232,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/RLC.jpg",
         "name": "iExec RLC",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "RLC"
     },
@@ -1244,7 +1244,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/LPOOL.jpg",
         "name": "Launchpool",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "LPOOL"
     },
@@ -1256,7 +1256,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/CORE.jpg",
         "name": "cVault.finance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "CORE"
     },
@@ -1268,7 +1268,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/FLX.jpg",
         "name": "Reflexer Ungovernance Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "FLX"
     },
@@ -1280,7 +1280,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/AIOZ.jpg",
         "name": "AIOZ Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "AIOZ"
     },
@@ -1292,7 +1292,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/CFi.jpg",
         "name": "CyberFi Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "CFi"
     },
@@ -1304,7 +1304,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/WISE.jpg",
         "name": "Wise Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "WISE"
     },
@@ -1316,7 +1316,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/KYL.jpg",
         "name": "Kylin",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "KYL"
     },
@@ -1328,7 +1328,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MARK.jpg",
         "name": "Benchmark Protocol",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MARK"
     },
@@ -1340,7 +1340,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/GNO.jpg",
         "name": "Gnosis",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "GNO"
     },
@@ -1352,7 +1352,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/CHADS.jpg",
         "name": "chads.vc",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "CHADS"
     },
@@ -1364,7 +1364,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MASK.jpg",
         "name": "Mask Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MASK"
     },
@@ -1376,7 +1376,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DAI.jpg",
         "name": "Dai",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DAI"
     },
@@ -1388,7 +1388,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SUSHI.jpg",
         "name": "SushiSwap",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SUSHI"
     },
@@ -1400,7 +1400,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/FYZ.jpg",
         "name": "Fyooz",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "FYZ"
     },
@@ -1412,7 +1412,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/HOT.jpg",
         "name": "Holo",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "HOT"
     },
@@ -1424,7 +1424,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/QRX.jpg",
         "name": "QuiverX",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "QRX"
     },
@@ -1436,7 +1436,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/TRADE.jpg",
         "name": "UniTrade",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "TRADE"
     },
@@ -1448,7 +1448,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/UMB.jpg",
         "name": "Umbrella Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "UMB"
     },
@@ -1460,7 +1460,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BIRD.jpg",
         "name": "Bird.Money",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BIRD"
     },
@@ -1472,7 +1472,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/AXN.jpg",
         "name": "Axion",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "AXN"
     },
@@ -1484,7 +1484,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BMI.jpg",
         "name": "Bridge Mutual",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BMI"
     },
@@ -1496,7 +1496,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/EPAN.jpg",
         "name": "Paypolitan Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "EPAN"
     },
@@ -1508,7 +1508,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MVI.jpg",
         "name": "Metaverse Index",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MVI"
     },
@@ -1520,7 +1520,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SMARTCREDIT.jpg",
         "name": "SmartCredit Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SMARTCREDIT"
     },
@@ -1532,7 +1532,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ELON.jpg",
         "name": "Dogelon",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ELON"
     },
@@ -1544,7 +1544,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/XCAD.jpg",
         "name": "XCAD Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "XCAD"
     },
@@ -1556,7 +1556,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BBR.jpg",
         "name": "Boolberry",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BBR"
     },
@@ -1568,7 +1568,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/TORN.jpg",
         "name": "Tornado Cash",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "TORN"
     },
@@ -1580,7 +1580,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/WAXE.jpg",
         "name": "WAXE",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "WAXE"
     },
@@ -1592,7 +1592,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/buidl.jpg",
         "name": "DFOhub",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "buidl"
     },
@@ -1604,7 +1604,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MATIC.jpg",
         "name": "Polygon",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MATIC"
     },
@@ -1616,7 +1616,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/XRT.jpg",
         "name": "Robonomics",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "XRT"
     },
@@ -1628,7 +1628,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/XTK.jpg",
         "name": "xToken",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "XTK"
     },
@@ -1640,7 +1640,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/AAVE.jpg",
         "name": "Aave",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "AAVE"
     },
@@ -1652,7 +1652,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/10SET.jpg",
         "name": "Tenset",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "10SET"
     },
@@ -1664,7 +1664,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/OGN.jpg",
         "name": "Origin Protocol",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "OGN"
     },
@@ -1676,7 +1676,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/POLS.jpg",
         "name": "Polkastarter",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "POLS"
     },
@@ -1688,7 +1688,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/UBT.jpg",
         "name": "Unibright",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "UBT"
     },
@@ -1700,7 +1700,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DIA.jpg",
         "name": "DIA",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DIA"
     },
@@ -1712,7 +1712,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/FRAX.jpg",
         "name": "Frax",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "FRAX"
     },
@@ -1724,7 +1724,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/KEEP.jpg",
         "name": "KEEP Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "KEEP"
     },
@@ -1736,7 +1736,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MPH.jpg",
         "name": "88mph.app",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MPH"
     },
@@ -1748,7 +1748,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/\u2697\ufe0f.jpg",
         "name": "Alchemist",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "\u2697\ufe0f"
     },
@@ -1760,7 +1760,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DEGO.jpg",
         "name": "Dego Finance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DEGO"
     },
@@ -1772,7 +1772,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/PNT.jpg",
         "name": "pNetwork",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "PNT"
     },
@@ -1784,7 +1784,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/FXF.jpg",
         "name": "Finxflo",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "FXF"
     },
@@ -1796,7 +1796,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/GET.jpg",
         "name": "GET",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "GET"
     },
@@ -1808,7 +1808,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/PKF.jpg",
         "name": "PolkaFoundry",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "PKF"
     },
@@ -1820,7 +1820,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/FX.jpg",
         "name": "Function X",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "FX"
     },
@@ -1832,7 +1832,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SXP.jpg",
         "name": "Swipe",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SXP"
     },
@@ -1844,7 +1844,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/TBTC.jpg",
         "name": "tBTC",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "TBTC"
     },
@@ -1856,7 +1856,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/AGIX.jpg",
         "name": "SingularityNET Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "AGIX"
     },
@@ -1868,7 +1868,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/REQ.jpg",
         "name": "Request Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "REQ"
     },
@@ -1880,7 +1880,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/WHALE.jpg",
         "name": "WHALE",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "WHALE"
     },
@@ -1892,7 +1892,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/PNK.jpg",
         "name": "Pinakion",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "PNK"
     },
@@ -1904,7 +1904,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/RING.jpg",
         "name": "Evolution Land Global Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "RING"
     },
@@ -1916,7 +1916,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/CARD.jpg",
         "name": "Cardstack",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "CARD"
     },
@@ -1928,7 +1928,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/FEI.jpg",
         "name": "Fei USD",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "FEI"
     },
@@ -1940,7 +1940,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/APY.jpg",
         "name": "APY.Finance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "APY"
     },
@@ -1952,7 +1952,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SHIB.jpg",
         "name": "SHIBA INU",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SHIB"
     },
@@ -1964,7 +1964,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/OCEAN.jpg",
         "name": "Ocean Protocol",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "OCEAN"
     },
@@ -1976,7 +1976,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/STRONG.jpg",
         "name": "Strong",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "STRONG"
     },
@@ -1988,7 +1988,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SPI.jpg",
         "name": "Shopping.io",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SPI"
     },
@@ -2000,7 +2000,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BBTC.jpg",
         "name": "Binance Wrapped BTC",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BBTC"
     },
@@ -2012,7 +2012,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DOKI.jpg",
         "name": "Doki Doki Finance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DOKI"
     },
@@ -2024,7 +2024,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DELTA.jpg",
         "name": "Delta Financial",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DELTA"
     },
@@ -2036,7 +2036,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/UNISTAKE.jpg",
         "name": "Unistake",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "UNISTAKE"
     },
@@ -2048,7 +2048,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/TAD.jpg",
         "name": "Tadpole",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "TAD"
     },
@@ -2060,7 +2060,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MKR.jpg",
         "name": "Maker",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MKR"
     },
@@ -2072,7 +2072,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/GLQ.jpg",
         "name": "GraphLinq",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "GLQ"
     },
@@ -2084,7 +2084,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/FARM.jpg",
         "name": "Harvest Finance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "FARM"
     },
@@ -2096,7 +2096,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/wCRES.jpg",
         "name": "Wrapped CrescoFin",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "wCRES"
     },
@@ -2108,7 +2108,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/USDC.jpg",
         "name": "USD Coin",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "USDC"
     },
@@ -2120,7 +2120,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ANT.jpg",
         "name": "Aragon",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ANT"
     },
@@ -2132,7 +2132,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/RFOX.jpg",
         "name": "RFOX",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "RFOX"
     },
@@ -2144,7 +2144,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/LTX.jpg",
         "name": "Lattice Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "LTX"
     },
@@ -2156,7 +2156,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MTA.jpg",
         "name": "Meta",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MTA"
     },
@@ -2168,7 +2168,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/RBC.jpg",
         "name": "Rubic",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "RBC"
     },
@@ -2180,7 +2180,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/LYXe.jpg",
         "name": "LUKSO",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "LYXe"
     },
@@ -2192,7 +2192,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/NOIA.jpg",
         "name": "Syntropy",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "NOIA"
     },
@@ -2204,7 +2204,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BEL.jpg",
         "name": "Bella Protocol",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BEL"
     },
@@ -2216,7 +2216,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ETH2x-FLI.jpg",
         "name": "ETH 2x Flexible Leverage Index",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ETH2x-FLI"
     },
@@ -2228,7 +2228,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/TRAC.jpg",
         "name": "Trace Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "TRAC"
     },
@@ -2240,7 +2240,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/CEL.jpg",
         "name": "Celsius",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "CEL"
     },
@@ -2252,7 +2252,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/TKN.jpg",
         "name": "Monolith TKN",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "TKN"
     },
@@ -2264,7 +2264,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/CWS.jpg",
         "name": "Crowns",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "CWS"
     },
@@ -2276,7 +2276,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ROOM.jpg",
         "name": "OptionRoom Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ROOM"
     },
@@ -2288,7 +2288,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/UNCX.jpg",
         "name": "UniCrypt",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "UNCX"
     },
@@ -2300,7 +2300,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ADX.jpg",
         "name": "Ambire AdEx",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ADX"
     },
@@ -2312,7 +2312,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/YOP.jpg",
         "name": "YOP",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "YOP"
     },
@@ -2324,7 +2324,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/LGCY.jpg",
         "name": "LGCY Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "LGCY"
     },
@@ -2336,7 +2336,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/RFuel.jpg",
         "name": "Rio Fuel Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "RFuel"
     },
@@ -2348,7 +2348,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ZEFU.jpg",
         "name": "Zenfuse",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ZEFU"
     },
@@ -2360,7 +2360,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MINDS.jpg",
         "name": "Minds",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MINDS"
     },
@@ -2372,7 +2372,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MAHA.jpg",
         "name": "MahaDAO",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MAHA"
     },
@@ -2384,7 +2384,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/NEXO.jpg",
         "name": "Nexo",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "NEXO"
     },
@@ -2396,7 +2396,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SYNC.jpg",
         "name": "SYNC",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SYNC"
     },
@@ -2408,7 +2408,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SFI.jpg",
         "name": "saffron.finance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SFI"
     },
@@ -2420,7 +2420,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/STBZ.jpg",
         "name": "Stabilize Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "STBZ"
     },
@@ -2432,7 +2432,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/K21.jpg",
         "name": "K21",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "K21"
     },
@@ -2444,7 +2444,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ZCN.jpg",
         "name": "0chain",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ZCN"
     },
@@ -2456,7 +2456,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BAL.jpg",
         "name": "Balancer",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BAL"
     },
@@ -2468,7 +2468,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BAND.jpg",
         "name": "Band Protocol",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BAND"
     },
@@ -2480,7 +2480,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SWFL.jpg",
         "name": "Swapfolio",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SWFL"
     },
@@ -2492,7 +2492,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/LRC.jpg",
         "name": "Loopring",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "LRC"
     },
@@ -2504,7 +2504,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ERN.jpg",
         "name": "Ethernity Chain",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ERN"
     },
@@ -2516,7 +2516,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/PERP.jpg",
         "name": "Perpetual",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "PERP"
     },
@@ -2528,7 +2528,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/GYSR.jpg",
         "name": "GYSR",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "GYSR"
     },
@@ -2540,7 +2540,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/WORLD.jpg",
         "name": "World Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "WORLD"
     },
@@ -2552,7 +2552,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/COMP.jpg",
         "name": "Compound",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "COMP"
     },
@@ -2564,7 +2564,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SNX.jpg",
         "name": "Synthetix",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SNX"
     },
@@ -2576,7 +2576,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DUCK.jpg",
         "name": "DLP Duck Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DUCK"
     },
@@ -2588,7 +2588,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ENS.jpg",
         "name": "Ethereum Name Service",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ENS"
     },
@@ -2600,7 +2600,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/CHAIN.jpg",
         "name": "Chain Games",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "CHAIN"
     },
@@ -2612,7 +2612,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ZCX.jpg",
         "name": "Unizen",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ZCX"
     },
@@ -2624,7 +2624,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/PTF.jpg",
         "name": "PowerTrade Fuel",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "PTF"
     },
@@ -2636,7 +2636,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DIP.jpg",
         "name": "Decentralized Insurance Protocol",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DIP"
     },
@@ -2648,7 +2648,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/TRIBE.jpg",
         "name": "Tribe",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "TRIBE"
     },
@@ -2660,7 +2660,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/CONV.jpg",
         "name": "Convergence",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "CONV"
     },
@@ -2672,7 +2672,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/GRT.jpg",
         "name": "The Graph",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "GRT"
     },
@@ -2684,7 +2684,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ROOT.jpg",
         "name": "Rootkit Finance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ROOT"
     },
@@ -2696,7 +2696,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/KINE.jpg",
         "name": "Kine Governance Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "KINE"
     },
@@ -2708,7 +2708,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SWAP.jpg",
         "name": "TrustSwap Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SWAP"
     },
@@ -2720,7 +2720,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BEPRO.jpg",
         "name": "BEPRO Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BEPRO"
     },
@@ -2732,7 +2732,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/TVK.jpg",
         "name": "Terra Virtua Kolect",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "TVK"
     },
@@ -2744,7 +2744,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SI.jpg",
         "name": "SIREN",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SI"
     },
@@ -2756,7 +2756,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/OMG.jpg",
         "name": "OMG Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "OMG"
     },
@@ -2768,7 +2768,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/LUNA.jpg",
         "name": "Terra",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "LUNA"
     },
@@ -2780,7 +2780,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DETS.jpg",
         "name": "Dextrust",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DETS"
     },
@@ -2792,7 +2792,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/AMPL.jpg",
         "name": "Ampleforth",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "AMPL"
     },
@@ -2804,7 +2804,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/POLK.jpg",
         "name": "Polkamarkets",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "POLK"
     },
@@ -2816,7 +2816,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/CRV.jpg",
         "name": "Curve DAO Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "CRV"
     },
@@ -2828,7 +2828,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MEME.jpg",
         "name": "MEME",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MEME"
     },
@@ -2840,7 +2840,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/EXNT.jpg",
         "name": "ExNetwork Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "EXNT"
     },
@@ -2852,7 +2852,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/USDT.jpg",
         "name": "Tether",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "USDT"
     },
@@ -2864,7 +2864,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ATRI.jpg",
         "name": "Atari Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ATRI"
     },
@@ -2876,7 +2876,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/YLD.jpg",
         "name": "Yield",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "YLD"
     },
@@ -2888,7 +2888,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/COTI.jpg",
         "name": "COTI",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "COTI"
     },
@@ -2900,7 +2900,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/XCUR.jpg",
         "name": "Curate",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "XCUR"
     },
@@ -2912,7 +2912,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/INJ.jpg",
         "name": "Injective",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "INJ"
     },
@@ -2924,7 +2924,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/PLR.jpg",
         "name": "PILLAR",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "PLR"
     },
@@ -2936,7 +2936,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ZRX.jpg",
         "name": "0x",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ZRX"
     },
@@ -2948,7 +2948,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/WCELO.jpg",
         "name": "WCELO",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "WCELO"
     },
@@ -2960,7 +2960,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SUPER.jpg",
         "name": "SuperVerse",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SUPER"
     },
@@ -2972,7 +2972,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/FRM.jpg",
         "name": "Ferrum Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "FRM"
     },
@@ -2984,7 +2984,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/COIN.jpg",
         "name": "COIN",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "COIN"
     },
@@ -2996,7 +2996,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/aETHc.jpg",
         "name": "ankrETH",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "aETHc"
     },
@@ -3008,7 +3008,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MOD.jpg",
         "name": "Modefi",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MOD"
     },
@@ -3020,7 +3020,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SURF.jpg",
         "name": "SURF Finance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SURF"
     },
@@ -3032,7 +3032,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/renBTC.jpg",
         "name": "renBTC",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "renBTC"
     },
@@ -3044,7 +3044,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ID.jpg",
         "name": "Everest",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ID"
     },
@@ -3056,7 +3056,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DMG.jpg",
         "name": "DMM: Governance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DMG"
     },
@@ -3068,7 +3068,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/XED.jpg",
         "name": "Exeedme",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "XED"
     },
@@ -3080,7 +3080,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/GOVI.jpg",
         "name": "GOVI",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "GOVI"
     },
@@ -3092,7 +3092,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DPX.jpg",
         "name": "Dopex Governance Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DPX"
     },
@@ -3104,7 +3104,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/HEZ.jpg",
         "name": "Hermez Network Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "HEZ"
     },
@@ -3116,7 +3116,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SALE.jpg",
         "name": "DxSale Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SALE"
     },
@@ -3128,7 +3128,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/RLY.jpg",
         "name": "Rally",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "RLY"
     },
@@ -3140,7 +3140,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/RIO.jpg",
         "name": "Realio Network",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "RIO"
     },
@@ -3152,7 +3152,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/VRA.jpg",
         "name": "Verasity",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "VRA"
     },
@@ -3164,7 +3164,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/PUSH.jpg",
         "name": "PUSH",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "PUSH"
     },
@@ -3176,7 +3176,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/Yf-DAI.jpg",
         "name": "YfDAI.finance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "Yf-DAI"
     },
@@ -3188,7 +3188,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/FCL.jpg",
         "name": "Fractal",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "FCL"
     },
@@ -3200,7 +3200,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ENJ.jpg",
         "name": "Enjin Coin",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ENJ"
     },
@@ -3212,7 +3212,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/GIV.jpg",
         "name": "GIVLY Coin",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "GIV"
     },
@@ -3224,7 +3224,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/VISR.jpg",
         "name": "Visor.Finance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "VISR"
     },
@@ -3236,7 +3236,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/YLD.jpg",
         "name": "Yield",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "YLD"
     },
@@ -3248,7 +3248,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/HOGE.jpg",
         "name": "Hoge Finance",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "HOGE"
     },
@@ -3260,7 +3260,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/DDIM.jpg",
         "name": "DuckDaoDime",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "DDIM"
     },
@@ -3272,7 +3272,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MCO2.jpg",
         "name": "Moss Carbon Credit",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MCO2"
     },
@@ -3284,7 +3284,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/RARI.jpg",
         "name": "Rarible",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "RARI"
     },
@@ -3296,7 +3296,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/REEF.jpg",
         "name": "Reef",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "REEF"
     },
@@ -3308,7 +3308,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/AMP.jpg",
         "name": "Amp",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "AMP"
     },
@@ -3320,7 +3320,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/FSW.jpg",
         "name": "FalconSwap Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "FSW"
     },
@@ -3332,7 +3332,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/OHM.jpg",
         "name": "OlympusDAO",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "OHM"
     },
@@ -3344,7 +3344,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ILV.jpg",
         "name": "Illuvium",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ILV"
     },
@@ -3356,7 +3356,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/GALA.jpg",
         "name": "Gala",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "GALA"
     },
@@ -3368,7 +3368,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/CVX.jpg",
         "name": "Convex Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "CVX"
     },
@@ -3380,7 +3380,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SPELL.jpg",
         "name": "Spell Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SPELL"
     },
@@ -3392,7 +3392,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/SOS.jpg",
         "name": "OpenDAO",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "SOS"
     },
@@ -3404,7 +3404,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/GAS.jpg",
         "name": "Gas DAO",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "GAS"
     },
@@ -3416,7 +3416,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/BUSD.jpg",
         "name": "Binance USD",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "BUSD"
     },
@@ -3428,7 +3428,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/Metis.jpg",
         "name": "MetisDAO",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "Metis"
     },
@@ -3440,7 +3440,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/LOOKS.jpg",
         "name": "LooksRare",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "LOOKS"
     },
@@ -3452,7 +3452,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/X2Y2.jpg",
         "name": "X2Y2Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "X2Y2"
     },
@@ -3464,7 +3464,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/APE.jpg",
         "name": "ApeCoin (APE)",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "APE"
     },
@@ -3476,7 +3476,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/STG.jpg",
         "name": "StargateToken",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "STG"
     },
@@ -3488,7 +3488,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/XSGD.jpg",
         "name": "XSGD",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "XSGD"
     },
@@ -3500,7 +3500,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ZEDXION.jpg",
         "name": "ZEDXION",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "ZEDXION"
     },
@@ -3512,7 +3512,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/MAGIC.jpg",
         "name": "MAGIC",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "MAGIC"
     },
@@ -3524,7 +3524,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/PAN.jpg",
         "name": "Peter Pan",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "PAN"
     },
@@ -3536,7 +3536,7 @@
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/UNN.jpg",
         "name": "UNION Protocol Governance Token",
         "type": "ERC20",
-		"chainID": 1
+        "chainID": 1
       },
       "symbol": "UNN"
     }
