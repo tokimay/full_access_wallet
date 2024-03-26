@@ -7,7 +7,7 @@
         "decimals": 0,
         "logoURI": "https://raw.githubusercontent.com/tokimay/Full_Access_Wallet/main/resources/tokensLogo/ETH.jpg",
         "name": "Ethereum",
-        "type": "MainNet",
+        "type": "",
         "chainID": 1
       },
       "symbol": "ETH"
