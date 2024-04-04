@@ -1,3 +1,4 @@
+from decimal import Decimal
 from sys import exit
 from pyperclip import copy
 from PyQt6.QtWidgets import QFrame, QTabWidget, QMainWindow, QWidget
@@ -214,19 +215,23 @@ class Ui(QMainWindow):
 
     def _setNetWork(self):
         try:
-            if not self.comboBox_tokens.currentText() == values.COMBO_BOX_TOKEN:  # COMBO_BOX_TOKEN = initialize
-                netType = self.db.readColumn(tableName=values.TABLE_TOKEN,
-                                             columnName=dataTypes.TOKEN.TYPE.value,
-                                             condition=dataTypes.TOKEN.NAME.value,
-                                             conditionVal=self.comboBox_tokens.currentText())
-                if netType[0][0] == 'MainNet' or not netType[0][0]:
-                    self.radioButton_mainNet.setChecked(True)
-                    self.radioButton_testNet.setChecked(False)
-                elif netType[0][0] == 'Sepolia':
-                    self.radioButton_mainNet.setChecked(False)
-                    self.radioButton_testNet.setChecked(True)
-                else:
-                    raise Exception(f"netWork type")
+            print(self.comboBox_tokens.currentText())
+            if self.comboBox_tokens.currentText() == 'Ethereum':
+                pass  # ETH is available in both net
+            else:
+                if not self.comboBox_tokens.currentText() == values.COMBO_BOX_TOKEN:  # COMBO_BOX_TOKEN = initialize
+                    netType = self.db.readColumn(tableName=values.TABLE_TOKEN,
+                                                 columnName=dataTypes.TOKEN.TYPE.value,
+                                                 condition=dataTypes.TOKEN.NAME.value,
+                                                 conditionVal=self.comboBox_tokens.currentText())
+                    if netType[0][0] == 'MainNet' or not netType[0][0]:
+                        self.radioButton_mainNet.setChecked(True)
+                        self.radioButton_testNet.setChecked(False)
+                    elif netType[0][0] == 'Sepolia':
+                        self.radioButton_mainNet.setChecked(False)
+                        self.radioButton_testNet.setChecked(True)
+                    else:
+                        raise Exception(f"netWork type")
         except Exception as er:
             raise Exception('_setMainNet -> ', str(er))
 
@@ -757,7 +762,30 @@ class Ui(QMainWindow):
             transactions['chainId'] = chainID
             transactions['abi'] = abi
             transactions['contractAddress'] = contractAddress
-            gas = ethereum.estimateGas(transactions)
+            # transactions['sender'] = self.comboBox_activeAddressVal.currentText()
+
+            # gas = ethereum.estimateGas(transactions)
+            gas = {   # should be found in the better way
+                'MAXPriorityFee':
+                {
+                    'low': Decimal('0.550000'),
+                    'medium': Decimal('0.750000'),
+                    'high': Decimal('0.950000')
+                },
+                'MAX_Fee':
+                    {
+                        'low': Decimal('0.750000'),
+                        'medium': Decimal('0.950000'),
+                        'high': Decimal('1.150000')
+                    },
+                'GasPrice':
+                    {
+                        'low': Decimal('0.000200'),
+                        'medium': Decimal('0.000250'),
+                        'high': Decimal('0.000350')
+                    }
+            }
+
             senToken = gui_userChoice.WINDOW('Sending your money to others',
                                              f"Send: {transactions['vale']} {token}\n"
                                              f"to: '{transactions['receiver']}'\n"
@@ -794,6 +822,8 @@ class Ui(QMainWindow):
 
             transactions = self._transactionElements()
             gas = ethereum.estimateGas(transactions)
+            print(gas)
+            print('=' * 20)
             senETH = gui_userChoice.WINDOW('Sending your money to others',
                                            f"Send: {transactions['vale']} ETH\n"
                                            f"to: '{transactions['receiver']}'\n"

@@ -46,7 +46,6 @@ def getTokenInfo(coinsList: list, token: str) -> tuple[str, list, int]:
         chainID = 0
         exist = False
         for coin in coinsList:
-            print(coin)
             if coin[dataTypes.TOKEN.NAME.value] == token:
                 contractAddress = coin[dataTypes.TOKEN.ADDRESS.value]
                 abi = coin[dataTypes.TOKEN.ABI.value]
@@ -57,4 +56,4 @@ def getTokenInfo(coinsList: list, token: str) -> tuple[str, list, int]:
         else:
             raise Exception(f"{token} is not in your token list!")
     except Exception as er:
-            raise Exception(f"getTokenInfo -> {er}")
+        raise Exception(f"getTokenInfo -> {er}")

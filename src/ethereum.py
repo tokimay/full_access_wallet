@@ -1,6 +1,8 @@
 from json import loads, dumps
 from statistics import median
 from urllib import request
+
+import web3.middleware
 from eth_account._utils.legacy_transactions import serializable_unsigned_transaction_from_dict
 from eth_account._utils.signing import to_standard_v, extract_chain_id
 from web3 import Web3, HTTPProvider
@@ -291,28 +293,21 @@ def sendTokenTransaction(
         else:
             contract = w3.eth.contract(Web3.to_checksum_address(txElements['contractAddress'].lower()),
                                        abi=txElements['abi'])
-        transaction = contract.functions.build_transaction({
-            'to': Web3.to_checksum_address(txElements['receiver']),
-            'value': w3.to_wei(txElements['vale'], 'ether'),
-            'gas': gas,  # 200000,
-            'maxFeePerGas': maxFeePerGas,  # 2000000000,
-            'maxPriorityFeePerGas': maxPriorityFeePerGas,  # 1000000000,
-            'nonce': w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender'])),
-            'chainId': txElements['chainId'],
-            # 'hardfork': 'petersburg',
-            'data': txElements['data']
-        })
-        estimatedGas = w3.eth.estimate_gas(transaction)
-        if gas < estimatedGas:
-            gas = estimatedGas
-            transaction.update({'gas': gas})
-            print(f"{strftime('%H:%M:%S', gmtime())}: new gas {gas} Gwei")
-        lastBlockBaseFeePerGas = getPendingBlock(txElements['provider'])['baseFeePerGas']
-        if maxFeePerGas < lastBlockBaseFeePerGas:
-            maxFeePerGas = lastBlockBaseFeePerGas
-            transaction.update({'maxFeePerGas': maxFeePerGas})
-            print(f"{strftime('%H:%M:%S', gmtime())}: new maxFeePerGas {maxFeePerGas} Gwei")
-
+        contract_call = contract.functions.transfer(
+            Web3.to_checksum_address(txElements['receiver']),
+            w3.to_wei(float(txElements['vale']), 'ether')
+        )
+        transaction = contract_call.build_transaction(
+            {
+                'gas': gas,  # 200000,
+                'maxFeePerGas': maxFeePerGas,  # 2000000000,
+                'maxPriorityFeePerGas': maxPriorityFeePerGas,  # 1000000000,
+                'nonce': w3.eth.get_transaction_count(Web3.to_checksum_address(txElements['sender'])),
+                'chainId': txElements['chainId']
+                # 'hardfork': 'petersburg',
+                # 'data': txElements['data']
+             })
+        print(77)
         signed = w3.eth.account.sign_transaction(transaction, '0x' + privateKey)
         print(f"{strftime('%H:%M:%S', gmtime())}: rawTransaction: {signed.rawTransaction}")
         print(f"{strftime('%H:%M:%S', gmtime())}: signed hash: {signed.hash.hex()}")
